@@ -4,7 +4,30 @@ import VueRouter from "unplugin-vue-router/vite";
 import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
-// import OpenAPI from "vite-plugin-openapi-ts";
+import { createClient } from "@hey-api/openapi-ts";
+import type { Plugin } from "vite";
+
+/**
+ * 创建 @hey-api/openapi-ts 插件
+ * 在 Vite 启动时自动生成 API 客户端代码
+ */
+function createHeyApiPlugin(): Plugin {
+  return {
+    name: 'hey-api-plugin',
+    enforce: 'pre',
+    configResolved: async () => {
+      await createClient({
+        input: "http://127.0.0.1:4523/export/openapi/3?version=3.1",
+        output: "./src/api/generated",
+        plugins: [
+          "@hey-api/typescript",
+          "@hey-api/sdk",
+          "@hey-api/client-fetch"
+        ]
+      });
+    },
+  };
+}
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -22,8 +45,20 @@ export default defineConfig({
     Components({
       resolvers: [ElementPlusResolver()],
     }),
-    // OpenAPI({
-    //   /* OpenAPI 类型生成配置 */
-    // }),
+    createHeyApiPlugin(),
   ],
+  server:{
+    proxy:{
+      '/api': {
+        target: 'http://localhost:8085',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '/api'),
+      },
+    }
+  },
+  resolve: {
+    alias: {
+      "@": "/src",
+    },
+  },
 });
