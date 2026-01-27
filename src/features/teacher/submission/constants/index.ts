@@ -3,7 +3,7 @@
  */
 
 import type { FormFieldConfig } from '@/features/shared/types'
-import type { SubmissionStatus, StudentStatus } from '../types/submission'
+import type { SubmissionStatus, StudentStatus } from '../types'
 
 /**
  * 评分表单配置

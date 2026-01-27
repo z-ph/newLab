@@ -3,7 +3,7 @@
  */
 
 import type { FormFieldConfig } from '@/features/shared/types'
-import type { ExperimentStatus } from '../types/experiment'
+import type { ExperimentStatus } from '../types'
 
 /**
  * 实验表单配置

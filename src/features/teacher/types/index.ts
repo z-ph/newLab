@@ -3,7 +3,7 @@
  * 基于自动生成的 API 类型通过类型运算派生，避免重复定义
  *
  * 架构说明：
- * - 业务特定类型：定义在对应的模块文件中（class.ts, experiment.ts 等）
+ * - 业务特定类型：定义在对应的模块文件中（class/types, experiment/types 等）
  * - 通用类型：从 @/features/shared/types 导入
  */
 
@@ -12,7 +12,7 @@
 // ============================================================================
 
 export type {
-  // 表单相关
+  // 表���相关
   FormData,
   FormFieldConfig,
   FormDialogConfig,
@@ -37,7 +37,7 @@ export type {
   ClassDetail,
   ClassFormData,
   ClassQueryParams,
-} from './class'
+} from '../class/types'
 
 // 实验相关
 export type {
@@ -45,7 +45,7 @@ export type {
   ExperimentDetail,
   ExperimentFormData,
   ExperimentStatus,
-} from './experiment'
+} from '../experiment/types'
 
 // 步骤相关
 export type {
@@ -54,7 +54,7 @@ export type {
   VideoProcedureFormData,
   DataCollectionProcedureFormData,
   TopicProcedureFormData,
-} from './procedure'
+} from '../procedure/types'
 
 // 提交相关（包含学生相关）
 export type {
@@ -63,13 +63,13 @@ export type {
   GradingFormData,
   StudentEntity,
   StudentStatus,
-} from './submission'
+} from '../submission/types'
 
 // 成绩相关
 export type {
   GradeEntity,
   GradeFormData,
-} from './grade'
+} from '../grade/types'
 
 // 签到相关
 export type {
@@ -77,18 +77,18 @@ export type {
   AttendanceInfo,
   StudentAttendanceInfoEntity,
   AttendanceStatus,
-} from './attendance'
+} from '../attendance/types'
 
 // 统计相关
 export type {
   ClassExperimentStatistics,
   StudentCompletion,
   ProcedureStatisticsEntity,
-} from './statistics'
+} from '../statistics/types'
 
 // 菜单相关（类型安全）
 export type {
   TeacherMenuItem,
   PrimeIcon,
   MenuRouteMap,
-} from './menu'
+} from '../menu/types'
