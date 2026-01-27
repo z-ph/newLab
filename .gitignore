@@ -33,7 +33,7 @@ dist-ssr
 
 # Auto-generated files
 # OpenAPI client
-src/api/generated/
+src/core/api/generated/
 # Vue Router auto-generated types
 typed-router.d.ts
 # Auto-imports and components

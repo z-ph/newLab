@@ -9,7 +9,7 @@ import 'element-plus/dist/index.css'
 import { VueQueryPlugin } from '@tanstack/vue-query'
 
 // API 客户端配置 - 必须在应用启动时导入以设置拦截器
-import './api/config'
+import './core/api/config'
 
 const app = createApp(App)
 

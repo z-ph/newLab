@@ -2,9 +2,9 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMutation, useQuery } from '@tanstack/vue-query'
 import type { Router } from 'vue-router'
-import { postApiAuthLogin, postApiWechatLogin, getApiAuthCheckUserStatusByUsername, getApiWechatBindStatus } from '@/api/generated'
-import type { LoginResponse } from '@/api/generated'
-import { client } from '@/api/config'
+import { postApiAuthLogin, postApiWechatLogin, getApiAuthCheckUserStatusByUsername, getApiWechatBindStatus } from '@/core/api/generated'
+import type { LoginResponse } from '@/core/api/generated'
+import { client } from '@/core/api/config'
 import { ElMessage } from 'element-plus'
 
 /**
