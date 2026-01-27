@@ -46,6 +46,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
 
   return {
+    base: env.PREFIX_PATH || '/',
     plugins: [
       VueRouter({
         routesFolder: "./src/pages",
