@@ -5,8 +5,10 @@
 
 import type {
   ApiResponse,
-  LoginRequest,
+  ClassInfo,
+  Grade,
   AttendanceRecord,
+  ProcedureSubmission,
   PageResponse,
 } from './types'
 import {
@@ -64,7 +66,7 @@ export class MockApiClient {
   /**
    * 用户登录
    */
-  async login(username: string, password: string): Promise<ApiResponse<typeof mockLoginResponse>> {
+  async login(username: string, _password: string): Promise<ApiResponse<typeof mockLoginResponse>> {
     await this.delay()
     console.log(`[Mock API] 登录: username=${username}, password=***`)
     return this.createSuccessResponse(mockLoginResponse)
@@ -82,7 +84,7 @@ export class MockApiClient {
   /**
    * 设置密码
    */
-  async setPassword(password: string, confirmPassword: string): Promise<ApiResponse<boolean>> {
+  async setPassword(_password: string, _confirmPassword: string): Promise<ApiResponse<boolean>> {
     await this.delay()
     console.log(`[Mock API] 设置密码: password=***`)
     return this.createSuccessResponse(true)
@@ -195,7 +197,7 @@ export class MockApiClient {
   /**
    * 根据班级代码查询班级信息
    */
-  async getClassByCode(classCode: string): Promise<ApiResponse<typeof mockClasses[0]>> {
+  async getClassByCode(classCode: string): Promise<ApiResponse<ClassInfo | undefined>> {
     await this.delay()
     console.log(`[Mock API] 查询班级信息: classCode=${classCode}`)
     const classInfo = mockClasses.find((c) => c.classCode === classCode)
@@ -209,10 +211,10 @@ export class MockApiClient {
     classCode: string
     className: string
     courseId: number
-  }): Promise<ApiResponse<typeof mockClasses[0]>> {
+  }): Promise<ApiResponse<ClassInfo>> {
     await this.delay()
     console.log('[Mock API] 创建班级:', classData)
-    return this.createSuccessResponse(mockClasses[0])
+    return this.createSuccessResponse(mockClasses[0]!)
   }
 
   /**
@@ -389,10 +391,10 @@ export class MockApiClient {
   /**
    * 获取成绩详情
    */
-  async getGradeDetail(gradeId: number): Promise<ApiResponse<typeof mockGrades[0]>> {
+  async getGradeDetail(gradeId: number): Promise<ApiResponse<Grade>> {
     await this.delay()
     console.log(`[Mock API] 获取成绩详情: gradeId=${gradeId}`)
-    return this.createSuccessResponse(mockGrades[0])
+    return this.createSuccessResponse(mockGrades[0]!)
   }
 
   /**
@@ -459,10 +461,10 @@ export class MockApiClient {
   /**
    * 获取实验报告详情
    */
-  async getSubmissionDetail(submissionId: number): Promise<ApiResponse<typeof mockProcedureSubmissions[0]>> {
+  async getSubmissionDetail(submissionId: number): Promise<ApiResponse<ProcedureSubmission>> {
     await this.delay()
     console.log(`[Mock API] 获取实验报告详情: submissionId=${submissionId}`)
-    return this.createSuccessResponse(mockProcedureSubmissions[0])
+    return this.createSuccessResponse(mockProcedureSubmissions[0]!)
   }
 
   /**
@@ -471,7 +473,7 @@ export class MockApiClient {
   async gradeSubmission(
     submissionId: number,
     score: number,
-    comment?: string
+    _comment?: string
   ): Promise<ApiResponse<boolean>> {
     await this.delay()
     console.log(`[Mock API] 批改实验报告: submissionId=${submissionId}, score=${score}`)
@@ -484,12 +486,12 @@ export class MockApiClient {
   async uploadSubmission(
     courseId: number,
     experimentId: number,
-    fileKey: string,
-    fileName: string
-  ): Promise<ApiResponse<typeof mockProcedureSubmissions[0]>> {
+    _fileKey: string,
+    _fileName: string
+  ): Promise<ApiResponse<ProcedureSubmission>> {
     await this.delay()
     console.log(`[Mock API] 上传实验报告: courseId=${courseId}, experimentId=${experimentId}`)
-    return this.createSuccessResponse(mockProcedureSubmissions[0])
+    return this.createSuccessResponse(mockProcedureSubmissions[0]!)
   }
 
   /**
