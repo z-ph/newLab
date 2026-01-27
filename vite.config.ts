@@ -3,7 +3,7 @@ import vue from "@vitejs/plugin-vue";
 import VueRouter from "unplugin-vue-router/vite";
 import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
-import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
+import { PrimeVueResolver } from "@primevue/auto-import-resolver";
 import { createClient } from "@hey-api/openapi-ts";
 import type { Plugin } from "vite";
 import { rmSync } from "node:fs";
@@ -58,10 +58,10 @@ export default defineConfig(({ mode }) => {
       // ⚠️ Vue 必须放在 VueRouter() 之后
       vue(),
       AutoImport({
-        resolvers: [ElementPlusResolver()],
+        resolvers: [PrimeVueResolver()],
       }),
       Components({
-        resolvers: [ElementPlusResolver()],
+        resolvers: [PrimeVueResolver()],
       }),
       createHeyApiPlugin(env.VITE_OPENAPI_URL),
     ],

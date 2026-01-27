@@ -2,6 +2,7 @@ import router from "@/router";
 import { createClient } from "./generated/client";
 import { TokenManager } from "@/core/entity/TokenManager";
 import { UserManager } from "@/core/entity/UserManager";
+import { toast } from "@/core/utils/toast";
 
 /**
  * 创建 API 客户端实例
@@ -28,6 +29,7 @@ client.interceptors.response.use(async (response) => {
     // Token 过期或未授权，清除本地存储并跳转到登录页
     TokenManager.removeToken();
     UserManager.removeUserInfo();
+    toast.error("未授权，请重新登录");
     router.replace({ path: "/login" });
     throw new Error("未授权，请重新登录");
   }
@@ -43,13 +45,13 @@ client.interceptors.response.use(async (response) => {
         message?: string;
       };
     } catch {
-      ElMessage.error("JSON解析失败");
+      toast.error("JSON格式错误");
     }
     // 检查业务错误码
     if (jsonData?.code !== undefined && jsonData.code !== 200) {
       const errorMsg = jsonData.message || "未知错误";
-      ElMessage.error(errorMsg);
-      throw Error(errorMsg)
+      toast.error(errorMsg);
+      throw Error(errorMsg);
     }
   }
   return response;

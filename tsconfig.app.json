@@ -15,7 +15,6 @@
       "noFallthroughCasesInSwitch": true,
       "noUncheckedSideEffectImports": true,
       "noImplicitAny": true,
-      "types": ["element-plus/global"],
       "baseUrl": ".",
       "paths": {
           "@/*": ["src/*"]
