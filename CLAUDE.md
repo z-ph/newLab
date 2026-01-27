@@ -101,3 +101,26 @@ vite-plugin-openapi-ts 插件用于从 OpenAPI 规范生成 TypeScript 类型。
 4. **TypeScript 配置**：
    - 确保 tsconfig.app.json 的 include 数组包含 `"typed-router.d.ts"`
    - moduleResolution 必须设置为 "Bundler"
+
+## 代码规范
+
+### 类型安全（CRITICAL）
+
+**禁止使用 `as any` 类型断言**
+
+- ❌ **禁止**：`const value = unknownValue as any`
+- ✅ **正确做法**：
+  - 使用类型守卫：`if (typeof value === 'string') { ... }`
+  - 使用泛型：`function identity<T>(value: T): T { return value }`
+  - 定义明确的类型接口
+  - 使用类型断言时指定具体类型：`value as SpecificType`
+
+**理由**：
+- `as any` 会完全破坏 TypeScript 的类型检查
+- 掩盖真实的问题，导致运行时错误
+- 违背了项目使用 TypeScript 的初衷
+
+如果遇到类型问题，应该：
+1. 检查类型定义是否正确
+2. 使用类型守卫进行类型收窄
+3. 改进类型定义，而不是绕过类型检查
