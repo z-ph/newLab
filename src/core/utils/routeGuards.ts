@@ -95,7 +95,7 @@ export function setupRouteGuards(router: Router): void {
     if (!hasToken || !isTokenValid) {
       // 未登录或 token 已过期，跳转到登录页
       next({
-        path: '/login',
+        name: '/login' as PublicRoute,
         query: to.path !== '/login' ? { redirect: to.fullPath } : undefined,
       })
       return
@@ -116,7 +116,7 @@ export function setupRouteGuards(router: Router): void {
     if (!userRole) {
       // 没有角色信息，跳转到登录页
       next({
-        path: '/login',
+        name: '/login' as PublicRoute,
         query: { redirect: to.fullPath },
       })
       return

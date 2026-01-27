@@ -14,15 +14,30 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import type { RouteNamedMap } from 'vue-router/auto-routes'
 import Button from 'primevue/button'
 import { MENU_ITEMS } from '@/features/teacher/constants'
 
 const route = useRoute()
 
+/**
+ * 获取当前页面的标题
+ *
+ * 使用路由名称进行类型安全的匹配，而不是路径字符串比较
+ * route.name 是从 RouteNamedMap 派��的类型安全值
+ */
 const pageTitle = computed(() => {
-  const matched = MENU_ITEMS.find(
-    (item) => route.path === item.path || route.path.startsWith(item.path + '/')
-  )
+  // 将路由名称转换为字符串进行比较
+  const currentRouteName = route.name as keyof RouteNamedMap | undefined
+
+  // 在菜单项中查找匹配的路由
+  const matched = MENU_ITEMS.find((item) => {
+    // item.path 的类型是 TeacherRoutePath（从 RouteNamedMap 派生）
+    // 将其视为路由名称进行比较
+    const itemRouteName = item.path as keyof RouteNamedMap
+    return currentRouteName === itemRouteName
+  })
+
   return matched?.title || '教师管理后台'
 })
 </script>

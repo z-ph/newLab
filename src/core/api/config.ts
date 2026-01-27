@@ -3,6 +3,10 @@ import { createClient } from "./generated/client";
 import { TokenManager } from "@/core/entity/TokenManager";
 import { UserManager } from "@/core/entity/UserManager";
 import { toast } from "@/core/utils/toast";
+import type { RouteNamedMap } from "vue-router/auto-routes";
+
+// 从 RouteNamedMap 提取公开路由类型
+type PublicRoute = keyof RouteNamedMap & ("/" | "/login");
 
 /**
  * 创建 API 客户端实例
@@ -30,7 +34,7 @@ client.interceptors.response.use(async (response) => {
     TokenManager.removeToken();
     UserManager.removeUserInfo();
     toast.error("未授权，请重新登录");
-    router.replace({ path: "/login" });
+    router.replace({ name: "/login" as PublicRoute });
     throw new Error("未授权，请重新登录");
   }
 

@@ -12,6 +12,7 @@ import { client } from "@/core/api/config"
 import { toast } from "@/core/utils/toast"
 import { TokenManager } from "@/core/entity/TokenManager"
 import { UserManager } from "@/core/entity/UserManager"
+import { getHomePathForRole, type UserRole } from "@/core/utils/routeGuards"
 
 /**
  * 保存登录信息
@@ -41,7 +42,12 @@ export function useLoginMutation() {
     },
     onSuccess: (data) => {
       saveAuthData(data!)
-      router.push("/")
+      const role = data?.role as UserRole | undefined
+      if (role) {
+        router.push(getHomePathForRole(role))
+      } else {
+        router.push("/")
+      }
     },
   })
 }
@@ -64,7 +70,12 @@ export function useWechatLoginMutation() {
     },
     onSuccess: (data) => {
       saveAuthData(data!)
-      router.push("/")
+      const role = data?.role as UserRole | undefined
+      if (role) {
+        router.push(getHomePathForRole(role))
+      } else {
+        router.push("/")
+      }
     },
   })
 }

@@ -69,13 +69,15 @@ export {
 // Teacher 特定配置
 // ============================================================================
 
-import type { MenuItem } from '@/features/shared/types'
-import { MENU_ITEMS as MENU_ITEMS_TYPED } from '../menu/types'
+import { MENU_ITEMS } from '../menu/types'
 
 /**
- * 菜单配置（类型安全）
+ * 菜单配置（类型安全，从 RouteNamedMap 派生）
+ *
+ * 导出的 MENU_ITEMS 已经是类型安全的，其 path 字段类型为 TeacherRoutePath
+ * TeacherRoutePath 是从 RouteNamedMap 派生的精确类型，确保路由路径正确性
  */
-export const MENU_ITEMS: MenuItem[] = MENU_ITEMS_TYPED as unknown as MenuItem[]
+export { MENU_ITEMS }
 
 /**
  * API 端点汇总

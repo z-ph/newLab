@@ -49,6 +49,7 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import type { RouteNamedMap } from 'vue-router/auto-routes'
 import Card from 'primevue/card'
 
 const router = useRouter()
@@ -60,9 +61,18 @@ const statistics = [
   { title: '学生总数', value: '356', icon: 'pi pi-user', color: 'bg-cyan-500' },
 ]
 
-const quickActions = [
-  { title: '创建班级', description: '添加新的班级', icon: 'pi pi-plus', path: '/teacher/classes' },
-  { title: '发布实验', description: '创建新实验', icon: 'pi pi-upload', path: '/teacher/experiments' },
-  { title: '批改作业', description: '查看待批改', icon: 'pi pi-check', path: '/teacher/submissions' },
+// 从 RouteNamedMap 派生教师端路由路径类型
+type TeacherRoutePath = keyof RouteNamedMap & `/teacher${string}`
+
+// 快速操作配置（路径从 RouteNamedMap 派生，确保类型安全）
+const quickActions: Array<{
+  title: string
+  description: string
+  icon: string
+  path: TeacherRoutePath
+}> = [
+  { title: '创建班级', description: '添加新的班级', icon: 'pi pi-plus', path: '/teacher/classes/' },
+  { title: '发布实验', description: '创建新实验', icon: 'pi pi-upload', path: '/teacher/experiments/' },
+  { title: '批改作业', description: '查看待批改', icon: 'pi pi-check', path: '/teacher/submissions/' },
 ]
 </script>
