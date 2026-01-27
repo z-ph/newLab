@@ -2,16 +2,18 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMutation, useQuery } from '@tanstack/vue-query'
 import type { Router } from 'vue-router'
-import { apiClient } from '@/mock/api'
-import type { LoginResponse } from '@/mock/api/types'
+import { postApiAuthLogin, postApiWechatLogin, getApiAuthCheckUserStatusByUsername, getApiWechatBindStatus } from '@/api/generated'
+import type { LoginResponse } from '@/api/generated'
+import { client } from '@/api/config'
 import { ElMessage } from 'element-plus'
 
 /**
  * 保存登录信息
  */
 const saveAuthData = (data: LoginResponse) => {
-  localStorage.setItem('token', data.token)
+  localStorage.setItem('token', data.token || '')
   localStorage.setItem('userInfo', JSON.stringify({
+    userId: data.userId,
     username: data.username,
     name: data.name,
     role: data.role,
@@ -35,11 +37,20 @@ export function useLoginMutation() {
 
   return useMutation({
     mutationFn: async (credentials: { username: string; password: string }) => {
-      const response = await apiClient.login(credentials.username, credentials.password)
-      if (response.code !== 0) {
-        throw new Error(response.message || '登录失败')
+      const response = await postApiAuthLogin({
+        client,
+        body: {
+          username: credentials.username,
+          password: credentials.password,
+        },
+      })
+      if (!response.data || response.data.code !== 0) {
+        throw new Error(response.data?.message || '登录失败')
       }
-      return response.data
+      if (!response.data.data) {
+        throw new Error('登录失败：未返回用户信息')
+      }
+      return response.data.data
     },
     onSuccess: (data) => {
       handleLoginSuccess(data, router)
@@ -58,11 +69,19 @@ export function useWechatLoginMutation() {
 
   return useMutation({
     mutationFn: async (code: string) => {
-      const response = await apiClient.loginByCode('', code)
-      if (response.code !== 0) {
-        throw new Error(response.message || '微信登录失败')
+      const response = await postApiWechatLogin({
+        client,
+        query: {
+          code,
+        },
+      })
+      if (!response.data || response.data.code !== 0) {
+        throw new Error(response.data?.message || '微信登录失败')
       }
-      return response.data
+      if (!response.data.data) {
+        throw new Error('微信登录失败：未返回用户信息')
+      }
+      return response.data.data
     },
     onSuccess: (data) => {
       handleLoginSuccess(data, router)
@@ -129,11 +148,19 @@ export function useUserStatus(username: string) {
   return useQuery({
     queryKey: ['userStatus', username],
     queryFn: async () => {
-      const response = await apiClient.checkUserStatus(username)
-      if (response.code !== 0) {
-        throw new Error(response.message || '查询用户状态失败')
+      const response = await getApiAuthCheckUserStatusByUsername({
+        client,
+        path: {
+          username: username,
+        },
+      })
+      if (!response.data || response.data.code !== 0) {
+        throw new Error(response.data?.message || '查询用户状态失败')
       }
-      return response.data
+      if (!response.data.data) {
+        throw new Error('查询用户状态失败：未返回数据')
+      }
+      return response.data.data
     },
     enabled: !!username,
   })
@@ -146,11 +173,16 @@ export function useWeChatBindStatus() {
   return useQuery({
     queryKey: ['wechatBindStatus'],
     queryFn: async () => {
-      const response = await apiClient.getWeChatBindStatus()
-      if (response.code !== 0) {
-        throw new Error(response.message || '查询微信绑定状态失败')
+      const response = await getApiWechatBindStatus({
+        client,
+      })
+      if (!response.data || response.data.code !== 0) {
+        throw new Error(response.data?.message || '查询微信绑定状态失败')
       }
-      return response.data
+      if (!response.data.data) {
+        throw new Error('查询微信绑定状态失败：未返回数据')
+      }
+      return response.data.data
     },
   })
 }
