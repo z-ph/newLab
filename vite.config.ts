@@ -6,6 +6,7 @@ import Components from "unplugin-vue-components/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 import { createClient } from "@hey-api/openapi-ts";
 import type { Plugin } from "vite";
+import { rmSync } from "node:fs";
 
 /**
  * 创建 @hey-api/openapi-ts 插件
@@ -16,9 +17,19 @@ function createHeyApiPlugin(): Plugin {
     name: 'hey-api-plugin',
     enforce: 'pre',
     configResolved: async () => {
+      const outputDir = './src/api/generated';
+
+      // 清理旧的生成文件，避免文件冲突
+      try {
+        rmSync(outputDir, { recursive: true, force: true });
+      } catch (error) {
+        // 忽略清理错误
+      }
+
+      // 生成新的客户端代码
       await createClient({
         input: "http://127.0.0.1:4523/export/openapi/3?version=3.1",
-        output: "./src/api/generated",
+        output: outputDir,
         plugins: [
           "@hey-api/typescript",
           "@hey-api/sdk",
