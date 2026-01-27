@@ -18,7 +18,7 @@ function createHeyApiPlugin(openApiUrl: string): Plugin {
     name: 'hey-api-plugin',
     enforce: 'pre',
     configResolved: async () => {
-      const outputDir = './src/api/generated';
+      const outputDir = './src/core/api/generated';
 
       // 清理旧的生成文件，避免文件冲突
       try {
@@ -70,7 +70,7 @@ export default defineConfig(({ mode }) => {
         '/api': {
           target: env.BASE_API || 'http://localhost:8085',
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api/, '/api'),
+          rewrite: (path) => path.replace(/^\/api/, ''),
         },
       }
     },
