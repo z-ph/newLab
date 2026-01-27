@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
-
+import './style.css'
 // Element Plus 样式需要手动引入
 import 'element-plus/dist/index.css'
 
