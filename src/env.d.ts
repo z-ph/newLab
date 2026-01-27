@@ -1,6 +1,15 @@
 /// <reference types="vite/client" />
 /// <reference types="unplugin-vue-router/client" />
 
+interface ImportMetaEnv {
+  readonly VITE_OPENAPI_URL: string
+  readonly BASE_API: string
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv
+}
+
 declare module '*.css' {
   const content: { [className: string]: string }
   export default content
