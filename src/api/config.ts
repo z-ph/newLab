@@ -4,10 +4,10 @@ import { createClient } from './generated/client'
  * 创建 API 客户端实例
  */
 const client = createClient({
-  baseUrl: '/api',
+  baseUrl: import.meta.env.DEV?'/api':import.meta.env.BASE_URL,
 })
 
-// 添加请求拦截器 - 自动添加认证 token
+// 添加请求拦截器 - 自动添加认证 tokens
 client.interceptors.request.use(async (request) => {
   const token = localStorage.getItem('token')
   if (token) {
