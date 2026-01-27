@@ -34,3 +34,6 @@ dist-ssr
 # OpenAPI generated files (optional, uncomment if you want to ignore them)
 # api-client.ts
 # api-schema.ts
+auto-imports.d.ts
+components.d.ts
+src/api/generated/
