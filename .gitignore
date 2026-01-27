@@ -31,9 +31,11 @@ dist-ssr
 .env.local
 .env.*.local
 
-# OpenAPI generated files (optional, uncomment if you want to ignore them)
-# api-client.ts
-# api-schema.ts
+# Auto-generated files
+# OpenAPI client
+src/api/generated/
+# Vue Router auto-generated types
+typed-router.d.ts
+# Auto-imports and components
 auto-imports.d.ts
 components.d.ts
-src/api/generated/
