@@ -38,5 +38,5 @@ src/api/generated/
 typed-router.d.ts
 # Auto-imports and components
 auto-imports.d.ts
-components.d.ts# Claude Code local settings
+components.d.ts
 .claude/settings.local.json
