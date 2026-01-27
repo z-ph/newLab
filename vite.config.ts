@@ -7,6 +7,7 @@ import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 import { createClient } from "@hey-api/openapi-ts";
 import type { Plugin } from "vite";
 import { rmSync } from "node:fs";
+import tailwindcss from "@tailwindcss/vite";
 
 /**
  * 创建 @hey-api/openapi-ts 插件
@@ -48,6 +49,7 @@ export default defineConfig(({ mode }) => {
   return {
     base: env.PREFIX_PATH || '/',
     plugins: [
+      tailwindcss(),
       VueRouter({
         routesFolder: "./src/pages",
         extensions: [".page.vue"],
