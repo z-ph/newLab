@@ -6,12 +6,13 @@ import { postApiAuthLogin, postApiWechatLogin, getApiAuthCheckUserStatusByUserna
 import type { LoginResponse } from '@/core/api/generated'
 import { client } from '@/core/api/config'
 import { ElMessage } from 'element-plus'
+import { TokenManager } from '@/core/entity/TokenManager'
 
 /**
  * 保存登录信息
  */
 const saveAuthData = (data: LoginResponse) => {
-  localStorage.setItem('token', data.token || '')
+  TokenManager.setToken(data.token ?? null)
   localStorage.setItem('userInfo', JSON.stringify({
     userId: data.userId,
     username: data.username,

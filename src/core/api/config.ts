@@ -1,4 +1,5 @@
 import { createClient } from './generated/client'
+import { TokenManager } from '@/core/entity/TokenManager'
 
 /**
  * 创建 API 客户端实例
@@ -9,7 +10,7 @@ const client = createClient({
 
 // 添加请求拦截器 - 自动添加认证 tokens
 client.interceptors.request.use(async (request) => {
-  const token = localStorage.getItem('token')
+  const token = TokenManager.getToken()
   if (token) {
     request.headers.set('Authorization', `Bearer ${token}`)
   }
@@ -20,7 +21,7 @@ client.interceptors.request.use(async (request) => {
 client.interceptors.response.use(async (response) => {
   if (response.status === 401) {
     // Token 过期或未授权，清除本地存储并跳转到登录页
-    localStorage.removeItem('token')
+    TokenManager.removeToken()
     localStorage.removeItem('userInfo')
     window.location.href = '/login'
   }
