@@ -54,14 +54,14 @@ axiosInstance.interceptors.response.use(
       UserManager.removeUserInfo();
       toast.error("未授权，请重新登录");
       router.replace({ name: "/login" as PublicRoute });
-      return Promise.reject(new Error("未授权，请重新登录"));
+      throw new Error("未授权，请重新登录");
     }
 
     // 处理其他 HTTP 错误
     const errorMsg =
       error.response?.data?.message || error.message || "未知错误";
     toast.error(errorMsg);
-    return Promise.reject(error);
+    throw new Error(errorMsg);
   },
 );
 
@@ -71,6 +71,7 @@ axiosInstance.interceptors.response.use(
  */
 const client = createClient({
   axios: axiosInstance,
+  throwOnError:true
 });
 
 export default client;
