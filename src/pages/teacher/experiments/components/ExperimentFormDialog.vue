@@ -5,9 +5,10 @@
       <div class="mb-4 flex flex-col gap-3">
         <div v-if="!isEdit">
           <label class="mb-2 block text-sm font-medium text-slate-700">
-            课程ID <span class="text-red-500">*</span>
+            选择课程 <span class="text-red-500">*</span>
           </label>
-          <InputText v-model="formData.courseId" class="w-full" placeholder="请输入课程ID" />
+          <Select v-model="selectedCourseId" :options="courseOptions" option-label="label" option-value="value"
+            placeholder="请选择课程" class="w-full" :loading="coursesQuery.query.isLoading.value" filter />
         </div>
         <div>
           <label class="mb-2 block text-sm font-medium text-slate-700">
@@ -30,7 +31,7 @@
       </div>
       <div class="flex justify-end gap-2">
         <Button label="取消" outlined @click="visible = false" />
-        <Button label="保存" type="submit" :loading="isSubmitting" />
+        <Button label="保存" type="submit" :loading="isSubmitting" :disabled="!isEdit && !selectedCourseId" />
       </div>
     </form>
   </Dialog>
@@ -40,6 +41,7 @@
 import { ref, watch, computed } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { useCreateExperiment, useUpdateExperiment } from '@/features/teacher/experiment/hooks/useMutateExperiment'
+import { useQueryCourseAll } from '@/features/teacher/course/hooks/useQueryCourse'
 import type { ExperimentResponse } from '@/core/api/generated'
 
 interface Props {
@@ -62,6 +64,21 @@ const updateMutation = useUpdateExperiment()
 const isEdit = computed(() => !!props.experiment?.id)
 const isSubmitting = computed(() => createMutation.isPending.value || updateMutation.isPending.value)
 
+// 获取课程列表
+const coursesQuery = useQueryCourseAll()
+
+// 课程选项
+const courseOptions = computed(() => {
+  const pageData = coursesQuery.query.data.value
+  const courses = pageData?.records || []
+  return courses.map((c) => ({
+    label: `${c.courseName} (${c.courseId})`,
+    value: c.courseId,
+  }))
+})
+
+const selectedCourseId = ref<string | null>(null)
+
 const formData = ref({
   courseId: '',
   experimentName: '',
@@ -76,6 +93,7 @@ const resetForm = () => {
     percentage: 10,
     endTime: null,
   }
+  selectedCourseId.value = null
 }
 
 watch(() => props.experiment, (newExperiment) => {
@@ -86,13 +104,23 @@ watch(() => props.experiment, (newExperiment) => {
       percentage: newExperiment.percentage || 10,
       endTime: newExperiment.endTime ? new Date(newExperiment.endTime) : null,
     }
+    selectedCourseId.value = newExperiment.courseId || null
   } else {
     resetForm()
   }
 }, { immediate: true })
 
+watch(selectedCourseId, (newCourseId) => {
+  if (newCourseId) {
+    formData.value.courseId = newCourseId
+  }
+})
+
 watch(visible, (newVal) => {
-  if (!newVal) {
+  if (newVal) {
+    // 加载课程列表
+    coursesQuery.query.refetch()
+  } else {
     resetForm()
   }
 })
