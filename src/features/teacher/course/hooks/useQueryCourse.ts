@@ -29,8 +29,7 @@ export default function useQueryCourseBase(
 export function useQueryCourseAll() {
   const query = useQueryCourseBase(
     {
-      current: 1,
-      size: 1000,
+      pageable:false
     },
     {
       queryKey: ["courses-all"],

@@ -8,20 +8,23 @@ import client from '@/core/api/config'
 import type { Ref } from 'vue'
 
 interface UseQueryAttendanceListParams {
-  classExperimentId: Ref<number>
+  classCode: Ref<string>
+  experimentId: Ref<string>
   enable?: Ref<boolean>
 }
 
 export function useQueryAttendanceList({
-  classExperimentId,
+  classCode,
+  experimentId,
   enable,
 }: UseQueryAttendanceListParams) {
   return useQuery({
-    queryKey: ['teacher', 'attendance', 'list', classExperimentId] as const,
+    queryKey: ['teacher', 'attendance', 'list', classCode, experimentId] as const,
     queryFn: async () => {
       return getApiTeacherAttendanceList({
         query: {
-          classExperimentId: classExperimentId.value,
+          classId: Number(classCode.value), // 将 classCode 转换为 number
+          experimentId: experimentId.value,
         },
         client,
       })
