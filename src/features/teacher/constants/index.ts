@@ -39,31 +39,20 @@ export {
 
 // 步骤相关
 export {
-  VIDEO_PROCEDURE_FORM_FIELDS,
-  DATA_COLLECTION_PROCEDURE_FORM_FIELDS,
-  TOPIC_PROCEDURE_FORM_FIELDS,
   PROCEDURE_TYPE_OPTIONS,
   DATA_COLLECTION_TYPE_OPTIONS,
   PROCEDURE_API_ENDPOINTS,
-} from '../procedure/constants'
-
-// 提交相关
-export {
-  GRADING_FORM_FIELDS,
-  SUBMISSION_STATUS_OPTIONS,
-  STUDENT_STATUS_OPTIONS,
-  SUBMISSION_API_ENDPOINTS,
-} from '../submission/constants'
+} from '../experiment/procedure/constants'
 
 // 成绩相关
 export {
   GRADE_API_ENDPOINTS,
-} from '../grade/constants'
+} from '../experiment/grade/constants'
 
 // 签到相关
 export {
   ATTENDANCE_API_ENDPOINTS,
-} from '../attendance/constants'
+} from '../experiment/attendance/constants'
 
 // ============================================================================
 // Teacher 特定配置

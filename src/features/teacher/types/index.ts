@@ -51,25 +51,13 @@ export type {
 export type {
   ProcedureEntity,
   ProcedureType,
-  VideoProcedureFormData,
-  DataCollectionProcedureFormData,
-  TopicProcedureFormData,
-} from '../procedure/types'
-
-// 提交相关（包含学生相关）
-export type {
-  SubmissionEntity,
-  SubmissionStatus,
-  GradingFormData,
-  StudentEntity,
-  StudentStatus,
-} from '../submission/types'
+} from '../experiment/procedure/types'
 
 // 成绩相关
 export type {
   GradeEntity,
   GradeFormData,
-} from '../grade/types'
+} from '../experiment/grade/types'
 
 // 签到相关
 export type {
@@ -77,7 +65,7 @@ export type {
   AttendanceInfo,
   StudentAttendanceInfoEntity,
   AttendanceStatus,
-} from '../attendance/types'
+} from '../experiment/attendance/types'
 
 // 统计相关
 export type {
