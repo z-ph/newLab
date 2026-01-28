@@ -14,7 +14,7 @@
       <template #content>
         <div class="flex gap-4">
           <InputText v-model="searchKeyword" placeholder="搜索班级名称或代码" class="flex-1" />
-          <Dropdown v-model="selectedStatus" :options="statusOptions" option-label="label" option-value="value" placeholder="选择状态" class="w-48" />
+          <Select v-model="selectedStatus" :options="statusOptions" option-label="label" option-value="value" placeholder="选择状态" class="w-48" />
           <Button icon="pi pi-search" outlined />
         </div>
       </template>
@@ -23,7 +23,17 @@
     <!-- 班级列表 -->
     <Card>
       <template #content>
-        <DataTable v-model:selection="selectedClasses" :value="classes" :paginator="true" :rows="10" :loading="loading" selection-mode="multiple">
+        <DataTable
+        generic="ClassResponse"
+          v-model:selection="selectedClasses"
+          :value="query.data.value?.records || []"
+          :paginator="true"
+          :rows="size"
+          :loading="query.isLoading.value"
+          selection-mode="multiple"
+          :total-records="query.data.value?.total"
+          @page="onPageChange"
+        >
           <Column selection-mode="multiple" header-style="width: 3rem" />
           <Column field="classCode" header="班级代码" />
           <Column field="className" header="班级名称" />
@@ -73,17 +83,12 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import Button from 'primevue/button'
-import Card from 'primevue/card'
-import Column from 'primevue/column'
-import DataTable from 'primevue/datatable'
-import Dialog from 'primevue/dialog'
-import Dropdown from 'primevue/dropdown'
-import InputText from 'primevue/inputtext'
-import Tag from 'primevue/tag'
-import Textarea from 'primevue/textarea'
+import { useQueryClassPage } from '@/features/teacher/class/hooks/useQueryClass'
+import { useCreateClass } from '@/features/teacher/class/hooks/useMutateClass'
+import { useToast } from 'primevue/usetoast'
 
-const loading = ref(false)
+const toast = useToast()
+
 const searchKeyword = ref('')
 const selectedStatus = ref(null)
 const selectedClasses = ref([])
@@ -101,16 +106,46 @@ const formData = ref({
   description: '',
 })
 
-// 模拟数据
-const classes = ref([
-  { classCode: 'CS2024001', className: '计算机科学与技术1班', studentCount: 45, status: 'active' },
-  { classCode: 'CS2024002', className: '计算机科学与技术2班', studentCount: 43, status: 'active' },
-  { classCode: 'SE2024001', className: '软件工程1班', studentCount: 38, status: 'active' },
-  { classCode: 'SE2024002', className: '软件工程2班', studentCount: 40, status: 'inactive' },
-])
+// 使用查询 hook 获取分页数据
+const { current, size, query } = useQueryClassPage({
+  current: 1,
+  size: 10,
+})
 
-const handleCreate = () => {
-  console.log('创建班级', formData.value)
-  showCreateDialog.value = false
+// 使用创建班级 hook
+const createMutation = useCreateClass()
+
+const handleCreate = async () => {
+  try {
+    await createMutation.mutateAsync({
+      body: formData.value,
+    })
+    toast.add({
+      severity: 'success',
+      summary: '成功',
+      detail: '班级创建成功',
+      life: 3000,
+    })
+    showCreateDialog.value = false
+    formData.value = {
+      classCode: '',
+      className: '',
+      description: '',
+    }
+    // 刷新列表
+    query.refetch()
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: '错误',
+      detail: '班级创建失败',
+      life: 3000,
+    })
+  }
+}
+
+// 处理分页
+const onPageChange = (event: any) => {
+  current.value = event.page + 1
 }
 </script>

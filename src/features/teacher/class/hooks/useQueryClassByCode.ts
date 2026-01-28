@@ -2,6 +2,7 @@ import { getApiTeacherClassCodeByClassCode } from "@/core/api/generated";
 import type { QueryOptions } from "@/features/shared/types/UseQueryOptions";
 import { useQuery } from "@tanstack/vue-query";
 import { computed } from "vue";
+import client from "@/core/api/config";
 
 export default function useQueryClassByCodeBase(
   classCode: string,
@@ -14,6 +15,7 @@ export default function useQueryClassByCodeBase(
         path: {
           classCode,
         },
+        client,
       }),
     select: (res) => res.data?.data,
   });

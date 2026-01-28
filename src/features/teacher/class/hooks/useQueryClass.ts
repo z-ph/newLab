@@ -3,6 +3,7 @@ import type { GetApiParamsTypeBase } from "@/core/utils/typeUtils";
 import type { QueryOptions } from "@/features/shared/types/UseQueryOptions";
 import { useQuery } from "@tanstack/vue-query";
 import { computed, ref } from "vue";
+import client from "@/core/api/config";
 
 export default function useQueryClassBase(
   queryParams: GetApiParamsTypeBase<typeof postApiTeacherClassQuery, "body">,
@@ -13,6 +14,7 @@ export default function useQueryClassBase(
     queryFn: () =>
       postApiTeacherClassQuery({
         body: queryParams,
+        client,
       }),
     select: (res) => res.data?.data,
   });
