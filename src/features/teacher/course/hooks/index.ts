@@ -3,13 +3,11 @@
  */
 
 // 查询 hooks
+export { useQueryCourseAll, useQueryCoursePage, useQueryCourseById } from './useQueryCourse'
 export { useQueryCourseExperiments } from './useQueryCourseExperiments'
 export { useQueryCourseGrades } from './useQueryCourseGrades'
 export { useQueryCourseSubmissions } from './useQueryCourseSubmissions'
 
 // 变更 hooks
+export { useCreateCourse, useUpdateCourse, useDeleteCourse } from './useMutateCourse'
 export { useExportCourseGrades } from './useMutateCourseExport'
-
-// TODO: 等待后端添加课程CRUD接口后取消注释
-// export { useQueryCourseAll, useQueryCourseById } from './useQueryCourse'
-// export { useCreateCourse, useUpdateCourse, useDeleteCourse } from './useMutateCourse'
