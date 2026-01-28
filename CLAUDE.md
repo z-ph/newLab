@@ -483,6 +483,83 @@ formData.courseId  // 不报错，类型为 string | undefined
 - 减少维护：只需关注 API 类型定义
 - **保留推断**：satisfies 保留字面量的精确类型，提供更好的类型安全
 
+### Hook 封装规范（CRITICAL）
+
+**调用生成的 API 时必须传入 config.ts 的 client**
+
+- ✅ **必须导入并传入 client**：从 `@/core/api/config` 导入 client 并传给 API
+- ❌ **禁止使用默认 client**：不传 client 会绕过拦截器，导致认证和错误处理失效
+
+**正确示例**：
+```typescript
+// ✅ 正确：导入并传入 client
+import { postApiTeacherClassQuery } from "@/core/api/generated"
+import client from "@/core/api/config"
+
+export function useQueryClass() {
+  return useQuery({
+    queryFn: () =>
+      postApiTeacherClassQuery({
+        body: { pageable: false },
+        client,  // ✅ 必须传入自定义 client
+      }),
+  })
+}
+
+// ✅ 正确：Mutation 也需要传入 client
+import { deleteApiTeacherClassById } from "@/core/api/generated"
+import client from "@/core/api/config"
+
+export function useDeleteClass() {
+  return useMutation({
+    mutationFn: async (params) => {
+      return await deleteApiTeacherClassById({
+        ...params,
+        client,  // ✅ 必须传入自定义 client
+      })
+    },
+  })
+}
+
+// ❌ 错误：不传 client，使用默认 client
+export function useQueryClassWrong() {
+  return useQuery({
+    queryFn: () =>
+      postApiTeacherClassQuery({
+        body: { pageable: false },
+        // ❌ 缺少 client 参数
+      }),
+  })
+}
+```
+
+**为什么必须传入自定义 client**：
+config.ts 中创建的 client 包含了关键的 axios 拦截器：
+1. **请求拦截器**：自动添加 `Authorization: Bearer ${token}` 认证头
+2. **响应拦截器**：
+   - 处理 401 未授权错误，自动跳转登录页
+   - 统一处理业务错误码（code !== 200）
+   - 自动显示 Toast 错误提示
+
+**不传 client 的后果**：
+- ❌ 无法自动添加 token，导致 401 错误
+- ❌ 401 错误不会自动跳转登录
+- ❌ 业务错误码不会统一处理
+- ❌ 错误不会自动显示 Toast
+- ❌ 需要手动处理所有这些逻辑，增加维护成本
+
+**规范总结**：
+所有自定义 hooks 中调用生成的 API 时，必须：
+```typescript
+import client from "@/core/api/config"
+
+// Query 或 Mutation 中
+someApiFunction({
+  ...params,
+  client,  // ✅ 永远不要忘记
+})
+```
+
 ### 错误处理规范（CRITICAL）
 
 **禁止使用 try-catch 包裹 mutation 调用处理错误**
