@@ -134,30 +134,21 @@ const formData = ref({
 }) satisfies Ref<Partial<GetApiBodyParamsType<typeof postApiTeacherClass>>>
 
 const handleCreate = async () => {
-  try {
-    await createMutation.mutateAsync({
-      body: {
-        className: formData.value.className,
-        classCode: formData.value.className
-      },
-    })
-    toast.add({
-      severity: 'success',
-      summary: '成功',
-      detail: '班级创建成功',
-      life: 3000,
-    })
-    showCreateDialog.value = false
-    formData.value = { className: '' }
-    query.refetch()
-  } catch (error) {
-    toast.add({
-      severity: 'error',
-      summary: '错误',
-      detail: '班级创建失败',
-      life: 3000,
-    })
-  }
+  await createMutation.mutateAsync({
+    //@ts-expect-error
+    body: {
+      className: formData.value.className,
+    },
+  })
+  toast.add({
+    severity: 'success',
+    summary: '成功',
+    detail: '班级创建成功',
+    life: 3000,
+  })
+  showCreateDialog.value = false
+  formData.value = { className: '' }
+  query.refetch()
 }
 
 // ==================== 编辑相关 ====================
@@ -183,29 +174,20 @@ const closeEditDialog = () => {
 const handleUpdate = async () => {
   if (!editingClass.value?.id) return
 
-  try {
-    await updateMutation.mutateAsync({
-      path: { id: editingClass.value.id },
-      body: {
-        className: editFormData.value.className,
-      },
-    })
-    toast.add({
-      severity: 'success',
-      summary: '成功',
-      detail: '班级更新成功',
-      life: 3000,
-    })
-    closeEditDialog()
-    query.refetch()
-  } catch (error) {
-    toast.add({
-      severity: 'error',
-      summary: '错误',
-      detail: '班级更新失败',
-      life: 3000,
-    })
-  }
+  await updateMutation.mutateAsync({
+    path: { id: editingClass.value.id },
+    body: {
+      className: editFormData.value.className,
+    },
+  })
+  toast.add({
+    severity: 'success',
+    summary: '成功',
+    detail: '班级更新成功',
+    life: 3000,
+  })
+  closeEditDialog()
+  query.refetch()
 }
 
 // ==================== 删除相关 ====================
@@ -224,25 +206,16 @@ const confirmDelete = (classItem: Class) => {
 }
 
 const handleDelete = async (id: number) => {
-  try {
-    await deleteMutation.mutateAsync({
-      path: { id },
-    })
-    toast.add({
-      severity: 'success',
-      summary: '成功',
-      detail: '班级删除成功',
-      life: 3000,
-    })
-    query.refetch()
-  } catch (error) {
-    toast.add({
-      severity: 'error',
-      summary: '错误',
-      detail: '班级删除失败',
-      life: 3000,
-    })
-  }
+  await deleteMutation.mutateAsync({
+    path: { id },
+  })
+  toast.add({
+    severity: 'success',
+    summary: '成功',
+    detail: '班级删除成功',
+    life: 3000,
+  })
+  query.refetch()
 }
 
 // ==================== 其他状态 ====================

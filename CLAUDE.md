@@ -274,3 +274,178 @@ toast.warn('警告消息')
 **例外情况**：
 - 如确实需要自定义 CSS，应在全局样式文件中定义（需经团队讨论批准）
 - 第三方组件库的样式覆盖除外
+
+### Vue 组件规范（CRITICAL）
+
+**使用 `defineModel()` 实现双向绑定**
+
+- ✅ **使用 `defineModel()`**：无需手动定义 props 和 emits
+- ❌ **禁止重复定义**：使用 `defineModel()` 时不要定义相���的 prop 和 emit
+
+**示例**：
+```typescript
+// ✅ 正确：使用 defineModel()
+const visible = defineModel<boolean>()
+
+// 直接修改即可
+visible.value = false
+
+// ❌ 错误：不要这样写
+interface Props {
+  visible: boolean
+}
+
+interface Emits {
+  (e: 'update:visible', value: boolean): void
+}
+
+const props = defineProps<Props>()
+const emit = defineEmits<Emits>()
+
+// 使用时需要手动 emit
+emit('update:visible', false)
+```
+
+**注意事项**：
+- `defineModel()` 自动处理双向绑定，无需额外配置
+- 直接修改返回的 ref 即可触发更新
+- 如果有多个 v-model，可以传入参数：`defineModel<'visible' | 'value'>()`
+- 注意函数引用顺序：使用 watch 时，被引用的函数必须先定义
+
+**常见场景**：
+- Dialog 的显示/隐藏
+- 表单数据的双向绑定
+- 任何需要父子组件同步的场景
+
+### 类型定义黄金法则（CRITICAL）
+
+**禁止手动定义冗余接口，必须从 API 类型派生**
+
+- ✅ **使用 API 类型 + 类型运算**：`type FormData = Partial<CreateRequest>`
+- ✅ **优先使用 satisfies 而不是泛型断言**
+- ❌ **禁止重复定义字段**：不要手动写与 API 类型相同的接口
+
+**示例**：
+```typescript
+// ✅ 正确：从 API 类型派生 + satisfies
+import type { CreateCourseRequest } from '@/core/api/generated'
+
+type CourseFormData = Partial<CreateCourseRequest>
+
+const formData = reactive({
+  courseName: '',
+}) satisfies CourseFormData
+
+// ❌ 错误1：手动定义冗余接口
+interface CourseFormData {
+  courseId?: string
+  courseName?: string
+}
+
+// ❌ 错误2：使用泛型断言（优先使用 satisfies）
+const formData = reactive<CourseFormData>({
+  courseName: '',
+})
+```
+
+**satisfies vs 泛型断言**：
+```typescript
+// satisfies - 保留精确类型推断 + 严格的属性访问检查
+const formData = reactive({
+  courseName: '',  // 类型推断为 string literal ""
+}) satisfies CourseFormData
+
+// ❌ 访问未定义的属性会报错（防止误访问）
+formData.courseId  // TypeScript Error: Property 'courseId' does not exist
+
+// 泛型断言 - 类型 widening + 宽松的属性访问
+const formData = reactive<CourseFormData>({
+  courseName: '',  // 类型被 widening 为 string
+})
+
+// ✅ 可以访问类型中的所有属性（即使未定义）
+formData.courseId  // 不报错，类型为 string | undefined
+```
+
+**重要区别**：
+- `satisfies`：最终类型是对象字面量的实际类型，只能访问已定义的属性
+- 泛型断言：最终类型是目标类型，可以访问类型中的所有属性（包括未定义的）
+
+**为什么 satisfies 更好**：
+- **防止错��**：访问未定义的属性会立即报错，捕获潜在 bug
+- **精确推断**：保留字面量的精确类型
+- **更安全**：强制只能使用实际定义的字段
+
+**类型运算工具**：
+- `Partial<T>` - 所有字段变为可选
+- `Required<T>` - 所有字段变为必需
+- `Pick<T, K>` - 选择部分字段
+- `Omit<T, K>` - 排除部分字段
+- **`satisfies`** - 验证类型同时保留精确推断（**优先使用**）
+
+**理由**：
+- 单一数据源：API 类型是唯一真实来源
+- 避免重复：手动维护两份类型容易出错
+- 自动同步：API 变更时自动反映到类型
+- 减少维护：只需关注 API 类型定义
+- **保留推断**：satisfies 保留字面量的精确类型，提供更好的类型安全
+
+### 错误处理规范（CRITICAL）
+
+**禁止使用 try-catch 包裹 mutation 调用处理错误**
+
+项目已在 axios 拦截器中实现全局错误处理，会自动显示错误 Toast。
+
+- ❌ **禁止使用 try-catch 包裹 mutation 并手动处理错误**
+- ✅ **只需处理成功情况，让全局错误处理接管错误**
+
+**示例**：
+```typescript
+// ❌ 错误：不必要的 try-catch
+const handleDelete = async (id: number) => {
+  try {
+    await deleteMutation.mutateAsync({
+      path: { id },
+    })
+    toast.add({
+      severity: 'success',
+      summary: '成功',
+      detail: '删除成功',
+      life: 3000,
+    })
+    query.refetch()
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: '错误',
+      detail: '删除失败',
+      life: 3000,
+    })
+  }
+}
+
+// ✅ 正确：只处理成功，错误由全局处理
+const handleDelete = async (id: number) => {
+  await deleteMutation.mutateAsync({
+    path: { id },
+  })
+  toast.add({
+    severity: 'success',
+    summary: '成功',
+    detail: '删除成功',
+    life: 3000,
+  })
+  query.refetch()
+}
+```
+
+**理由**：
+- 全局错误处理已在 `src/core/api/config.ts` 的 axios 拦截器中实现
+- 避免重复的错误处理代码
+- 统一的错误提示风格
+- 减少代码冗余
+
+**适用场景**：
+- ✅ Mutation 调用（创建、更新、删除）
+- ✅ Query 调用（如有全局错误处理）
+- ❌ 特殊场景需要自定义错误处理时除外（需注释说明原因）

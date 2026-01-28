@@ -36,12 +36,11 @@
 <script setup lang="ts">
 import { computed, reactive, watch } from 'vue'
 import { useToast } from 'primevue/usetoast'
+import type { CreateCourseRequest } from '@/core/api/generated'
 
 // ==================== 类型定义 ====================
-interface CourseFormData {
-  courseId?: string
-  courseName?: string
-}
+// 使用 API 类型派生，所有字段都是可选的
+type CourseFormData = Partial<CreateCourseRequest>
 
 interface Props {
   modelValue: boolean
@@ -72,17 +71,15 @@ const visible = computed({
   set: (value) => emit('update:modelValue', value),
 })
 
-const formData = reactive<CourseFormData>({
-  courseId: '',
+const formData = reactive({
   courseName: '',
-})
+}) satisfies CourseFormData
 
 // ==================== 监听初始数据 ====================
 watch(
   () => props.initialData,
   (newData) => {
     if (newData) {
-      formData.courseId = newData.courseId || ''
       formData.courseName = newData.courseName || ''
     }
   },
@@ -93,21 +90,10 @@ watch(
 const handleClose = () => {
   emit('update:modelValue', false)
   // 重置表单
-  formData.courseId = ''
   formData.courseName = ''
 }
 
 const handleSubmit = () => {
-  // 验证必填字段
-  if (!props.isEdit && !formData.courseId?.trim()) {
-    toast.add({
-      severity: 'warn',
-      summary: '提示',
-      detail: '请输入课程编号',
-      life: 3000,
-    })
-    return
-  }
 
   if (!formData.courseName?.trim()) {
     toast.add({

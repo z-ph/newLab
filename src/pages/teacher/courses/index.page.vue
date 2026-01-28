@@ -113,55 +113,51 @@ const openEditDialog = (course: CourseResponse) => {
 const handleSubmit = async (data: Partial<CourseResponse>) => {
   isSubmitting.value = true
 
-  try {
-    if (isEditMode.value) {
-      // 编辑模式
-      if (!currentCourse.value.id) {
-        throw new Error('缺少课程ID')
-      }
-
-      await updateMutation.mutateAsync({
-        path: { id: currentCourse.value.id },
-        body: {
-          courseName: data.courseName,
-        },
-      })
-
+  if (isEditMode.value) {
+    // 编辑模式
+    if (!currentCourse.value.id) {
+      isSubmitting.value = false
       toast.add({
-        severity: 'success',
-        summary: '成功',
-        detail: '课程更新成功',
+        severity: 'error',
+        summary: '错误',
+        detail: '缺少课程ID',
         life: 3000,
       })
-    } else {
-      // 创建模式
-      await createMutation.mutateAsync({
-        body: {
-          courseId: data.courseId,
-          courseName: data.courseName,
-        },
-      })
-
-      toast.add({
-        severity: 'success',
-        summary: '成功',
-        detail: '课程创建成功',
-        life: 3000,
-      })
+      return
     }
 
-    showDialog.value = false
-    query.refetch()
-  } catch (error) {
+    await updateMutation.mutateAsync({
+      path: { id: currentCourse.value.id },
+      body: {
+        courseName: data.courseName,
+      },
+    })
+
     toast.add({
-      severity: 'error',
-      summary: '错误',
-      detail: isEditMode.value ? '课程更新失败' : '课程创建失败',
+      severity: 'success',
+      summary: '成功',
+      detail: '课程更新成功',
       life: 3000,
     })
-  } finally {
-    isSubmitting.value = false
+  } else {
+    // 创建模式
+    await createMutation.mutateAsync({
+      body: {
+        courseName: data.courseName,
+      },
+    })
+
+    toast.add({
+      severity: 'success',
+      summary: '成功',
+      detail: '课程创建成功',
+      life: 3000,
+    })
   }
+
+  showDialog.value = false
+  query.refetch()
+  isSubmitting.value = false
 }
 
 // ==================== 删除确认 ====================
@@ -189,25 +185,16 @@ const handleDelete = async (course: CourseResponse) => {
     return
   }
 
-  try {
-    await deleteMutation.mutateAsync(course.id)
+  await deleteMutation.mutateAsync(course.id)
 
-    toast.add({
-      severity: 'success',
-      summary: '成功',
-      detail: '课程删除成功',
-      life: 3000,
-    })
+  toast.add({
+    severity: 'success',
+    summary: '成功',
+    detail: '课程删除成功',
+    life: 3000,
+  })
 
-    query.refetch()
-  } catch (error) {
-    toast.add({
-      severity: 'error',
-      summary: '错误',
-      detail: '课程删除失败',
-      life: 3000,
-    })
-  }
+  query.refetch()
 }
 
 // ==================== 分页处理 ====================
