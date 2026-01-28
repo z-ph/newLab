@@ -12,16 +12,32 @@ import { client } from "@/core/api/config"
 import { toast } from "@/core/utils/toast"
 import { TokenManager } from "@/core/entity/TokenManager"
 import { UserManager } from "@/core/entity/UserManager"
-import { getHomePathForRole } from "@/core/utils/routeGuards"
-import type { UserRole } from "@/core/types/route"
 
 /**
  * 保存登录信息
  */
-const saveAuthData = (data: LoginResponse) => {
-  TokenManager.setToken(data?.token ?? null)
+const saveAuthData = (data: LoginResponse | undefined): boolean => {
+  if (!data) {
+    toast.error('登录失败：服务器响应异常')
+    return false
+  }
+
+  // 验证必需字段
+  if (!data.token) {
+    toast.error('登录失败：缺少认证令牌')
+    return false
+  }
+
+  if (!data.role) {
+    toast.error('登录失败：缺少用户角色')
+    return false
+  }
+
+  // 保存 token 和用户信息
+  TokenManager.setToken(data.token)
   UserManager.setUserInfo(data)
-  toast.success("登录成功")
+  toast.success('登录成功')
+  return true
 }
 
 /**
@@ -42,13 +58,10 @@ export function useLoginMutation() {
       return response.data?.data
     },
     onSuccess: (data) => {
-      saveAuthData(data!)
-      const role = data?.role as UserRole | undefined
-      if (role) {
-        router.push(getHomePathForRole(role))
-      } else {
-        router.push("/")
+      if (!saveAuthData(data)) {
+        return
       }
+      router.push('/')
     },
   })
 }
@@ -70,13 +83,10 @@ export function useWechatLoginMutation() {
       return response.data?.data
     },
     onSuccess: (data) => {
-      saveAuthData(data!)
-      const role = data?.role as UserRole | undefined
-      if (role) {
-        router.push(getHomePathForRole(role))
-      } else {
-        router.push("/")
+      if (!saveAuthData(data)) {
+        return
       }
+      router.push('/')
     },
   })
 }
