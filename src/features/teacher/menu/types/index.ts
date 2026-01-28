@@ -93,26 +93,6 @@ const ROUTE_META: Partial<Record<TeacherRoutePath, RouteMeta>> = {
     title: '实验管理',
     icon: 'pi pi-file-edit',
   },
-  '/teacher/procedures/': {
-    name: 'procedures',
-    title: '步骤管理',
-    icon: 'pi pi-list',
-  },
-  '/teacher/submissions/': {
-    name: 'submissions',
-    title: '提交批改',
-    icon: 'pi pi-pencil',
-  },
-  '/teacher/grades/': {
-    name: 'grades',
-    title: '成绩管理',
-    icon: 'pi pi-chart-bar',
-  },
-  '/teacher/attendance/': {
-    name: 'attendance',
-    title: '签到管理',
-    icon: 'pi pi-calendar',
-  },
 }
 
 // ============================================================================
@@ -147,10 +127,6 @@ export const MENU_ITEMS: TeacherMenuItem[] = Object.entries(ROUTE_META)
       '/teacher/courses/',
       '/teacher/classes/',
       '/teacher/experiments/',
-      '/teacher/procedures/',
-      '/teacher/submissions/',
-      '/teacher/grades/',
-      '/teacher/attendance/',
     ]
     return order.indexOf(a.path) - order.indexOf(b.path)
   })
