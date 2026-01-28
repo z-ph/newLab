@@ -5,4 +5,4 @@ export type GetApiBodyQueryParamsType<TFn> = GetApiParamsTypeBase<TFn, 'body'>;
 export type GetApiPathParamsType<TFn> = GetApiParamsTypeBase<TFn, 'path'>;
 
 
-
+export type GetFirstParamsType<TFn> = TFn extends (params: infer TParams) => any ? NonNullable<TParams> : never;
