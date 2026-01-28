@@ -54,6 +54,14 @@ export {
   ATTENDANCE_API_ENDPOINTS,
 } from '../experiment/attendance/constants'
 
+// 签到状态选项
+export const ATTENDANCE_STATUS_OPTIONS = [
+  { label: '正常签到', value: 1, severity: 'success' },
+  { label: '迟到', value: 2, severity: 'warning' },
+  { label: '请假', value: 3, severity: 'info' },
+  { label: '未签到', value: 4, severity: 'danger' },
+]
+
 // ============================================================================
 // Teacher 特定配置
 // ============================================================================
