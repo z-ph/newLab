@@ -1,9 +1,10 @@
 /**
- * 更新签到状态 Hook
+ * ���新签到状态 Hook
  */
 
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { postApiTeacherAttendanceUpdate } from '@/core/api/generated'
+import client from '@/core/api/config'
 import type { UpdateAttendanceRequest } from '@/core/api/generated'
 
 export function useUpdateAttendance() {
@@ -13,6 +14,7 @@ export function useUpdateAttendance() {
     mutationFn: (data: UpdateAttendanceRequest) => {
       return postApiTeacherAttendanceUpdate({
         body: data,
+        client,
       })
     },
     onSuccess: () => {
@@ -30,6 +32,7 @@ export function useUpdateAttendanceSuccess() {
     mutationFn: (data: UpdateAttendanceRequest) => {
       return postApiTeacherAttendanceUpdate({
         body: data,
+        client,
       })
     },
     onSuccess: () => {

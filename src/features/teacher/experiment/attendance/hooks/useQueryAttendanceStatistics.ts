@@ -4,6 +4,7 @@
 
 import { useQuery } from '@tanstack/vue-query'
 import { getApiTeacherAttendanceCount } from '@/core/api/generated'
+import client from '@/core/api/config'
 import type { Ref } from 'vue'
 
 interface UseQueryAttendanceStatisticsParams {
@@ -25,8 +26,10 @@ export function useQueryAttendanceStatistics({
           courseId: courseId.value,
           experimentId: experimentId.value,
         },
+        client,
       })
     },
+    select: (response) => response.data?.data,
     enabled: enable,
   })
 }

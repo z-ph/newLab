@@ -23,19 +23,19 @@
     </Card>
 
     <!-- 签到统计信息 -->
-    <Card v-if="statistics.data.value?.data !== undefined" class="mb-4">
+    <Card v-if="statistics.data.value !== undefined" class="mb-4">
       <template #content>
         <div class="flex items-center justify-center">
-          <p class="text-slate-600">该课程签到总人数：</p>
+          <p class="text-slate-600">实验签到总人数：</p>
           <p class="ml-2 text-2xl font-bold text-blue-600">
-            {{ statistics.data.value.data }}
+            {{ statistics.data.value }}
           </p>
         </div>
       </template>
     </Card>
 
     <!-- 签到列表 -->
-    <Card v-if="attendanceList.data.value?.data">
+    <Card v-if="attendanceList.data.value">
       <template #title>学生签到列表</template>
       <template #content>
         <DataTable
@@ -165,15 +165,7 @@ const updateMutation = useUpdateAttendanceSuccess()
 
 // 计算签到数据
 const attendanceData = computed((): AttendanceListResponse | null => {
-  const value = attendanceList.data.value
-  if (!value) return null
-
-  // 检查是否为 Axios 响应对象（有 data 属性）
-  if ('data' in value && value.data) {
-    return value.data.data || null
-  }
-
-  return null
+  return attendanceList.data.value || null
 })
 
 const loadAttendance = () => {

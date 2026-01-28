@@ -4,6 +4,7 @@
 
 import { useQuery } from '@tanstack/vue-query'
 import { getApiTeacherAttendanceList } from '@/core/api/generated'
+import client from '@/core/api/config'
 import type { Ref } from 'vue'
 
 interface UseQueryAttendanceListParams {
@@ -22,8 +23,10 @@ export function useQueryAttendanceList({
         query: {
           classExperimentId: classExperimentId.value,
         },
+        client,
       })
     },
+    select: (response) => response.data?.data,
     enabled: enable ?? true,
   })
 }

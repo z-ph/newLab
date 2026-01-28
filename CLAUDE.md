@@ -560,6 +560,70 @@ someApiFunction({
 })
 ```
 
+**useQuery 必须添加 select 字段提取数据**
+
+- ✅ **必须添加 select 字段**：当 API 返回 JSON 数据时，使用 `select` 提取实际数据
+- ✅ **标准格式**：`select: (response) => response.data?.data`
+- ❌ **禁止直接返回完整响应**：不要返回包含 `data` 包装的完整响应
+
+**正确示例**：
+```typescript
+// ✅ 正确：使用 select 提取数据
+import { getApiTeacherClassQuery } from "@/core/api/generated"
+import client from "@/core/api/config"
+
+export function useQueryClass() {
+  return useQuery({
+    queryKey: ['class'],
+    queryFn: () =>
+      getApiTeacherClassQuery({
+        query: { pageable: false },
+        client,
+      }),
+    select: (response) => response.data?.data,  // ✅ 提取实际数据
+  })
+}
+
+// ❌ 错误：没有 select，返回完整响应
+export function useQueryClassWrong() {
+  return useQuery({
+    queryKey: ['class'],
+    queryFn: () =>
+      getApiTeacherClassQuery({
+        query: { pageable: false },
+        client,
+      }),
+    // ❌ 缺少 select，返回的是 { data: { data: [...] } }
+  })
+}
+```
+
+**使用场景**：
+- ✅ 所有使用 `useQuery` 获取数据时
+- ✅ API 返回格式为 `{ data: { data: ... } }` 时
+- ✅ 需要在组件中直接使用实际数据而不是包装响应时
+
+**理由**：
+- **数据一致性**：统一的数据提取方式，避免组件中重复写 `response.data?.data`
+- **类型安全**：select 会自动推断返回类型，提供更好的类型提示
+- **代码简洁**：组件中直接使用 `data.value` 而不是 `data.value.data?.data`
+- **易于维护**：数据提取逻辑集中在 hook 中，修改时只需改一处
+
+**API 返回格式**：
+后端 API 通常返回如下格式：
+```typescript
+{
+  data: {
+    data: T[],        // 实际数据数组或对象
+    total?: number    // 分页总数
+  },
+  code: number,
+  message: string
+}
+```
+
+使用 `select: (response) => response.data?.data` 提取后，组件中直接获得 `T[]` 或 `T` 类型。
+
 ### 错误处理规范（CRITICAL）
 
 **禁止使用 try-catch 包裹 mutation 调用处理错误**
