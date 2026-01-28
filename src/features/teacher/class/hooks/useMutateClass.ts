@@ -7,22 +7,18 @@ import { useMutation } from "@tanstack/vue-query";
 
 export function useCreateClass() {
   return useMutation({
-    mutationFn: ({ body }: GetFirstParamsType<typeof postApiTeacherClass>) =>
-      postApiTeacherClass({
-        body,
-      }),
+    mutationFn: async (params: GetFirstParamsType<typeof postApiTeacherClass>) => {
+      const response = await postApiTeacherClass(params);
+      return response.data?.data;
+    },
   });
 }
 
 export function useUpdateClass() {
   return useMutation({
-    mutationFn: ({
-      body,
-      path,
-    }: GetFirstParamsType<typeof putApiTeacherClassById>) =>
-      putApiTeacherClassById({
-        body,
-        path,
-      }),
+    mutationFn: async (params: GetFirstParamsType<typeof putApiTeacherClassById>) => {
+      const response = await putApiTeacherClassById(params);
+      return response.data?.data;
+    },
   });
 }
