@@ -12,7 +12,8 @@ import { client } from "@/core/api/config"
 import { toast } from "@/core/utils/toast"
 import { TokenManager } from "@/core/entity/TokenManager"
 import { UserManager } from "@/core/entity/UserManager"
-import { getHomePathForRole, type UserRole } from "@/core/utils/routeGuards"
+import { getHomePathForRole } from "@/core/utils/routeGuards"
+import type { UserRole } from "@/core/types/route"
 
 /**
  * 保存登录信息

@@ -1,51 +1,8 @@
 import type { Router, RouteLocationRaw } from 'vue-router'
-import type { RouteNamedMap } from 'vue-router/auto-routes'
 import { UserManager } from '@/core/entity/UserManager'
 import { TokenManager } from '@/core/entity/TokenManager'
-
-/**
- * 用户角色类型
- */
-export type UserRole = 'teacher' | 'student'
-
-/**
- * 从 RouteNamedMap 提取路由路径类型
- */
-type RoutePath = keyof RouteNamedMap
-
-/**
- * 角色路由路径类型（基于自动生成的路由）
- */
-type TeacherRoute = Extract<RoutePath, `/teacher${string}`>
-type StudentRoute = Extract<RoutePath, `/student${string}`>
-type PublicRoute = Extract<RoutePath, '/' | '/login'>
-
-/**
- * 角色路径前缀映射
- * 类型基于 RouteNamedMap 约束，确保路径正确性
- */
-export const ROLE_PATH_PREFIXES = {
-  teacher: '/teacher',
-  student: '/student',
-} as const satisfies Record<UserRole, string>
-
-/**
- * 角色首页路径映射
- * 类型基于 RouteNamedMap 约束，使用实际存在的路由路径
- */
-export const ROLE_HOME_PATHS = {
-  teacher: '/teacher/overview' as TeacherRoute,
-  student: '/student/overview' as StudentRoute,
-} as const satisfies Record<UserRole, RoutePath>
-
-/**
- * 白名单路径（无需登录即可访问）
- * 类型基于 RouteNamedMap 约束
- */
-export const PUBLIC_PATHS = [
-  '/',
-  '/login',
-] as const satisfies PublicRoute[]
+import type { UserRole, PublicRoute } from '@/core/types/route'
+import { ROLE_PATH_PREFIXES, ROLE_HOME_PATHS, PUBLIC_PATHS } from '@/core/constants/route'
 
 /**
  * 检查路径是否为公开路径
