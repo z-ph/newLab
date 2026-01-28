@@ -33,15 +33,22 @@
           </Card>
         </div>
 
-        <!-- 实验步骤 Tab -->
+        <!-- ���验步骤 Tab -->
         <ProcedureList
           v-if="activeTab === 1"
           :experiment-id="experiment.id!"
           @refresh="handleRefresh"
         />
 
+        <!-- 签到管理 Tab -->
+        <AttendanceManagement
+          v-if="activeTab === 2"
+          :experiment-id="experiment.id!"
+          :course-id="String(experiment.courseId)"
+        />
+
         <!-- 学生批改 Tab -->
-        <div v-if="activeTab === 2">
+        <div v-if="activeTab === 3">
           <Card class="mb-4">
             <template #content>
               <div class="flex gap-4 items-end">
@@ -63,7 +70,7 @@
 
         <!-- 统计信息 Tab -->
         <ExperimentStatistics
-          v-if="activeTab === 3"
+          v-if="activeTab === 4"
           :statistics="statisticsQuery.data.value || null"
           :loading="statisticsQuery.isLoading.value"
         />
@@ -78,6 +85,7 @@ import { useQueryExperimentStatistics } from '@/features/teacher/experiment/hook
 import { useQueryClassAll } from '@/features/teacher/class/hooks/useQueryClass'
 import type { ExperimentResponse } from '@/core/api/generated'
 import ProcedureList from './ProcedureList.vue'
+import AttendanceManagement from './AttendanceManagement.vue'
 import ExperimentStatistics from './ExperimentStatistics.vue'
 
 interface Props {
@@ -94,6 +102,7 @@ const selectedClassCode = ref<string | null>(null)
 const tabItems = [
   { label: '基本信息', icon: 'pi pi-info-circle' },
   { label: '实验步骤', icon: 'pi pi-list' },
+  { label: '签到管理', icon: 'pi pi-calendar' },
   { label: '学生批改', icon: 'pi pi-users' },
   { label: '统计信息', icon: 'pi pi-chart-bar' },
 ]
@@ -114,7 +123,7 @@ const classOptions = computed(() => {
 const statisticsQuery = useQueryExperimentStatistics(
   computed(() => selectedClassCode.value || ''),
   computed(() => props.experiment?.id || 0),
-  { enable: () => Boolean(visible.value && activeTab.value === 2 && selectedClassCode.value) },
+  { enable: () => Boolean(visible.value && activeTab.value === 3 && selectedClassCode.value) },
 )
 
 watch(visible, (newVal) => {
