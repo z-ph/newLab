@@ -3,20 +3,25 @@
     <!-- ��面头部 -->
     <div class="mb-6 flex items-center justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-slate-900">实验管理</h1>
-        <p class="text-slate-600">管理您的实验项目、步骤和学生批改</p>
+        <h1 class="text-2xl font-bold text-slate-900">实验模版管理</h1>
+        <p class="text-slate-600">管理实验模版的基本信息和步骤配置</p>
       </div>
-      <Button label="新建实验" icon="pi pi-plus" @click="showCreateDialog = true" />
+      <Button label="新建实验模版" icon="pi pi-plus" @click="showCreateDialog = true" />
     </div>
 
-    <!-- 搜索和筛选 -->
+    <!-- 筛选 -->
     <Card class="mb-6">
       <template #content>
         <div class="flex gap-4">
-          <InputText v-model="searchKeyword" placeholder="搜索实验名称" class="flex-1" />
-          <Select v-model="selectedStatus" :options="statusOptions" option-label="label" option-value="value"
-            placeholder="选择状态" class="w-48" />
-          <Button icon="pi pi-search" outlined />
+          <Select
+            v-model="selectedCourseId"
+            :options="courseOptions"
+            option-label="label"
+            option-value="value"
+            placeholder="筛选课程"
+            class="w-64"
+            show-clear
+          />
         </div>
       </template>
     </Card>
@@ -24,14 +29,15 @@
     <!-- 实验列表 -->
     <Card>
       <template #content>
-        <DataTable v-model:selection="selectedExperiments" :value="query.data.value || []"
+        <DataTable v-model:selection="selectedExperiments" :value="experiments"
           :loading="query.isLoading.value" selection-mode="multiple" :paginator="true" :rows="10">
-          <Column selection-mode="multiple" header-style="width: 3rem" />
-          <Column field="experimentName" header="实验名称" />
-          <Column field="courseId" header="课程ID" />
-          <Column field="percentage" header="分数占比(%)" />
-          <Column field="endTime" header="截止时间" />
-          <Column header="操作">
+          <Column key="selection" selection-mode="multiple" header-style="width: 3rem" />
+          <Column key="experimentName" field="experimentName" header="实验名称" />
+          <Column key="courseName" field="courseName" header="课程" />
+          <Column key="teacherUsername" field="teacherUsername" header="教师" />
+          <Column key="percentage" field="percentage" header="分数占比(%)" />
+          <Column key="endTime" field="endTime" header="截止时间" />
+          <Column key="actions" header="操作">
             <template #body="slotProps">
               <div class="flex gap-2">
                 <Button label="管理" outlined size="small" @click="openDetail(slotProps.data)" />
@@ -55,26 +61,65 @@
     <!-- 实验详情对话框 -->
     <ExperimentDetailDialog v-model:visible="showDetailDialog" :experiment="selectedExperiment" />
 
-    <!-- 删除确认对话框 -->
-    <ConfirmDialog></ConfirmDialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
 import { useQueryExperimentAll } from '@/features/teacher/experiment/hooks/useQueryExperiment'
 import { useDeleteExperiment } from '@/features/teacher/experiment/hooks/useMutateExperimentDelete'
+import { useQueryCourseAll } from '@/features/teacher/course/hooks/useQueryCourse'
 import type { ExperimentResponse } from '@/core/api/generated'
 import ExperimentFormDialog from './components/ExperimentFormDialog.vue'
 import ExperimentDetailDialog from './components/ExperimentDetailDialog.vue'
 
 const toast = useToast()
 const confirm = useConfirm()
-
+const courseMap = new Map<string|undefined,{courseName:string,teacherUsername:string}>()
+function getCourseInfo(courseId: string) {
+  if (courseMap.has(courseId)) {
+    return courseMap.get(courseId)!
+  }
+  const course = courseQuery.data.value?.records?.find(c=>c.courseId===courseId)
+  const info = {
+    courseName: course?.courseName || '未知课程',
+    teacherUsername: course?.teacherUsername || '未知教师',
+  }
+  courseMap.set(courseId, info)
+  return info
+}
 // 查询实验列表
 const query = useQueryExperimentAll()
+const { query: courseQuery } = useQueryCourseAll()
+
+// 课程选项
+const courseOptions = computed(() => {
+  const courses = courseQuery.data.value?.records || []
+  return courses.map((c) => ({
+    label: c.courseName || '',
+    value: c.courseId || '',
+  }))
+})
+
+// 选中的课程ID
+const selectedCourseId = ref<string | null>(null)
+
+// 实验列表（带课程信息）
+const experiments = computed(()=>{
+  const allExperiments = query.data.value || []
+  const expWithCourse = allExperiments.map(exp=>({
+    ...exp,
+    ...getCourseInfo(exp.courseId!)
+  }))
+
+  // 按课程筛选
+  if (selectedCourseId.value) {
+    return expWithCourse.filter(exp => exp.courseId === selectedCourseId.value)
+  }
+  return expWithCourse
+})
 
 // 对话框状态
 const showCreateDialog = ref(false)
@@ -133,14 +178,5 @@ const handleEditSuccess = () => {
 }
 
 // 其他状态
-const searchKeyword = ref('')
-const selectedStatus = ref(null)
 const selectedExperiments = ref([])
-
-const statusOptions = [
-  { label: '全部', value: null },
-  { label: '草稿', value: 'draft' },
-  { label: '已发布', value: 'published' },
-  { label: '已截止', value: 'closed' },
-]
 </script>
