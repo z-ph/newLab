@@ -9,9 +9,6 @@
       <Button label="新建课程" icon="pi pi-plus" @click="openCreateDialog" />
     </div>
 
-    <!-- 搜索和筛选 -->
-    <CourseSearchBar ref="searchBarRef" @search="handleSearch" />
-
     <!-- 课程列表 -->
     <CourseTable
       :courses="query.data.value?.records || []"
@@ -36,7 +33,7 @@
 
 <script setup lang="ts">
 // ==================== 导入 ====================
-import { ref, reactive } from 'vue'
+import { ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
 import {
@@ -45,10 +42,9 @@ import {
   useUpdateCourse,
   useDeleteCourse,
 } from '@/features/teacher/course/hooks'
-import type { CourseResponse, CourseQueryRequest } from '@/core/api/generated'
+import type { CourseResponse } from '@/core/api/generated'
 
 // ==================== 组件引入 ====================
-import CourseSearchBar from './components/CourseSearchBar.vue'
 import CourseTable from './components/CourseTable.vue'
 import CourseFormDialog from './components/CourseFormDialog.vue'
 
@@ -66,21 +62,6 @@ const confirm = useConfirm()
 
 // ==================== 查询状态 ====================
 const { current, size, query } = useQueryCoursePage({ current: 1, size: 10 })
-
-// ==================== 搜索 ====================
-const searchParams = reactive<Partial<CourseQueryRequest>>({})
-
-const handleSearch = (keyword: string) => {
-  if (keyword) {
-    searchParams.courseId = keyword
-    searchParams.courseName = keyword
-  } else {
-    searchParams.courseId = undefined
-    searchParams.courseName = undefined
-  }
-  // 重置到第一页
-  current.value = 1
-}
 
 // ==================== 对话框状态 ====================
 const showDialog = ref(false)

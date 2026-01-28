@@ -9,25 +9,16 @@
       <Button label="新建班级" icon="pi pi-plus" @click="showCreateDialog = true" />
     </div>
 
-    <!-- 搜索和筛选 -->
-    <Card class="mb-6">
-      <template #content>
-        <div class="flex gap-4">
-          <InputText v-model="searchKeyword" placeholder="搜索班级名称或代码" class="flex-1" />
-        </div>
-      </template>
-    </Card>
-
     <!-- 班级列表 -->
     <Card>
       <template #content>
         <DataTable generic="Class" v-model:selection="selectedClasses" :value="query.data.value?.records || []"
           :paginator="true" :rows="size" :loading="query.isLoading.value" selection-mode="multiple"
           :total-records="query.data.value?.total" @page="onPageChange">
-          <Column selection-mode="multiple" header-style="width: 3rem" />
-          <Column field="className" header="班级名称" />
-          <Column field="studentCount" header="学生数" />
-          <Column header="操作">
+          <Column key="selection" selection-mode="multiple" header-style="width: 3rem" />
+          <Column key="className" field="className" header="班级名称" />
+          <Column key="studentCount" field="studentCount" header="学生数" />
+          <Column key="actions" header="操作">
             <template #body="slotProps">
               <div class="flex gap-2">
                 <Button
@@ -230,7 +221,6 @@ const handleDelete = async (id: number) => {
 }
 
 // ==================== 其他状态 ====================
-const searchKeyword = ref('')
 const selectedClasses = ref([])
 
 // ==================== 学生管理相关 ====================

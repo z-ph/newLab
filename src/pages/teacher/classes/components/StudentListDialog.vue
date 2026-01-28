@@ -28,13 +28,13 @@
       :rows-per-page-options="[10, 20, 50]"
       @page="onPageChange"
     >
-      <Column field="studentUsername" header="学号" />
-      <Column field="bindTime" header="绑定时间">
+      <Column key="studentUsername" field="studentUsername" header="学号" />
+      <Column key="bindTime" field="bindTime" header="绑定时间">
         <template #body="slotProps">
           {{ formatDate(slotProps.data.bindTime) }}
         </template>
       </Column>
-      <Column header="操作">
+      <Column key="actions" header="操作">
         <template #body="slotProps">
           <Button
             icon="pi pi-trash"
