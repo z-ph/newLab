@@ -1,3 +1,4 @@
+import axios from "axios";
 import router from "@/router";
 import { createClient } from "./generated/client";
 import { TokenManager } from "@/core/entity/TokenManager";
@@ -9,57 +10,68 @@ import type { RouteNamedMap } from "vue-router/auto-routes";
 type PublicRoute = keyof RouteNamedMap & ("/" | "/login");
 
 /**
- * 创建 API 客户端实例
+ * 创建 axios 实例
  */
-const client = createClient({
-  baseUrl: import.meta.env.DEV ? "/api" : import.meta.env.BASE_URL,
-  // 自动根据 Content-Type 解析响应（json, blob, text, formData）
-  parseAs: "stream",
+const axiosInstance = axios.create({
+  baseURL: import.meta.env.DEV ? "/api" : import.meta.env.BASE_URL,
 });
 
 // 添加请求拦截器 - 自动添加认证 tokens
-client.interceptors.request.use(async (request) => {
-  const token = TokenManager.getToken();
-  if (token) {
-    request.headers.set("Authorization", `Bearer ${token}`);
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const token = TokenManager.getToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
   }
-  return request;
-});
+);
 
 // 添加响应拦截器 - 处理 401 错误和业务错误码
-client.interceptors.response.use(async (response) => {
-  // 先处理 HTTP 401 错误
-  if (response.status === 401) {
-    // Token 过期或未授权，清除本地存储并跳转到登录页
-    TokenManager.removeToken();
-    UserManager.removeUserInfo();
-    toast.error("未授权，请重新登录");
-    router.replace({ name: "/login" as PublicRoute });
-    throw new Error("未授权，请重新登录");
-  }
+axiosInstance.interceptors.response.use(
+  (response) => {
+    // 处理 JSON 响应的业务错误码
+    const data = response.data as {
+      code?: number;
+      message?: string;
+      data?: unknown;
+    };
 
-  // 只处理 JSON 响应的业务错误码
-  const contentType = response.headers.get("content-type");
-  let jsonData;
-  if (contentType?.includes("application/json")) {
-    try {
-      // 克隆 response 以避免消耗原始的 body
-      jsonData = (await response.json()) as {
-        code?: number;
-        message?: string;
-      };
-    } catch {
-      toast.error("JSON格式错误");
-    }
     // 检查业务错误码
-    if (jsonData?.code !== undefined && jsonData.code !== 200) {
-      const errorMsg = jsonData.message || "未知错误";
+    if (data?.code !== 200) {
+      const errorMsg = data?.message || "未知错误";
       toast.error(errorMsg);
-      throw Error(errorMsg);
+      throw new Error(errorMsg);
     }
-  }
-  return response;
+
+    return response;
+  },
+  (error) => {
+    // 处理 HTTP 错误
+    if (error.response?.status === 401) {
+      // Token 过期或未授权，清除本地存储并跳转到登录页
+      TokenManager.removeToken();
+      UserManager.removeUserInfo();
+      toast.error("未授权，请重新登录");
+      router.replace({ name: "/login" as PublicRoute });
+      return Promise.reject(new Error("未授权，请重新登录"));
+    }
+
+    // 处理其他 HTTP 错误
+    const errorMsg =
+      error.response?.data?.message || error.message || "未知错误";
+    toast.error(errorMsg);
+    return Promise.reject(error);
+  },
+);
+
+/**
+ * 创建 hey-api 客户端实例
+ * 使用自定义的 axios 实例
+ */
+const client = createClient({
+  axios: axiosInstance,
 });
 
 export default client;
-export { client };
+export { client, axiosInstance };

@@ -34,7 +34,7 @@ function createHeyApiPlugin(openApiUrl: string): Plugin {
         plugins: [
           "@hey-api/typescript",
           "@hey-api/sdk",
-          "@hey-api/client-fetch"
+          "@hey-api/client-axios"
         ]
       });
     },
