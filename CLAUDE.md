@@ -32,6 +32,44 @@ pnpm typecheck
 - ✅ 用户自己负责启动开发服务器
 - ✅ 如需验证代码，使用 `pnpm typecheck` 或 `pnpm build`
 
+## 工作流程规范（CRITICAL）
+
+**任务开始前必须确立错误边界**
+
+在开始任何代码修改任务前，必须先���行 `pnpm typecheck` 确立当前的类型检查状态：
+
+```bash
+# 任务开始前运行
+pnpm typecheck
+```
+
+**错误边界原则**：
+- ✅ **记录初始状态**：记住任务开始前就存在的类型错误
+- ✅ **只关注新增错误**：只处理由本次修改引入的类型错误
+- ❌ **忽略既有错误**：不要修复任务范围之外的类型错误（除非明确要求）
+
+**示例场景**：
+```bash
+# 任务开始前
+pnpm typecheck
+# 输出：src/features/old-module/example.ts:10:5 - error: 此错误已存在
+# ✅ 记录：这个错误不是本次任务导致的
+
+# 任务进行中
+pnpm typecheck
+# 输出：
+#   src/features/old-module/example.ts:10:5 - error: 此错误已存在
+#   src/pages/new-feature.vue:25:3 - error: 新增的错误
+# ✅ 只处理：src/pages/new-feature.vue 的新错误
+# ❌ 忽略：src/features/old-module/example.ts 的旧错误
+```
+
+**理由**：
+- 防止范围蔓延：聚焦当前任务，不陷入修复无关问题的陷阱
+- 时间可控：避免因修复既有错误导致任务时间不可预测
+- 责任清晰：明确哪些错误是本次引入的，哪些是历史遗留
+- 效率优先：快速完成当前任务，而不是追求完美的代码库
+
 ## 架构与配置
 
 ### 项目结构
@@ -221,6 +259,61 @@ toast.warn('警告消息')
 **全局配置**：
 - `App.vue` 必须包含 `<Toast />` 组件
 - `main.ts` 已初始化全局 Toast 服务
+
+**表单控件选择规范（CRITICAL）**
+
+**ID、代码或编号绑定必须使用下拉选择框**
+
+- ❌ **禁止使用输入框**：对于涉及 ID、代码、编号等关联字段的绑定
+- ✅ **必须使用下拉选择框**：使用 PrimeVue 的 `Dropdown` 或 `Select` 组件
+
+**适用场景**：
+- 外键关联（如：班级ID、学生ID、课程ID）
+- 枚举值选择（如：状态码、类型码）
+- 固定选项的编号（如：学期编号、实验编号）
+- 任何需要从已有数据中选择的情况
+
+**示例**：
+```vue
+<!-- ✅ 正确：使用 Dropdown 组件 -->
+<Dropdown
+  v-model="formData.classId"
+  :options="classOptions"
+  optionLabel="className"
+  optionValue="classId"
+  placeholder="请选择班级"
+/>
+
+<!-- ❌ 错误：使用 InputNumber 让用户手动输入 ID -->
+<InputNumber
+  v-model="formData.classId"
+  placeholder="请输入班级ID"
+/>
+
+<!-- ❌ 错误：使用 InputText 让用户手动输入代码 -->
+<InputText
+  v-model="formData.statusCode"
+  placeholder="请输入状态码"
+/>
+```
+
+**数据准备**：
+```typescript
+// 准备下拉选项数据
+const classOptions = computed(() => {
+  return classes.value.map(item => ({
+    className: item.name,
+    classId: item.id,
+  }))
+})
+```
+
+**理由**：
+- **避免错误**：防止用户输入错误的 ID 或代码
+- **提升体验**：用户可以看到可选选项，无需记忆
+- **数据一致性**：确保只能选择已存在的有效数据
+- **类型安全**：下拉选择可以保证类型安全
+- **更好的可维护性**：选项集中管理，易于更新
 
 ### 样式规范（CRITICAL）
 
@@ -449,3 +542,71 @@ const handleDelete = async (id: number) => {
 - ✅ Mutation 调用（创建、更新、删除）
 - ✅ Query 调用（如有全局错误处理）
 - ❌ 特殊场景需要自定义错误处理时除外（需注释说明原因）
+
+### 表单和列表设计规范（CRITICAL）
+
+**严格依据后端 API 字段，禁止擅自添加或修改**
+
+- ✅ **表单字段必须与 API 请求/响应类型一致**
+- ✅ **列表列定义必须与 API 响应类型一致**
+- ❌ **禁止添加后端 API 中不存在的字段**
+- ❌ **擅自修改字段类型或名称**
+- ❌ **增加冗余的类型定义**
+
+**表单设计原则**：
+```typescript
+// ✅ 正确：直接使用 API 类型
+import type { CreateExperimentRequest } from '@/core/api/generated'
+
+type ExperimentFormData = Partial<CreateExperimentRequest>
+
+const formData = reactive({
+  experimentName: '',
+  description: '',
+}) satisfies ExperimentFormData
+
+// ❌ 错误：擅自添加后端没有的字段
+const formData = reactive({
+  experimentName: '',
+  description: '',
+  customField: '',  // 后端 API 没有这个字段！
+  experimentDate: '',  // 后端不叫这个名字！
+})
+```
+
+**列表设计原则**：
+```typescript
+// ✅ 正确：列定义与 API 响应类型一致
+import type { ExperimentInfo } from '@/core/api/generated'
+
+const columns: TableColumn<ExperimentInfo>[] = [
+  { field: 'experimentName', header: '实验名称' },
+  { field: 'description', header: '描述' },
+  { field: 'createdAt', header: '创建时间' },
+]
+
+// ❌ 错误：擅自添加不存在的字段
+const columns = [
+  { field: 'experimentName', header: '实验名称' },
+  { field: 'customField', header: '自定义字段' },  // API 中没有！
+  { field: 'experimentDate', header: '实验日期' },  // 字段名不对！
+]
+```
+
+**工作流程**：
+1. **先查看 API 类型**：使用 `Go to Definition` 查看后端 API 定义的类型
+2. **严格按类型设计**：表单字段、列表列必须与 API 类型一致
+3. **使用类型运算**：通过 `Partial`、`Pick`、`Omit` 等工具类型派生，不要手动定义
+4. **验证类型安全**：使用 `satisfies` 确保类型正确
+
+**如果字段不够用**：
+- ❌ 不要擅自添加字段
+- ✅ 与后端沟通，先修改 API 定义
+- ✅ 或使用前端的计算属性（不提交到后端）
+
+**理由**：
+- **避免运行时错误**：擅自添加字段会导致请求失败或数据不显示
+- **降低维护成本**：API 变更时只需更新类型定义，不需要修改多处
+- **保证类型安全**：TypeScript 可以在编译时发现错误
+- **提高开发效率**：不需要在前后端类型之间做转换
+- **单一数据源**：API 类型是唯一真实来源
