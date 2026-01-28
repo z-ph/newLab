@@ -8,19 +8,6 @@
   >
     <form @submit.prevent="handleSubmit">
       <div class="mb-4 flex flex-col gap-4">
-        <!-- 课程ID -->
-        <div v-if="!isEdit">
-          <label class="mb-2 block text-sm font-medium text-slate-700">
-            课程编号 <span class="text-red-500">*</span>
-          </label>
-          <InputText
-            v-model="formData.courseId"
-            class="w-full"
-            placeholder="请输入课程编号（如：CS101）"
-            :disabled="isEdit"
-          />
-        </div>
-
         <!-- 课程名称 -->
         <div>
           <label class="mb-2 block text-sm font-medium text-slate-700">
@@ -76,6 +63,9 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>()
 
+// ==================== Toast ====================
+const toast = useToast()
+
 // ==================== 响应式数据 ====================
 const visible = computed({
   get: () => props.modelValue,
@@ -110,7 +100,7 @@ const handleClose = () => {
 const handleSubmit = () => {
   // 验证必填字段
   if (!props.isEdit && !formData.courseId?.trim()) {
-    useToast().add({
+    toast.add({
       severity: 'warn',
       summary: '提示',
       detail: '请输入课程编号',
@@ -120,7 +110,7 @@ const handleSubmit = () => {
   }
 
   if (!formData.courseName?.trim()) {
-    useToast().add({
+    toast.add({
       severity: 'warn',
       summary: '提示',
       detail: '请输入课程名称',
