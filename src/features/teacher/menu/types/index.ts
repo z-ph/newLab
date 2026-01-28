@@ -44,6 +44,7 @@ export type PrimeIcon =
   | 'pi pi-calendar'
   | 'pi pi-cog'
   | 'pi pi-bell'
+  | 'pi pi-folder'
   | string
 
 /**
@@ -90,8 +91,13 @@ const ROUTE_META: Partial<Record<TeacherRoutePath, RouteMeta>> = {
   },
   '/teacher/experiments/': {
     name: 'experiments',
-    title: '实验管理',
+    title: '实验模版管理',
     icon: 'pi pi-file-edit',
+  },
+  '/teacher/class-experiments/': {
+    name: 'class-experiments',
+    title: '班级实验管理',
+    icon: 'pi pi-folder',
   },
 }
 
@@ -127,6 +133,7 @@ export const MENU_ITEMS: TeacherMenuItem[] = Object.entries(ROUTE_META)
       '/teacher/courses/',
       '/teacher/classes/',
       '/teacher/experiments/',
+      '/teacher/class-experiments/',
     ]
     return order.indexOf(a.path) - order.indexOf(b.path)
   })
