@@ -14,12 +14,12 @@ function isPublicPath(path: string): path is PublicRoute {
 /**
  * 根据路径判断应该访问的角色
  */
-function getRoleForPath(path: string): UserRole | null {
+function getRoleForPath(path: string): UserRole[] | null {
   if (path.startsWith(ROLE_PATH_PREFIXES.teacher)) {
-    return 'teacher'
+    return ['teacher','admin']
   }
   if (path.startsWith(ROLE_PATH_PREFIXES.student)) {
-    return 'student'
+    return ['student']
   }
   return null
 }
@@ -44,7 +44,7 @@ export function setupRouteGuards(router: Router): void {
       next()
       return
     }
-
+    debugger;
     // 2. 检查用户是否已登录
     const hasToken = TokenManager.hasToken()
     const isTokenValid = TokenManager.isValid()
@@ -80,7 +80,7 @@ export function setupRouteGuards(router: Router): void {
     }
 
     // 5. 检查角色是否匹配
-    if (userRole !== requiredRole) {
+    if (!requiredRole.includes(userRole)) {
       // 角色不匹配，跳转到用户角色对应的首页
       const homePath = getHomePathForRole(userRole)
       next(homePath)
