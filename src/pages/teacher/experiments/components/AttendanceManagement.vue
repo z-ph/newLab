@@ -44,10 +44,10 @@
           :paginator="true"
           :rows="10"
         >
-          <Column field="studentName" header="学生姓名" />
-          <Column field="studentNumber" header="学号" />
-          <Column field="classCode" header="班级" />
-          <Column header="签到状态">
+          <Column key="studentName" field="studentName" header="学生姓名" />
+          <Column key="studentNumber" field="studentNumber" header="学号" />
+          <Column key="classCode" field="classCode" header="班级" />
+          <Column key="attendanceStatus" header="签到状态">
             <template #body="slotProps">
               <Tag
                 :value="getAttendanceStatusText(slotProps.data.attendanceStatus)"
@@ -55,12 +55,12 @@
               />
             </template>
           </Column>
-          <Column header="签到时间">
+          <Column key="attendanceTime" header="签到时间">
             <template #body="slotProps">
               {{ formatDateTime(slotProps.data.attendanceTime) }}
             </template>
           </Column>
-          <Column header="操作">
+          <Column key="actions" header="操作">
             <template #body="slotProps">
               <div class="flex gap-2">
                 <Button
@@ -96,10 +96,10 @@
           :paginator="true"
           :rows="5"
         >
-          <Column field="studentName" header="学生姓名" />
-          <Column field="studentNumber" header="学号" />
-          <Column field="classCode" header="班级" />
-          <Column header="操作">
+          <Column key="studentName" field="studentName" header="学生姓名" />
+          <Column key="studentNumber" field="studentNumber" header="学号" />
+          <Column key="classCode" field="classCode" header="班级" />
+          <Column key="actions" header="操作">
             <template #body="slotProps">
               <Button
                 label="手动签到"
@@ -116,7 +116,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watchEffect } from 'vue'
 import { useQueryClassAll } from '@/features/teacher/class/hooks/useQueryClass'
 import { useQueryAttendanceList } from '@/features/teacher/experiment/attendance/hooks/useQueryAttendanceList'
 import { useQueryAttendanceStatistics } from '@/features/teacher/experiment/attendance/hooks/useQueryAttendanceStatistics'
@@ -147,13 +147,22 @@ const classOptions = computed(() => {
 const selectedClassCode = ref<string | null>(null)
 const selectedClassExperimentId = ref<number>(0)
 
-// 查询签到列表（需要 classExperimentId）
+// 查询签到列表（需要 classCode 和 experimentId）
 const attendanceList = useQueryAttendanceList({
-  classExperimentId: computed(() => selectedClassExperimentId.value),
-  enable: computed(() => Boolean(selectedClassExperimentId.value)),
+  classCode: computed(() => selectedClassCode.value ?? ''),
+  experimentId: computed(() => String(props.experimentId)),
+  enable: computed(() => Boolean(selectedClassCode.value)),
 })
 
-// 查询��到统计（需要 courseId）
+// 从响应中提取 classExperimentId（如果有的话）
+watchEffect(() => {
+  const data = attendanceList.data.value as any
+  if (data?.classExperimentId) {
+    selectedClassExperimentId.value = data.classExperimentId
+  }
+})
+
+// 查询签到统计（需要 courseId）
 const statistics = useQueryAttendanceStatistics({
   courseId: computed(() => props.courseId),
   experimentId: computed(() => String(props.experimentId)),
@@ -169,9 +178,7 @@ const attendanceData = computed((): AttendanceListResponse | null => {
 })
 
 const loadAttendance = () => {
-  // TODO: 需要后端提供 classExperimentId 的获取方式
-  // 目前使用实验ID作为临时方案
-  selectedClassExperimentId.value = props.experimentId
+  if (!selectedClassCode.value) return
   attendanceList.refetch()
   statistics.refetch()
 }
