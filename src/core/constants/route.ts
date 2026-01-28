@@ -14,6 +14,7 @@ import type { UserRole, TeacherRoute, StudentRoute, PublicRoute, RoutePath } fro
 export const ROLE_PATH_PREFIXES = {
   teacher: '/teacher',
   student: '/student',
+  admin: '/admin'
 } as const satisfies Record<UserRole, string>
 
 /**
@@ -23,6 +24,7 @@ export const ROLE_PATH_PREFIXES = {
 export const ROLE_HOME_PATHS = {
   teacher: '/teacher/overview' as TeacherRoute,
   student: '/student/overview' as StudentRoute,
+  admin: '/teacher/overview' as TeacherRoute,
 } as const satisfies Record<UserRole, RoutePath>
 
 /**

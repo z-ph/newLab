@@ -15,7 +15,7 @@ export type RoutePath = keyof RouteNamedMap
 /**
  * 用户角色类型
  */
-export type UserRole = 'teacher' | 'student'
+export type UserRole = 'teacher' | 'student' | 'admin'
 
 /**
  * 教师端路由路径类型
