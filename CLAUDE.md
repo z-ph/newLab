@@ -262,25 +262,46 @@ toast.warn('警告消息')
 
 **表单控件选择规范（CRITICAL）**
 
-**ID、代码或编号绑定必须使用下拉选择框**
+**PrimeVue v4 组件选择：Select vs Dropdown**
 
-- ❌ **禁止使用输入框**：对于涉及 ID、代码、编号等关联字段的绑定
-- ✅ **必须使用下拉选择框**：使用 PrimeVue 的 `Dropdown` 或 `Select` 组件
+- ❌ **禁止使用带有 v-model 的 Dropdown**：PrimeVue v4 已弃用，使用 `Select` 组件代替
+- ✅ **选择场景使用 Select**：需要绑定值的下拉选择（如选择班级、课程、实验等）
+- ⚠️ **Dropdown 的正确使用场景**：仅用于不绑定值的操作菜单（如操作按钮下拉）
 
 **适用场景**：
-- 外键关联（如：班级ID、学生ID、课程ID）
-- 枚举值选择（如：状态码、类型码）
-- 固定选项的编号（如：学期编号、实验编号）
-- 任何需要从已有数据中选择的情况
+- 外键关联（如：班级ID、学生ID、课程ID）→ 使用 **Select**
+- 枚举值选择（如：状态码、类型码）→ 使用 **Select**
+- 固定选项的编号（如：学期编号、实验编号）→ 使用 **Select**
+- 操作菜单（不绑定值，如"导出"、"删除"等操作）→ 使用 **Dropdown**
 
 **示例**：
 ```vue
-<!-- ✅ 正确：使用 Dropdown 组件 -->
+<!-- ✅ 正确：选择场景使用 Select 组件 -->
+<Select
+  v-model="formData.classId"
+  :options="classOptions"
+  option-label="className"
+  option-value="classId"
+  placeholder="请选择班级"
+/>
+
+<!-- ✅ 正确：操作菜单使用 Dropdown 组件 -->
+<Dropdown>
+  <template #default>
+    <button>操作</button>
+  </template>
+  <template #content>
+    <button @click="exportData">导出</button>
+    <button @click="deleteItem">删除</button>
+  </template>
+</Dropdown>
+
+<!-- ❌ 错误：使用 Dropdown 进行值绑定 -->
 <Dropdown
   v-model="formData.classId"
   :options="classOptions"
-  optionLabel="className"
-  optionValue="classId"
+  option-label="className"
+  option-value="classId"
   placeholder="请选择班级"
 />
 
@@ -309,11 +330,13 @@ const classOptions = computed(() => {
 ```
 
 **理由**：
+- **API 设计**：PrimeVue v4 将选择功能从 Dropdown 中分离，形成专门的 Select 组件
 - **避免错误**：防止用户输入错误的 ID 或代码
 - **提升体验**：用户可以看到可选选项，无需记忆
 - **数据一致性**：确保只能选择已存在的有效数据
 - **类型安全**：下拉选择可以保证类型安全
 - **更好的可维护性**：选项集中管理，易于更新
+- **符合规范**：遵循 PrimeVue v4 的组件设计理念
 
 ### 样式规范（CRITICAL）
 
