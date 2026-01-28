@@ -5,6 +5,8 @@
   <router-view />
   <!-- 全局 Toast 组件，必须添加才能使用 useToast() -->
   <Toast />
+  <!-- 全局 ConfirmDialog 组件 -->
+  <ConfirmDialog />
 </template>
 
 <style>

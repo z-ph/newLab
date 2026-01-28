@@ -7,6 +7,7 @@ import './style.css'
 import PrimeVue from 'primevue/config'
 import Aura from '@primevue/themes/aura'
 import ToastService from 'primevue/toastservice'
+import ConfirmationService from 'primevue/confirmationservice'
 import 'primeicons/primeicons.css'
 
 // TanStack Query
@@ -35,6 +36,9 @@ app.use(PrimeVue, {
 
 // 安装 ToastService 插件
 app.use(ToastService)
+
+// 安装 ConfirmationService 插件
+app.use(ConfirmationService)
 
 // 初始化全局 Toast 服务实例（在 mount 之前）
 // ToastService 安装后会在 globalProperties 上创建 $toast
