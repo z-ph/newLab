@@ -9,66 +9,122 @@
       <Button label="新建实验" icon="pi pi-plus" @click="showCreateDialog = true" />
     </div>
 
-    <!-- 实验卡片列表 -->
-    <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-      <Card v-for="experiment in experiments" :key="experiment.id" class="hover:shadow-lg transition-shadow">
-        <template #title>
-          <div class="flex items-center justify-between">
-            <span>{{ experiment.name }}</span>
-            <Tag :value="getStatusText(experiment.status)" :severity="getStatusSeverity(experiment.status)" />
-          </div>
-        </template>
-        <template #subtitle>{{ experiment.course }}</template>
-        <template #content>
-          <div class="space-y-2">
-            <div class="flex items-center justify-between text-sm">
-              <span class="text-slate-600">分数占比</span>
-              <span class="font-semibold text-slate-900">{{ experiment.percentage }}%</span>
-            </div>
-            <div class="flex items-center justify-between text-sm">
-              <span class="text-slate-600">截止时间</span>
-              <span class="font-semibold text-slate-900">{{ experiment.deadline }}</span>
-            </div>
-            <div class="flex items-center justify-between text-sm">
-              <span class="text-slate-600">完成人数</span>
-              <span class="font-semibold text-slate-900">{{ experiment.completed }}/{{ experiment.total }}</span>
-            </div>
-            <ProgressBar :value="(experiment.completed / experiment.total) * 100" class="mt-3" />
-          </div>
-        </template>
-        <template #footer>
-          <div class="flex gap-2">
-            <Button label="编辑" outlined size="small" class="flex-1" />
-            <Button label="查看详情" size="small" class="flex-1" />
-          </div>
-        </template>
-      </Card>
-    </div>
+    <!-- 搜索和筛选 -->
+    <Card class="mb-6">
+      <template #content>
+        <div class="flex gap-4">
+          <InputText v-model="searchKeyword" placeholder="搜索实验名称" class="flex-1" />
+          <Select v-model="selectedStatus" :options="statusOptions" option-label="label" option-value="value"
+            placeholder="选择状态" class="w-48" />
+          <Button icon="pi pi-search" outlined />
+        </div>
+      </template>
+    </Card>
+
+    <!-- 实验列表 -->
+    <Card>
+      <template #content>
+        <DataTable v-model:selection="selectedExperiments" :value="query.data.value || []"
+          :loading="query.isLoading.value" selection-mode="multiple" :paginator="true" :rows="10">
+          <Column selection-mode="multiple" header-style="width: 3rem" />
+          <Column field="experimentName" header="实验名称" />
+          <Column field="courseId" header="课程ID" />
+          <Column field="percentage" header="分数占比(%)" />
+          <Column field="endTime" header="截止时间" />
+          <Column header="操作">
+            <template #body="slotProps">
+              <div class="flex gap-2">
+                <Button
+                  icon="pi pi-pencil"
+                  outlined
+                  size="small"
+                  @click="openEditDialog(slotProps.data)"
+                />
+                <Button
+                  icon="pi pi-trash"
+                  outlined
+                  severity="danger"
+                  size="small"
+                  @click="confirmDelete(slotProps.data)"
+                  :loading="deleteMutation.isPending.value"
+                />
+              </div>
+            </template>
+          </Column>
+        </DataTable>
+      </template>
+    </Card>
 
     <!-- 创建实验对话框 -->
-    <Dialog v-model:visible="showCreateDialog" header="新建实验" :style="{ width: '60vw' }" :modal="true">
+    <Dialog v-model:visible="showCreateDialog" header="新建实验" :style="{ width: '50vw' }" :modal="true">
       <form @submit.prevent="handleCreate">
         <div class="mb-4 flex flex-col gap-3">
           <div>
-            <label class="mb-2 block text-sm font-medium text-slate-700">实验名称</label>
-            <InputText v-model="formData.name" class="w-full" />
+            <label class="mb-2 block text-sm font-medium text-slate-700">
+              课程ID <span class="text-red-500">*</span>
+            </label>
+            <InputText v-model="formData.courseId" class="w-full" placeholder="请输入课程ID" />
           </div>
           <div>
-            <label class="mb-2 block text-sm font-medium text-slate-700">所属课程</label>
-            <Dropdown v-model="formData.courseId" :options="courseOptions" option-label="label" option-value="value" placeholder="选择课程" class="w-full" />
+            <label class="mb-2 block text-sm font-medium text-slate-700">
+              实验名称 <span class="text-red-500">*</span>
+            </label>
+            <InputText v-model="formData.experimentName" class="w-full" placeholder="请输入实验名称" />
           </div>
           <div>
-            <label class="mb-2 block text-sm font-medium text-slate-700">分数占比 (%)</label>
-            <InputNumber v-model="formData.percentage" :min="0" :max="100" class="w-full" />
+            <label class="mb-2 block text-sm font-medium text-slate-700">
+              分数占比(%) <span class="text-red-500">*</span>
+            </label>
+            <InputNumber v-model="formData.percentage" :min="0" :max="100" class="w-full" placeholder="请输入分数占比" />
           </div>
           <div>
-            <label class="mb-2 block text-sm font-medium text-slate-700">截止时间</label>
-            <Calendar v-model="formData.deadline" showTime class="w-full" />
+            <label class="mb-2 block text-sm font-medium text-slate-700">
+              截止时间 <span class="text-red-500">*</span>
+            </label>
+            <DatePicker v-model="formData.endTime" showTime class="w-full" placeholder="请选择截止时间" fluid />
           </div>
         </div>
         <div class="flex justify-end gap-2">
           <Button label="取消" outlined @click="showCreateDialog = false" />
-          <Button label="创建" type="submit" />
+          <Button label="创建" type="submit" :loading="createMutation.isPending.value" />
+        </div>
+      </form>
+    </Dialog>
+
+    <!-- 编辑实验对话框 -->
+    <Dialog v-model:visible="showEditDialog" header="编辑实验" :style="{ width: '50vw' }" :modal="true">
+      <form @submit.prevent="handleUpdate">
+        <div class="mb-4 flex flex-col gap-3">
+          <div>
+            <label class="mb-2 block text-sm font-medium text-slate-700">
+              实验名称 <span class="text-red-500">*</span>
+            </label>
+            <InputText
+              v-model="editFormData.experimentName"
+              class="w-full"
+              placeholder="请输入实验名称"
+            />
+          </div>
+          <div>
+            <label class="mb-2 block text-sm font-medium text-slate-700">
+              分数占比(%) <span class="text-red-500">*</span>
+            </label>
+            <InputNumber v-model="editFormData.percentage" :min="0" :max="100" class="w-full" placeholder="请输入分数占比" />
+          </div>
+          <div>
+            <label class="mb-2 block text-sm font-medium text-slate-700">
+              截止时间 <span class="text-red-500">*</span>
+            </label>
+            <DatePicker v-model="editFormData.endTime" showTime class="w-full" placeholder="请选择截止时间" fluid />
+          </div>
+        </div>
+        <div class="flex justify-end gap-2">
+          <Button label="取消" outlined @click="closeEditDialog" />
+          <Button
+            label="保存"
+            type="submit"
+            :loading="updateMutation.isPending.value"
+          />
         </div>
       </form>
     </Dialog>
@@ -76,87 +132,176 @@
 </template>
 
 <script setup lang="ts">
+// ==================== 导入 ====================
 import { ref } from 'vue'
-import Button from 'primevue/button'
-import Calendar from 'primevue/calendar'
-import Card from 'primevue/card'
-import Dialog from 'primevue/dialog'
-import Dropdown from 'primevue/dropdown'
-import InputNumber from 'primevue/inputnumber'
-import InputText from 'primevue/inputtext'
-import ProgressBar from 'primevue/progressbar'
-import Tag from 'primevue/tag'
+import { useToast } from 'primevue/usetoast'
+import { useConfirm } from 'primevue/useconfirm'
+import { useQueryExperimentAll } from '@/features/teacher/experiment/hooks/useQueryExperiment'
+import { useCreateExperiment, useUpdateExperiment } from '@/features/teacher/experiment/hooks/useMutateExperiment'
+import { useDeleteExperiment } from '@/features/teacher/experiment/hooks/useMutateExperimentDelete'
+import type { ExperimentResponse } from '@/core/api/generated'
 
+// ==================== Toast & Confirm ====================
+const toast = useToast()
+const confirm = useConfirm()
+
+// ==================== 查询状态 ====================
+const query = useQueryExperimentAll()
+
+// ==================== 创建相关 ====================
 const showCreateDialog = ref(false)
-
-const courseOptions = [
-  { label: '数据结构', value: 1 },
-  { label: '算法分析', value: 2 },
-  { label: '数据库原理', value: 3 },
-  { label: '计算机网络', value: 4 },
-]
-
+const createMutation = useCreateExperiment()
 const formData = ref({
-  name: '',
-  courseId: null,
+  courseId: '',
+  experimentName: '',
   percentage: 10,
-  deadline: null,
+  endTime: null as Date | null,
 })
 
-// 模拟数据
-const experiments = ref([
-  {
-    id: 1,
-    name: '链表操作实验',
-    course: '数据结构',
-    percentage: 15,
-    deadline: '2025-02-15',
-    completed: 35,
-    total: 45,
-    status: 'published',
-  },
-  {
-    id: 2,
-    name: '排序算法实现',
-    course: '算法分析',
-    percentage: 20,
-    deadline: '2025-02-20',
-    completed: 28,
-    total: 43,
-    status: 'published',
-  },
-  {
-    id: 3,
-    name: 'SQL查询优化',
-    course: '数据库原理',
-    percentage: 25,
-    deadline: '2025-03-01',
-    completed: 0,
-    total: 38,
-    status: 'draft',
-  },
-])
-
-const getStatusText = (status: string) => {
-  const statusMap: Record<string, string> = {
-    draft: '草稿',
-    published: '已发布',
-    closed: '已截止',
+const handleCreate = async () => {
+  try {
+    await createMutation.mutateAsync({
+      body: {
+        courseId: formData.value.courseId,
+        experimentName: formData.value.experimentName,
+        percentage: formData.value.percentage,
+        endTime: formData.value.endTime ? formData.value.endTime.toISOString() : undefined,
+      },
+    })
+    toast.add({
+      severity: 'success',
+      summary: '成功',
+      detail: '实验创建成功',
+      life: 3000,
+    })
+    showCreateDialog.value = false
+    resetFormData()
+    query.refetch()
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: '错误',
+      detail: '实验创建失败',
+      life: 3000,
+    })
   }
-  return statusMap[status] || status
 }
 
-const getStatusSeverity = (status: string) => {
-  const severityMap: Record<string, string> = {
-    draft: 'secondary',
-    published: 'success',
-    closed: 'info',
+const resetFormData = () => {
+  formData.value = {
+    courseId: '',
+    experimentName: '',
+    percentage: 10,
+    endTime: null,
   }
-  return severityMap[status] || 'secondary'
 }
 
-const handleCreate = () => {
-  console.log('创建实验', formData.value)
-  showCreateDialog.value = false
+// ==================== 编辑相关 ====================
+const showEditDialog = ref(false)
+const editingExperiment = ref<ExperimentResponse | null>(null)
+const editFormData = ref({
+  experimentName: '',
+  percentage: 10,
+  endTime: null as Date | null,
+})
+const updateMutation = useUpdateExperiment()
+
+const openEditDialog = (experiment: ExperimentResponse) => {
+  editingExperiment.value = experiment
+  editFormData.value = {
+    experimentName: experiment.experimentName || '',
+    percentage: experiment.percentage || 10,
+    endTime: experiment.endTime ? new Date(experiment.endTime) : null,
+  }
+  showEditDialog.value = true
 }
+
+const closeEditDialog = () => {
+  showEditDialog.value = false
+  editingExperiment.value = null
+  editFormData.value = {
+    experimentName: '',
+    percentage: 10,
+    endTime: null,
+  }
+}
+
+const handleUpdate = async () => {
+  if (!editingExperiment.value?.id) return
+
+  try {
+    await updateMutation.mutateAsync({
+      body: {
+        id: editingExperiment.value.id,
+        experimentName: editFormData.value.experimentName,
+        percentage: editFormData.value.percentage,
+        endTime: editFormData.value.endTime ? editFormData.value.endTime.toISOString() : undefined,
+      },
+    })
+    toast.add({
+      severity: 'success',
+      summary: '成功',
+      detail: '实验更新成功',
+      life: 3000,
+    })
+    closeEditDialog()
+    query.refetch()
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: '错误',
+      detail: '实验更新失败',
+      life: 3000,
+    })
+  }
+}
+
+// ==================== 删除相关 ====================
+const deleteMutation = useDeleteExperiment()
+
+const confirmDelete = (experiment: ExperimentResponse) => {
+  confirm.require({
+    message: `确定要删除实验"${experiment.experimentName}"吗？此操作不可撤销。`,
+    header: '删除确认',
+    icon: 'pi pi-exclamation-triangle',
+    rejectLabel: '取消',
+    acceptLabel: '删除',
+    acceptClass: 'p-button-danger',
+    accept: () => handleDelete(experiment.id!),
+  })
+}
+
+const handleDelete = async (id: number) => {
+  try {
+    await deleteMutation.mutateAsync({
+      path: { experimentId: id },
+    })
+    toast.add({
+      severity: 'success',
+      summary: '成功',
+      detail: '实验删除成功',
+      life: 3000,
+    })
+    query.refetch()
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: '错误',
+      detail: '实验删除失败',
+      life: 3000,
+    })
+  }
+}
+
+// ==================== 其他状态 ====================
+const searchKeyword = ref('')
+const selectedStatus = ref(null)
+const selectedExperiments = ref([])
+
+const statusOptions = [
+  { label: '全部', value: null },
+  { label: '草稿', value: 'draft' },
+  { label: '已发布', value: 'published' },
+  { label: '已截止', value: 'closed' },
+]
 </script>
