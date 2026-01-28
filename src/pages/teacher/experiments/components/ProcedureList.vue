@@ -5,19 +5,19 @@
     </div>
     <DataTable :value="proceduresQuery.data.value || []" :loading="proceduresQuery.isLoading.value"
       :paginator="true" :rows="10" striped-rows>
-      <Column field="number" header="序号" style="width: 80px" />
-      <Column header="类型" style="width: 150px">
+      <Column key="number" field="number" header="序号" style="width: 80px" />
+      <Column key="type" header="类型" style="width: 150px">
         <template #body="slotProps">
           <Tag :value="getTypeText(slotProps.data.type)" :severity="getTypeSeverity(slotProps.data.type)" />
         </template>
       </Column>
-      <Column field="remark" header="步骤描述" class="min-w-[200px]" />
-      <Column field="proportion" header="分数占比" style="width: 100px">
+      <Column key="remark" field="remark" header="步骤描述" class="min-w-[200px]" />
+      <Column key="proportion" field="proportion" header="分数占比" style="width: 100px">
         <template #body="slotProps">
           {{ slotProps.data.proportion }}%
         </template>
       </Column>
-      <Column header="时间范围" style="width: 180px">
+      <Column key="timeRange" header="时间范围" style="width: 180px">
         <template #body="slotProps">
           <div class="text-xs">
             <div v-if="slotProps.data.startTime">{{ formatDateTime(slotProps.data.startTime) }}</div>
@@ -26,7 +26,7 @@
           </div>
         </template>
       </Column>
-      <Column header="类型详情" style="width: 200px">
+      <Column key="typeDetails" header="类型详情" style="width: 200px">
         <template #body="slotProps">
           <div v-if="slotProps.data.type === 1" class="text-xs space-y-1">
             <div>视频: {{ slotProps.data.videoTitle || 'N/A' }}</div>
@@ -40,12 +40,12 @@
           </div>
         </template>
       </Column>
-      <Column header="可跳过" style="width: 100px">
+      <Column key="isSkip" header="可跳过" style="width: 100px">
         <template #body="slotProps">
           <Tag :value="slotProps.data.isSkip ? '是' : '否'" :severity="slotProps.data.isSkip ? 'info' : 'secondary'" />
         </template>
       </Column>
-      <Column header="操作" style="width: 150px">
+      <Column key="actions" header="操作" style="width: 150px">
         <template #body="slotProps">
           <div class="flex gap-2">
             <Button icon="pi pi-pencil" outlined size="small" @click="handleEdit(slotProps.data)" />
