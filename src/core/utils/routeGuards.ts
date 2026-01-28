@@ -44,7 +44,6 @@ export function setupRouteGuards(router: Router): void {
       next()
       return
     }
-    debugger;
     // 2. 检查用户是否已登录
     const hasToken = TokenManager.hasToken()
     const isTokenValid = TokenManager.isValid()
