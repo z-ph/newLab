@@ -147,7 +147,6 @@ const formData = ref({
 
 const handleCreate = async () => {
   await createMutation.mutateAsync({
-    //@ts-expect-error
     body: {
       className: formData.value.className,
     },

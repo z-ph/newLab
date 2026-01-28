@@ -14,7 +14,7 @@
         <Column selection-mode="multiple" header-style="width: 3rem" />
         <Column field="courseId" header="课程编号" />
         <Column field="courseName" header="课程名称" />
-        <Column field="teacherEmployeeId" header="教师工号" />
+        <Column field="teacherUsername" header="教师名称" />
         <Column field="createTime" header="创建时间">
           <template #body="slotProps">
             {{ formatDate(slotProps.data.createTime) }}
