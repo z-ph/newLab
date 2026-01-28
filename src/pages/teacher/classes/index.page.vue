@@ -4,7 +4,7 @@
     <div class="mb-6 flex items-center justify-between">
       <div>
         <h1 class="text-2xl font-bold text-slate-900">班级管理</h1>
-        <p class="text-slate-600">管理您的班级信息</p>
+        <p class="text-slate-600">管理您的班级及学生信息</p>
       </div>
       <Button label="新建班级" icon="pi pi-plus" @click="showCreateDialog = true" />
     </div>
@@ -14,9 +14,6 @@
       <template #content>
         <div class="flex gap-4">
           <InputText v-model="searchKeyword" placeholder="搜索班级名称或代码" class="flex-1" />
-          <Select v-model="selectedStatus" :options="statusOptions" option-label="label" option-value="value"
-            placeholder="选择状态" class="w-48" />
-          <Button icon="pi pi-search" outlined />
         </div>
       </template>
     </Card>
@@ -33,6 +30,13 @@
           <Column header="操作">
             <template #body="slotProps">
               <div class="flex gap-2">
+                <Button
+                  icon="pi pi-users"
+                  outlined
+                  size="small"
+                  v-tooltip.top="'查看学生'"
+                  @click="openStudentDialog(slotProps.data)"
+                />
                 <Button
                   icon="pi pi-pencil"
                   outlined
@@ -97,6 +101,13 @@
         </div>
       </form>
     </Dialog>
+
+    <!-- 学生列表对话框 -->
+    <StudentListDialog
+      v-model="showStudentDialog"
+      :class-code="selectedClassCode"
+      @refresh="query.refetch"
+    />
   </div>
 </template>
 
@@ -110,6 +121,7 @@ import { useCreateClass, useUpdateClass } from '@/features/teacher/class/hooks/u
 import { useDeleteClass } from '@/features/teacher/class/hooks/useMutateClassDelete'
 import type { GetApiBodyParamsType } from '@/core/utils/typeUtils'
 import type { postApiTeacherClass, Class } from '@/core/api/generated'
+import StudentListDialog from './components/StudentListDialog.vue'
 
 // ==================== 类型定义 ====================
 interface PageStateEvent {
@@ -220,14 +232,16 @@ const handleDelete = async (id: number) => {
 
 // ==================== 其他状态 ====================
 const searchKeyword = ref('')
-const selectedStatus = ref(null)
 const selectedClasses = ref([])
 
-const statusOptions = [
-  { label: '全部', value: null },
-  { label: '进行中', value: 'active' },
-  { label: '已结课', value: 'inactive' },
-]
+// ==================== 学生管理相关 ====================
+const showStudentDialog = ref(false)
+const selectedClassCode = ref('')
+
+const openStudentDialog = (classItem: Class) => {
+  selectedClassCode.value = classItem.classCode || ''
+  showStudentDialog.value = true
+}
 
 // ==================== 事件处理函数 ====================
 const onPageChange = (event: PageStateEvent) => {
