@@ -35,14 +35,8 @@
           @page="onPageChange"
         >
           <Column selection-mode="multiple" header-style="width: 3rem" />
-          <Column field="classCode" header="班级代码" />
           <Column field="className" header="班级名称" />
           <Column field="studentCount" header="学生数" />
-          <Column field="status" header="状态">
-            <template #body="{ data }">
-              <Tag :value="data.status === 'active' ? '进行中' : '已结课'" :severity="data.status === 'active' ? 'success' : 'secondary'" />
-            </template>
-          </Column>
           <Column header="操作">
             <template #body>
               <div class="flex gap-2">
@@ -60,16 +54,8 @@
       <form @submit.prevent="handleCreate">
         <div class="mb-4 flex flex-col gap-3">
           <div>
-            <label class="mb-2 block text-sm font-medium text-slate-700">班级代码</label>
-            <InputText v-model="formData.classCode" class="w-full" />
-          </div>
-          <div>
             <label class="mb-2 block text-sm font-medium text-slate-700">班级名称</label>
             <InputText v-model="formData.className" class="w-full" />
-          </div>
-          <div>
-            <label class="mb-2 block text-sm font-medium text-slate-700">班级描述</label>
-            <Textarea v-model="formData.description" rows="3" class="w-full" />
           </div>
         </div>
         <div class="flex justify-end gap-2">
@@ -82,10 +68,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, type Ref } from 'vue'
 import { useQueryClassPage } from '@/features/teacher/class/hooks/useQueryClass'
 import { useCreateClass } from '@/features/teacher/class/hooks/useMutateClass'
 import { useToast } from 'primevue/usetoast'
+import type { GetApiBodyParamsType } from '@/core/utils/typeUtils'
+import type { postApiTeacherClass } from '@/core/api/generated'
+
+interface PageStateEvent {
+  page: number
+  first: number
+  rows: number
+  pageCount: number
+}
 
 const toast = useToast()
 
@@ -101,11 +96,8 @@ const statusOptions = [
 ]
 
 const formData = ref({
-  classCode: '',
   className: '',
-  description: '',
-})
-
+}) satisfies Ref<Partial<GetApiBodyParamsType<typeof postApiTeacherClass>>>
 // 使用查询 hook 获取分页数据
 const { current, size, query } = useQueryClassPage({
   current: 1,
@@ -118,7 +110,10 @@ const createMutation = useCreateClass()
 const handleCreate = async () => {
   try {
     await createMutation.mutateAsync({
-      body: formData.value,
+      body: {
+        className: formData.value.className,
+        classCode: formData.value.className
+      },
     })
     toast.add({
       severity: 'success',
@@ -128,9 +123,7 @@ const handleCreate = async () => {
     })
     showCreateDialog.value = false
     formData.value = {
-      classCode: '',
       className: '',
-      description: '',
     }
     // 刷新列表
     query.refetch()
@@ -145,7 +138,7 @@ const handleCreate = async () => {
 }
 
 // 处理分页
-const onPageChange = (event: any) => {
+const onPageChange = (event: PageStateEvent) => {
   current.value = event.page + 1
 }
 </script>
