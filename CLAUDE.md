@@ -1014,6 +1014,238 @@ function formatDateTime(dateStr?: string): string { /* ... */ }  // ❌ 重复�
 - **统一风格**：所有工具函数有统一的代码风格和错误处理
 - **职责分离**：工具逻辑与 UI 逻辑分离
 
+**常量和选项数据组织规范（CRITICAL）**
+
+**原则：常量、枚举选项、配置数据必须提取到 constants 目录，禁止在组件内部定义**
+
+- ✅ **常量放在 constants 目录**：所有常量、枚举选项、配置数据必须放在 feature 的 constants 目录下
+- ✅ **按功能分类**：按模块或功能分类到不同的常量文件
+- ✅ **统一导出**：通过 constants/index.ts 统一导出
+- ✅ **使用 TypeScript 类型**：为选项数据定义明确的类型
+- ❌ **禁止在组件内部定义常量**：不要在 .vue 文件中定义 typeOptions、statusOptions 等
+- ❌ **禁止魔法数字**：不要在代码中直接使用 0、1、2 等未命名的数字
+
+**目录结构**：
+```
+src/features/{module}/{entity}/
+├── constants/
+│   ├── index.ts         # 统一导出
+│   ├── types.ts         # 类型选项、枚举
+│   ├── status.ts        # 状态常量
+│   ├── messages.ts      # 提示信息
+│   └── config.ts        # 配置参数
+├── components/
+├── hooks/
+└── utils/
+```
+
+**正确示例**：
+
+```typescript
+// ✅ constants/types.ts
+import type { SelectOption } from "@/features/shared/types"
+
+/**
+ * 题目类型选项
+ */
+export const TOPIC_TYPE_OPTIONS: SelectOption<number>[] = [
+  { label: "单选题", value: 1 },
+  { label: "多选题", value: 2 },
+  { label: "判断题", value: 3 },
+  { label: "填空题", value: 4 },
+  { label: "其他", value: 6 },
+]
+
+/**
+ * 题目类型枚举
+ */
+export const TOPIC_TYPE = {
+  SINGLE_CHOICE: 1,
+  MULTIPLE_CHOICE: 2,
+  TRUE_FALSE: 3,
+  FILL_BLANK: 4,
+  OTHER: 6,
+} as const
+
+export type TopicType = typeof TOPIC_TYPE[keyof typeof TOPIC_TYPE]
+
+/**
+ * 题目难度选项
+ */
+export const DIFFICULTY_OPTIONS: SelectOption<number>[] = [
+  { label: "简单", value: 1 },
+  { label: "中等", value: 2 },
+  { label: "困难", value: 3 },
+]
+```
+
+```typescript
+// ✅ constants/status.ts
+/**
+ * 审核状态
+ */
+export const REVIEW_STATUS = {
+  PENDING: 0,
+  APPROVED: 1,
+  REJECTED: 2,
+} as const
+
+export const REVIEW_STATUS_OPTIONS: SelectOption<number>[] = [
+  { label: "待审核", value: REVIEW_STATUS.PENDING },
+  { label: "已通过", value: REVIEW_STATUS.APPROVED },
+  { label: "已拒绝", value: REVIEW_STATUS.REJECTED },
+]
+
+/**
+ * 获取状态对应的文本
+ */
+export function getStatusText(status: number): string {
+  const statusMap: Record<number, string> = {
+    [REVIEW_STATUS.PENDING]: "待审核",
+    [REVIEW_STATUS.APPROVED]: "已通过",
+    [REVIEW_STATUS.REJECTED]: "已拒绝",
+  }
+  return statusMap[status] || "未知"
+}
+```
+
+```typescript
+// ✅ constants/index.ts
+export * from "./types"
+export * from "./status"
+export * from "./messages"
+export * from "./config"
+```
+
+```vue
+<!-- ✅ 组件中使用常量 -->
+<script setup lang="ts">
+import { TOPIC_TYPE_OPTIONS, DIFFICULTY_OPTIONS } from "@/features/teacher/topic/constants"
+
+// 直接导入使用，不需要重复定义
+</script>
+
+<template>
+  <div>
+    <Select
+      v-model="formData.type"
+      :options="TOPIC_TYPE_OPTIONS"
+      placeholder="请选择题目类型"
+    />
+    <Select
+      v-model="formData.difficulty"
+      :options="DIFFICULTY_OPTIONS"
+      placeholder="请选择难度"
+    />
+  </div>
+</template>
+```
+
+**错误示例**：
+
+```vue
+<!-- ❌ 错误：在组件内部定义常量 -->
+<script setup lang="ts">
+// ❌ 不应该在组件中定义这些选项
+const typeOptions = [
+  { label: "单选题", value: 1 },
+  { label: "多选题", value: 2 },
+  { label: "判断题", value: 3 },
+  { label: "填空题", value: 4 },
+  { label: "其他", value: 6 },
+]
+
+const difficultyOptions = [
+  { label: "简单", value: 1 },
+  { label: "中等", value: 2 },
+  { label: "困难", value: 3 },
+]
+</script>
+```
+
+```vue
+<!-- ❌ 错误：魔法数字 -->
+<template>
+  <div>
+    <!-- ❌ 直接使用数字，可读性差 -->
+    <Tag v-if="topic.type === 1" value="单选题" />
+    <Tag v-else-if="topic.type === 2" value="多选题" />
+
+    <!-- ✅ 使用常量 -->
+    <Tag v-if="topic.type === TOPIC_TYPE.SINGLE_CHOICE" value="单选题" />
+    <Tag v-else-if="topic.type === TOPIC_TYPE.MULTIPLE_CHOICE" value="多选题" />
+  </div>
+</template>
+```
+
+```vue
+<!-- ❌ 错误：多个组件重复定义相同的选项 -->
+<!-- TopicFilter.vue -->
+<script setup lang="ts">
+const typeOptions = [ /* ... */ ]  // ❌ 重复定义
+</script>
+
+<!-- TopicFormDialog.vue -->
+<script setup lang="ts">
+const typeOptions = [ /* ... */ ]  // ❌ 重复定义
+</script>
+```
+
+**常量分类**：
+
+1. **类型常量（types.ts）**：
+   - 枚举选项（单选、多选、判断等）
+   - 类型映射
+   - 类型相关的配置
+
+2. **状态常量（status.ts）**：
+   - 审核状态（待审核、已通过、已拒绝）
+   - 启用状态（启用、禁用）
+   - 状态文本映射函数
+
+3. **消息常量（messages.ts）**：
+   - 成功提示信息
+   - 错误提示信息
+   - 确认对话框文本
+
+4. **配置常量（config.ts）**：
+   - 分页配置（默认页码、默认每页条数）
+   - 上传配置（文件大小限制、允许的文件类型）
+   - 表单配置（最大长度、最小值等）
+
+**命名规范**：
+- ✅ **枚举对象**：使用 UPPER_SNAKE_CASE，如 `TOPIC_TYPE`、`REVIEW_STATUS`
+- ✅ **选项数组**：使用 XXX_OPTIONS，如 `TOPIC_TYPE_OPTIONS`、`STATUS_OPTIONS`
+- ✅ **常量值**：使用 UPPER_SNAKE_CASE，如 `SINGLE_CHOICE`、`PENDING`
+- ✅ **类型导出**：使用 PascalCase，如 `TopicType`、`ReviewStatus`
+
+**适用场景**：
+- ✅ **枚举选项**：类型、状态、级别等选项
+- ✅ **配置参数**：分页、上传、表单等配置
+- ✅ **提示信息**：成功、错误、确认等文本
+- ✅ **映射关系**：状态到文本、ID 到名称等映射
+- ✅ **常量值**：任何不会变化的固定值
+
+**例外场景**（可以在组件内定义）：
+- ✅ **组件特定配置**：只在当前组件使用，且与组件 UI 紧密相关的配置
+- ✅ **动态数据**：需要根据 props 或状态动态计算的选项
+
+**规范总结**：
+1. **提取常量**：所有常量、选项、配置必须提取到 constants 目录
+2. **分类组织**：按功能分类到 types.ts、status.ts、messages.ts、config.ts
+3. **统一导出**：通过 constants/index.ts 统一导出
+4. **类型安全**：使用 TypeScript 为选项数据定义类型
+5. **命名规范**：使用统一的命名规范（UPPER_SNAKE_CASE）
+6. **避免魔法数字**：使用有意义的常量名代替数字
+
+**理由**：
+- **避免重复**：避免在多个组件中重复定义相同的选项
+- **易于维护**：修改选项只需要改一处，自动同步到所有使用的地方
+- **类型安全**：统一的类型定义，减少类型错误
+- **代码可读**：使用常量名代替魔法数字，代码更易读
+- **易于测试**：独立的常量文件更容易测试
+- **职责分离**：配置数据与 UI 逻辑分离
+
 ### 类型定义黄金法则（CRITICAL）
 
 **禁止手动定义冗余接口，必须从 API 类型派生**
@@ -1461,6 +1693,76 @@ const handleDelete = async (id: number) => {
 - ❌ **增加冗余的类型定义**
 
 **表单设计原则**：
+
+**1. 使用 satisfies 而不是泛型断言（CRITICAL）**
+
+```typescript
+// ✅ 正确：使用 satisfies
+import type { CreateTopicRequest } from '@/core/api/generated'
+
+type TopicFormData = Partial<CreateTopicRequest>
+
+// reactive 使用 satisfies
+const formData = reactive({
+  type: undefined,
+  content: '',
+  choices: undefined,
+  correctAnswer: '',
+  tagIds: [],
+}) satisfies TopicFormData
+
+// ref 也使用 satisfies
+const formData = ref<TopicFormData>({
+  type: undefined,
+  content: '',
+  choices: undefined,
+  correctAnswer: '',
+  tagIds: [],
+})
+
+// ❌ 错误：使用泛型断言（丢失类型推断）
+const formData = reactive<Partial<CreateTopicRequest>>({
+  type: undefined,
+  content: '',
+  choices: undefined,
+  correctAnswer: '',
+  tagIds: [],
+})
+
+// ❌ 错误：泛型断言导致可以访问未定义的属性
+formData.someUndefinedField  // ❌ 不报错，类型是 any | undefined
+```
+
+**为什么必须使用 satisfies**：
+
+```typescript
+// satisfies - 保留精确类型推断 + 严格的属性访问检查
+const formData = reactive({
+  type: undefined,  // 类型推断为 undefined
+  content: '',      // 类型推断为 string literal ""
+}) satisfies TopicFormData
+
+// ✅ 访问未定义的属性会报错（防止误访问）
+formData.someUndefinedField  // TypeScript Error: Property 'someUndefinedField' does not exist
+
+// ✅ 保留字面量的精确类型
+formData.content  // 类型是 string literal ""
+
+// 泛型断言 - 类型 widening + 宽松的属性访问
+const formData = reactive<Partial<CreateTopicRequest>>({
+  type: undefined,  // 类型被 widening 为 undefined | number
+  content: '',      // 类型被 widening 为 string
+})
+
+// ❌ 可以访问类型中的所有属性（即使未定义）
+formData.someUndefinedField  // 不报错，类型为 any | undefined
+
+// ❌ 失去字面量的精确类型
+formData.content  // 类型是 string | undefined
+```
+
+**2. 严格依据后端 API 字段，禁止擅自添加或修改**
+
 ```typescript
 // ✅ 正确：直接使用 API 类型
 import type { CreateExperimentRequest } from '@/core/api/generated'
@@ -1478,7 +1780,7 @@ const formData = reactive({
   description: '',
   customField: '',  // 后端 API 没有这个字段！
   experimentDate: '',  // 后端不叫这个名字！
-})
+}) satisfies ExperimentFormData  // ❌ TypeScript Error: Object literal may only specify known properties
 ```
 
 **列表设计原则**：
