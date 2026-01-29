@@ -664,6 +664,178 @@ defineExpose({
 - **复用性更强**：组件自包含，更容易复用
 - **职责清晰**：父组件只负责触发，子组件负责管理
 
+**组件数据获取规范（CRITICAL）**
+
+**原则：组件内部调用 hook 获取数据，利用 Vue Query 缓存机制，不通过 props 传递数据**
+
+- ✅ **组件内部直接调用 hook**：数据获取逻辑封装在组件内部
+- ✅ **利用 Vue Query 缓存**：相同 queryKey 的请求会自动共享缓存
+- ✅ **Props ��用于配置参数**：props 用于传递配置项，不传递数据
+- ✅ **Emits 只用于事件通知**：emit 用于通知父组件用户交互
+- ❌ **禁止通过 props 传递数据**：不要将 topics、isLoading、total 等数据通过 props 传递
+
+**正确示例**：
+
+```vue
+<!-- TopicTable.vue -->
+<template>
+  <DataTable
+    :value="topics"
+    :loading="query.isLoading.value"
+    :total-rows="total"
+    @page="$emit('page', $event)"
+    @view="handleView"
+  />
+</template>
+
+<script setup lang="ts">
+import { useQueryTopicPage } from '@/features/teacher/topic/hooks'
+
+// ✅ 组件内部直接调用 hook 获取数据
+const { topics, total, query } = useQueryTopicPage({
+  current: 1,
+  size: 10,
+})
+
+// ✅ 只保留事件通知的 emit
+interface Emits {
+  (e: 'page', event: any): void
+  (e: 'view', topic: TopicDetailResponse): void
+  (e: 'edit', topic: TopicDetailResponse): void
+  (e: 'delete', topic: TopicDetailResponse): void
+}
+
+defineEmits<Emits>()
+
+// ✅ 事件处理函数
+const handleView = (topic: TopicDetailResponse) => {
+  // 处理查看逻辑
+}
+</script>
+```
+
+**父组件使用**：
+
+```vue
+<!-- TopicsPage.vue -->
+<template>
+  <div class="p-6">
+    <!-- ✅ 不需要传递数据 props -->
+    <TopicTable
+      @page="onPage"
+      @view="handleView"
+      @edit="handleEdit"
+      @delete="handleDelete"
+    />
+  </div>
+</template>
+
+<script setup lang="ts">
+import TopicTable from '@/features/teacher/topic/components/TopicTable.vue'
+
+// ✅ 父组件不需要管理数据，只需要处理事件
+const onPage = (event: any) => {
+  // 处理分页
+}
+
+const handleView = (topic: TopicDetailResponse) => {
+  // 处理查看
+}
+</script>
+```
+
+**错误示例**：
+
+```vue
+<!-- ❌ 错误：通过 props 传递数据 -->
+<script setup lang="ts">
+interface Props {
+  topics: TopicDetailResponse[]      // ❌ 不应该通过 props 传递数据
+  isLoading: boolean                 // ❌ 不应该通过 props 传递 loading 状态
+  total?: number                     // ❌ 不应该通过 props 传递总数
+  isDeleting?: boolean               // ❌ 不应该通过 props 传递 UI 状态
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  total: 0,
+  isDeleting: false,
+})
+
+interface Emits {
+  (e: 'page', event: any): void
+  (e: 'view', topic: TopicDetailResponse): void
+  (e: 'edit', topic: TopicDetailResponse): void
+  (e: 'delete', topic: TopicDetailResponse): void
+}
+
+defineEmits<Emits>()
+
+// ❌ 数据来自 props，组件无法独立工作
+const topics = computed(() => props.topics)
+const isLoading = computed(() => props.isLoading)
+</script>
+```
+
+```vue
+<!-- ❌ 错误：父组件需要管理数据 -->
+<script setup lang="ts">
+// ❌ 父组件需要管理所有数据
+const { topics, total, query } = useQueryTopicPage({
+  current: 1,
+  size: 10,
+})
+
+// ❌ 必须手动传递数据给子组件
+<TopicTable
+  :topics="topics"
+  :is-loading="query.isLoading.value"
+  :total="total"
+  @page="onPage"
+  @view="handleView"
+/>
+</script>
+```
+
+**适用场景**：
+- ✅ **列表组件**：Table、List、Grid 等展示数据的组件
+- ✅ **表单组件**：需要获取初始数据或选项数据的表单
+- ✅ **详情组件**：展示单个资源详情的组件
+- ✅ **卡片组件**：展示摘要信息的卡片组件
+
+**例外场景**（需要通过 props 传递数据）：
+- ✅ **静态数据展示**：数据不会变化，且与后端无关
+- ✅ **已加载的数据**：父组件已经获取的数据，子组件直接使用
+- ✅ **复合组件**：子组件是纯 UI 组件，不应该包含数据逻辑
+
+**规范总结**：
+1. **数据获取**：组件内部调用 hook，利用 Vue Query 缓存
+2. **Props 用途**：只用于配置参数（如 id、mode、options）
+3. **Emits 用途**：只用于事件通知（如 click、submit、cancel）
+4. **组件独立性**：组件应该能够独立工作，不依赖父组件传递数据
+
+**理由**：
+- **利用缓存**：Vue Query 会自动缓存相同 queryKey 的数据，避免重复请求
+- **组件独立性**：组件自包含数据逻辑，更容易复用和测试
+- **代码简洁**：父组件不需要管理数据，只需处理事件
+- **性能优化**：多个组件使用相同 hook 时，共享缓存，减少网络请求
+- **职责清晰**：数据获取在组件内部，事件处理在父组件，职责分离
+
+**Vue Query 缓存机制示例**：
+
+```typescript
+// 父组件调用 hook
+const { topics: topics1 } = useQueryTopicPage({ current: 1, size: 10 })
+// 发起网络请求，数据被缓存
+
+// 子组件也调用同一个 hook
+const { topics: topics2 } = useQueryTopicPage({ current: 1, size: 10 })
+// ✅ 不会发起新请求，直接使用缓存
+
+// 修改参数
+const { topics: topics3 } = useQueryTopicPage({ current: 2, size: 10 })
+// ✅ queryKey 变化，发起新请求
+```
+
 ### 类型定义黄金法则（CRITICAL）
 
 **禁止手动定义冗余接口，必须从 API 类型派生**
