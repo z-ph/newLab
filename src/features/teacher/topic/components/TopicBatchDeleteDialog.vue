@@ -30,7 +30,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 interface Emits {
-  (e: 'confirm'): void
+  (e: 'confirm', topicIds: number[]): void
 }
 
 const emit = defineEmits<Emits>()
@@ -57,7 +57,7 @@ function close() {
 
 // 确认删除
 function handleConfirm() {
-  emit("confirm")
+  emit("confirm", selectedTopicIds.value)
   // 删除成功后由父组件关闭对话框
 }
 
