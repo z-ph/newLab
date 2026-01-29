@@ -111,13 +111,15 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useQueryClassAll } from '@/features/teacher/class/hooks/useQueryClass'
-import { useQueryCourseAll } from '@/features/teacher/course/hooks/useQueryCourse'
-import { useQueryExperimentAll } from '@/features/teacher/experiment/hooks/useQueryExperiment'
+import { useQueryClassAll } from '@/features/teacher/class'
+import { useQueryCourseAll } from '@/features/teacher/course'
+import { useQueryExperimentAll } from '@/features/teacher/experiment'
+import {
+  AttendanceManagementDialog,
+  StudentGradingDialog,
+  ClassExperimentStatisticsDialog,
+} from '@/features/teacher/class-experiment'
 import type { ExperimentInfo } from '@/core/api/generated'
-import AttendanceManagementDialog from './components/AttendanceManagementDialog.vue'
-import StudentGradingDialog from './components/StudentGradingDialog.vue'
-import ClassExperimentStatisticsDialog from './components/ClassExperimentStatisticsDialog.vue'
 
 // ==================== 类型定义 ====================
 // 班级实验显示类型（从 ExperimentInfo 派生，添加显示用的字段）

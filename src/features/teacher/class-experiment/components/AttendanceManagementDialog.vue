@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import AttendanceManagement from '@/pages/teacher/experiments/components/AttendanceManagement.vue'
+import AttendanceManagement from './AttendanceManagement.vue'
 import type { ExperimentInfo } from '@/core/api/generated'
 
 defineProps<{

@@ -107,12 +107,15 @@
 import { ref, type Ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
-import { useQueryClassPage } from '@/features/teacher/class/hooks/useQueryClass'
-import { useCreateClass, useUpdateClass } from '@/features/teacher/class/hooks/useMutateClass'
-import { useDeleteClass } from '@/features/teacher/class/hooks/useMutateClassDelete'
+import {
+  useQueryClassPage,
+  useCreateClass,
+  useUpdateClass,
+  useDeleteClass,
+  StudentListDialog,
+} from '@/features/teacher/class'
 import type { GetApiBodyParamsType } from '@/core/utils/typeUtils'
 import type { postApiTeacherClass, Class } from '@/core/api/generated'
-import StudentListDialog from './components/StudentListDialog.vue'
 
 // ==================== 类型定义 ====================
 interface PageStateEvent {

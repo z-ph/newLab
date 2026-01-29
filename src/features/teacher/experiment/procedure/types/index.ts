@@ -57,3 +57,9 @@ export type DataCollectionProcedureUpdateFormData = FormData<UpdateDataCollectio
  * 主题答题步骤更新表单类型
  */
 export type TopicProcedureUpdateFormData = FormData<UpdateTopicProcedureRequest>
+
+/**
+ * 导出表单相关类型
+ */
+export type { ProcedureFormData } from './form'
+export { createDefaultProcedureFormData } from './form'

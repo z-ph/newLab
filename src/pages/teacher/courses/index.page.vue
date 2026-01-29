@@ -41,12 +41,10 @@ import {
   useCreateCourse,
   useUpdateCourse,
   useDeleteCourse,
-} from '@/features/teacher/course/hooks'
+  CourseTable,
+  CourseFormDialog,
+} from '@/features/teacher/course'
 import type { CourseResponse } from '@/core/api/generated'
-
-// ==================== 组件引入 ====================
-import CourseTable from './components/CourseTable.vue'
-import CourseFormDialog from './components/CourseFormDialog.vue'
 
 // ==================== 类型定义 ====================
 interface PageStateEvent {

@@ -68,12 +68,14 @@
 import { computed, ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
-import { useQueryExperimentAll } from '@/features/teacher/experiment/hooks/useQueryExperiment'
-import { useDeleteExperiment } from '@/features/teacher/experiment/hooks/useMutateExperimentDelete'
-import { useQueryCourseAll } from '@/features/teacher/course/hooks/useQueryCourse'
+import {
+  useQueryExperimentAll,
+  useDeleteExperiment,
+  ExperimentFormDialog,
+  ExperimentDetailDialog,
+} from '@/features/teacher/experiment'
+import { useQueryCourseAll } from '@/features/teacher/course'
 import type { ExperimentResponse } from '@/core/api/generated'
-import ExperimentFormDialog from './components/ExperimentFormDialog.vue'
-import ExperimentDetailDialog from './components/ExperimentDetailDialog.vue'
 
 const toast = useToast()
 const confirm = useConfirm()
