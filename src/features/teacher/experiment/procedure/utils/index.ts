@@ -22,7 +22,7 @@ export function formatVideoDuration(seconds?: number): string {
 /**
  * 格式化日期时间
  * @param dateStr 日期时间字符串
- * @returns 格式化后的日期���间字符串
+ * @returns 格式化后的日期时间字符串
  */
 export function formatDateTime(dateStr: string | undefined): string {
   if (!dateStr) return ''
@@ -56,14 +56,4 @@ export function parseJson(jsonStr: string): Record<string, any> {
 export function parseArray(str: string): string[] | undefined {
   if (!str.trim()) return undefined
   return str.split(',').map(s => s.trim()).filter(Boolean)
-}
-
-/**
- * 格式化���期时间为 ISO 字符串
- * @param date Date 对象
- * @returns ISO 字符串或 undefined
- */
-export function formatDateToISO(date: Date | null): string | undefined {
-  if (!date) return undefined
-  return date.toISOString()
 }

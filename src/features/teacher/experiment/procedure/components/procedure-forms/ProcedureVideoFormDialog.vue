@@ -19,18 +19,6 @@
             :max="DEFAULT_VALUES.MAX_PROPORTION" class="w-full" placeholder="请输入分数占比" />
         </div>
 
-        <!-- 时间范围 -->
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="mb-2 block text-sm font-medium text-slate-700">开始时间</label>
-            <DatePicker v-model="formData.startTime" showTime showSeconds placeholder="选择开始时间" fluid class="w-full" />
-          </div>
-          <div>
-            <label class="mb-2 block text-sm font-medium text-slate-700">结束时间</label>
-            <DatePicker v-model="formData.endTime" showTime showSeconds placeholder="选择结束时间" fluid class="w-full" />
-          </div>
-        </div>
-
         <!-- 可跳过 -->
         <div>
           <div class="flex items-center gap-2">
@@ -56,7 +44,6 @@ import { ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { useCreateVideoProcedure } from '@/features/teacher/experiment/procedure/hooks'
 import { DEFAULT_VALUES } from '@/features/teacher/experiment/procedure/constants'
-import { formatDateToISO } from '@/features/teacher/experiment/procedure/utils'
 import type { BaseProcedureFields } from '@/features/teacher/experiment/procedure/types'
 import ProcedureVideoForm from './ProcedureVideoForm.vue'
 
@@ -76,8 +63,6 @@ const formData = ref<BaseProcedureFields & { videoId: number | null }>({
   remark: '',
   proportion: DEFAULT_VALUES.PROPORTION,
   isSkip: false,
-  startTime: null,
-  endTime: null,
   videoId: null,
 })
 
@@ -89,8 +74,6 @@ const resetForm = () => {
     remark: '',
     proportion: DEFAULT_VALUES.PROPORTION,
     isSkip: false,
-    startTime: null,
-    endTime: null,
     videoId: null,
   }
 }
@@ -113,8 +96,6 @@ const handleSubmit = async () => {
       remark: formData.value.remark,
       proportion: formData.value.proportion,
       isSkip: formData.value.isSkip,
-      startTime: formatDateToISO(formData.value.startTime),
-      endTime: formatDateToISO(formData.value.endTime),
       videoId: formData.value.videoId,
     },
   })

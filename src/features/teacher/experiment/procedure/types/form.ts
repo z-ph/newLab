@@ -17,8 +17,6 @@ export interface BaseProcedureFields {
   remark: string
   proportion: number
   isSkip: boolean
-  startTime: Date | null
-  endTime: Date | null
 }
 
 /**
@@ -100,8 +98,6 @@ export function createDefaultProcedureFormData(): ProcedureFormData {
     remark: '',
     proportion: 10,
     isSkip: false,
-    startTime: null,
-    endTime: null,
 
     // 视频步骤字段
     videoId: null,

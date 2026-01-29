@@ -17,15 +17,6 @@
           {{ slotProps.data.proportion }}%
         </template>
       </Column>
-      <Column key="timeRange" header="时间范围" style="width: 180px">
-        <template #body="slotProps">
-          <div class="text-xs">
-            <div v-if="slotProps.data.startTime">{{ formatDateTime(slotProps.data.startTime) }}</div>
-            <div v-if="slotProps.data.endTime" class="text-slate-500">{{ formatDateTime(slotProps.data.endTime) }}</div>
-            <div v-if="!slotProps.data.startTime && !slotProps.data.endTime" class="text-slate-400">-</div>
-          </div>
-        </template>
-      </Column>
       <Column key="typeDetails" header="类型详情" style="width: 200px">
         <template #body="slotProps">
           <div v-if="slotProps.data.type === 1" class="text-xs space-y-1">
@@ -159,17 +150,6 @@ const getDataCollectionTypeText = (type: number | undefined) => {
     2: '表格数据',
   }
   return typeMap[type || 1] || '未知'
-}
-
-const formatDateTime = (dateStr: string | undefined) => {
-  if (!dateStr) return ''
-  const date = new Date(dateStr)
-  return date.toLocaleString('zh-CN', {
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
 }
 
 const formatDuration = (seconds: number | undefined) => {
