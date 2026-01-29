@@ -1,7 +1,6 @@
 import { defineConfig, loadEnv } from "vite";
 import vue from "@vitejs/plugin-vue";
 import VueRouter from "unplugin-vue-router/vite";
-import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
 import { PrimeVueResolver } from "@primevue/auto-import-resolver";
 import { createClient } from "@hey-api/openapi-ts";
@@ -57,9 +56,6 @@ export default defineConfig(({ mode }) => {
       }),
       // ⚠️ Vue 必须放在 VueRouter() 之后
       vue(),
-      AutoImport({
-        resolvers: [PrimeVueResolver()],
-      }),
       Components({
         resolvers: [PrimeVueResolver()],
       }),
