@@ -26,7 +26,7 @@ export function useQueryVideoPlayKey(videoId: Ref<number | undefined> | number |
       }
     }),
     //@ts-expect-error
-    select: res=>res.data?.data.downloadKey,
+    select: res=>res.data?.data.downloadUrl,
     enabled: computed(() => !!getId(videoId)),
   })
 }

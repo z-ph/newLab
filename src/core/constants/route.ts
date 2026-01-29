@@ -23,7 +23,7 @@ export const ROLE_PATH_PREFIXES = {
  */
 export const ROLE_HOME_PATHS = {
   teacher: '/teacher/overview' as TeacherRoute,
-  student: '/student/overview' as StudentRoute,
+  student: '/student' as StudentRoute,
   admin: '/teacher/overview' as TeacherRoute,
 } as const satisfies Record<UserRole, RoutePath>
 

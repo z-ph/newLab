@@ -8,12 +8,12 @@ import type { RouteNamedMap } from "vue-router/auto-routes";
 
 // 从 RouteNamedMap 提取公开路由类型
 type PublicRoute = keyof RouteNamedMap & ("/" | "/login");
-
+export const baseURL = import.meta.env.DEV ? "/api" : import.meta.env.BASE_URL
 /**
  * 创建 axios 实例
  */
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.DEV ? "/api" : import.meta.env.BASE_URL,
+  baseURL,
 });
 
 // 添加请求拦截器 - 自动添加认证 tokens

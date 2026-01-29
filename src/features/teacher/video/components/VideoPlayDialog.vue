@@ -27,6 +27,7 @@ import Dialog from 'primevue/dialog'
 import Button from 'primevue/button'
 
 import { useQueryVideoPlayKey } from '@/features/teacher/video/hooks'
+import { baseURL } from '@/core/api/config'
 
 // ✅ 状态封装在组件内部
 const visible = ref(false)
@@ -41,7 +42,7 @@ const playUrl = computed(() => {
 
   // ✅ 优先使用查询到的 playKey
   if (playKey.value) {
-    return `/api/download/play/${playKey.value}`
+    return `${baseURL}${playKey.value}`
   }
 
   // 如果正在加载密钥，暂时返回 null
