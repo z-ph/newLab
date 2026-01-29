@@ -1060,14 +1060,20 @@ export const TOPIC_TYPE_OPTIONS: SelectOption<number>[] = [
  * 题目类型枚举
  */
 export const TOPIC_TYPE = {
-  SINGLE_CHOICE: 1,
-  MULTIPLE_CHOICE: 2,
-  TRUE_FALSE: 3,
-  FILL_BLANK: 4,
-  OTHER: 6,
+  SINGLE_CHOICE: 1,    // 单选题
+  MULTIPLE_CHOICE: 2,  // 多选题
+  TRUE_FALSE: 3,       // 判断题
+  FILL_BLANK: 4,       // 填空题
+  SHORT_ANSWER: 5,     // 简答题
 } as const
 
 export type TopicType = typeof TOPIC_TYPE[keyof typeof TOPIC_TYPE]
+
+/**
+ * 选项标签 ASCII 码起始值（A = 65）
+ * 用于生成 A, B, C, D... 选项标签
+ */
+export const CHOICE_LABEL_START_CHAR_CODE = 65
 
 /**
  * 题目难度选项
@@ -1152,7 +1158,7 @@ const typeOptions = [
   { label: "多选题", value: 2 },
   { label: "判断题", value: 3 },
   { label: "填空题", value: 4 },
-  { label: "其他", value: 6 },
+  { label: "简答题", value: 5 },
 ]
 
 const difficultyOptions = [
@@ -1212,6 +1218,44 @@ const typeOptions = [ /* ... */ ]  // ❌ 重复定义
    - 分页配置（默认页码、默认每页条数）
    - 上传配置（文件大小限制、允许的文件类型）
    - 表单配置（最大长度、最小值等）
+   - Magic Number 替换（ASCII 码起始值等特殊数字）
+
+**Magic Number 处理**：
+
+Magic Number 是指代码中直接出现的、没有明确含义的数字。这些数字应该提取为常量：
+
+```typescript
+// ✅ constants/types.ts
+/**
+ * 选项标签 ASCII 码起始值（A = 65）
+ * 用于生成 A, B, C, D... 选项标签
+ */
+export const CHOICE_LABEL_START_CHAR_CODE = 65
+```
+
+```vue
+<!-- ✅ 正确：使用常量 -->
+<script setup lang="ts">
+import { CHOICE_LABEL_START_CHAR_CODE } from '@/features/teacher/topic/constants'
+
+function getChoiceLabel(index: number): string {
+  return String.fromCharCode(CHOICE_LABEL_START_CHAR_CODE + index)
+}
+</script>
+
+<!-- ❌ 错误：直接使用 Magic Number -->
+<script setup lang="ts">
+function getChoiceLabel(index: number): string {
+  return String.fromCharCode(65 + index)  // ❌ 65 的含义不明确
+}
+</script>
+```
+
+**常见的 Magic Number 示例**：
+- ASCII 码起始值（`65` - 'A'）
+- 数组索引边界（`0`, `1`）
+- 特殊状态值（`-1`, `0`, `1`）
+- 时间转换常量（`1000`, `3600`, `86400`）
 
 **命名规范**：
 - ✅ **枚举对象**：使用 UPPER_SNAKE_CASE，如 `TOPIC_TYPE`、`REVIEW_STATUS`
