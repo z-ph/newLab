@@ -836,6 +836,184 @@ const { topics: topics3 } = useQueryTopicPage({ current: 2, size: 10 })
 // ✅ queryKey 变化，发起新请求
 ```
 
+**工具函数组织规范（CRITICAL）**
+
+**原则：工具函数必须提取到 utils 目录，禁止在组件内部定义**
+
+- ✅ **工具函数放在 utils 目录**：所有可复用的工具函数必须放在 feature 的 utils 目录下
+- ✅ **统一导出**：通过 utils/index.ts 或具体文件导出
+- ✅ **纯函数优先**：工具函数应该是纯函数，便于测试和复用
+- ❌ **禁止在组件内部定义工具函数**：不要在 .vue 文件的 script 中定义 formatDateTime 等函数
+- ❌ **禁止重复定义**：多个组件中不要重复定义相同的工具函数
+
+**目录结构**：
+```
+src/features/{module}/{entity}/
+├── utils/
+│   ├── formatters.ts    # 格式化函数
+│   ├── validators.ts    # 验证函数
+│   ├── helpers.ts       # 辅助函数
+│   └── index.ts         # 统一导出
+├── components/
+└── hooks/
+```
+
+**正确示例**：
+
+```typescript
+// ✅ utils/formatters.ts
+/**
+ * 格式化日期时间
+ * @param dateStr - 日期字符串
+ * @returns 格式化后的日期时间字符串
+ */
+export function formatDateTime(dateStr?: string): string {
+  if (!dateStr) return "-"
+  try {
+    const date = new Date(dateStr)
+    return date.toLocaleString("zh-CN", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  } catch {
+    return dateStr
+  }
+}
+
+/**
+ * 格式化时长（秒 → HH:MM:SS）
+ * @param seconds - 秒数
+ * @returns 格式化后的时长字符串
+ */
+export function formatDuration(seconds?: number): string {
+  if (!seconds) return "-"
+  const hours = Math.floor(seconds / 3600)
+  const minutes = Math.floor((seconds % 3600) / 60)
+  const secs = seconds % 60
+
+  if (hours > 0) {
+    return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+  }
+  return `${minutes}:${secs.toString().padStart(2, '0')}`
+}
+```
+
+```typescript
+// ✅ utils/index.ts
+export * from "./formatters"
+export * from "./validators"
+export * from "./helpers"
+```
+
+```vue
+<!-- ✅ 组件中使用工具函数 -->
+<script setup lang="ts">
+import { formatDateTime, formatDuration } from "@/features/teacher/video/utils"
+
+// 直接导入使用，不需要重复定义
+</script>
+
+<template>
+  <div>
+    <span>{{ formatDateTime(topic.createdAt) }}</span>
+    <span>{{ formatDuration(video.seconds) }}</span>
+  </div>
+</template>
+```
+
+**错误示例**：
+
+```vue
+<!-- ❌ 错误：在组件内部定义工具函数 -->
+<script setup lang="ts">
+// ❌ 不应该在组件中定义这些函数
+function formatDateTime(dateStr?: string): string {
+  if (!dateStr) return "-"
+  try {
+    const date = new Date(dateStr)
+    return date.toLocaleString("zh-CN", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  } catch {
+    return dateStr
+  }
+}
+
+function formatDuration(seconds?: number): string {
+  if (!seconds) return "-"
+  const hours = Math.floor(seconds / 3600)
+  const minutes = Math.floor((seconds % 3600) / 60)
+  const secs = seconds % 60
+  // ... 省略
+}
+</script>
+```
+
+```vue
+<!-- ❌ 错误：多个组件重复定义相同的函数 -->
+<!-- VideoTable.vue -->
+<script setup lang="ts">
+function formatDateTime(dateStr?: string): string { /* ... */ }
+</script>
+
+<!-- TopicTable.vue -->
+<script setup lang="ts">
+function formatDateTime(dateStr?: string): string { /* ... */ }  // ❌ 重复定义
+</script>
+```
+
+**工具函数分类**：
+
+1. **格式化函数（formatters.ts）**：
+   - `formatDateTime()` - 格式化日期时间
+   - `formatDuration()` - 格式化时长
+   - `formatFileSize()` - 格式化文件大小
+   - `formatNumber()` - 格式化数字
+
+2. **验证函数（validators.ts）**：
+   - `validateEmail()` - 验证邮箱格式
+   - `validatePhone()` - 验证手机号
+   - `validateUrl()` - 验证 URL 格式
+
+3. **辅助函数（helpers.ts）**：
+   - `downloadFile()` - 下载文件
+   - `copyToClipboard()` - 复制到剪贴板
+   - `debounce()` - 防抖函数
+   - `throttle()` - 节流函数
+
+**适用场景**：
+- ✅ **格式化函数**：日期、时间、数字、文件大小等格式化
+- ✅ **验证函数**：表单验证、数据校验
+- ✅ **辅助函数**：通用工具方法
+- ✅ **业务逻辑函数**：复杂的业务计算或转换
+
+**例外场景**（可以在组件内定义）：
+- ✅ **组件特定逻辑**：只在当前组件使用，且与组件状态紧密相关的函数
+- ✅ **事件处理函数**：如 `handleClick`、`handleSubmit` 等
+- ✅ **简单的计算函数**：非常简单的内联函数（如单行表达式）
+
+**规范总结**：
+1. **提取工具函数**：所有可复用的工具函数必须提取到 utils 目录
+2. **分类组织**：按功能分类到 formatters.ts、validators.ts、helpers.ts
+3. **统一导出**：通过 utils/index.ts 统一导出
+4. **纯函数优先**：工具函数应该是纯函数，无副作用
+5. **添加注释**：导出的工具函数应该添加 JSDoc 注释
+
+**理由**：
+- **代码复用**：避免在多个组件中重复定义相同的函数
+- **易于维护**：修改工具函数只需要改一处
+- **易于测试**：独立的工具函数更容易进行单元测试
+- **代码简洁**：组件代码更简洁，专注于 UI 逻辑
+- **统一风格**：所有工具函数有统一的代码风格和错误处理
+- **职责分离**：工具逻辑与 UI 逻辑分离
+
 ### 类型定义黄金法则（CRITICAL）
 
 **禁止手动定义冗余接口，必须从 API 类型派生**
