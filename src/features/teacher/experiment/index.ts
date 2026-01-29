@@ -5,12 +5,12 @@
 // Components
 export { default as ExperimentDetailDialog } from './components/ExperimentDetailDialog.vue'
 export { default as ExperimentFormDialog } from './components/ExperimentFormDialog.vue'
-export { default as ProcedureFormDialog } from './components/ProcedureFormDialog.vue'
-export { default as ProcedureList } from './components/ProcedureList.vue'
+export { default as ProcedureFormDialog } from './procedure/components/ProcedureFormDialog.vue'
+export { default as ProcedureList } from './procedure/components/ProcedureList.vue'
 
-export { default as ProcedureVideoForm } from './components/procedure-forms/ProcedureVideoForm.vue'
-export { default as ProcedureDataCollectionForm } from './components/procedure-forms/ProcedureDataCollectionForm.vue'
-export { default as ProcedureTopicForm } from './components/procedure-forms/ProcedureTopicForm.vue'
+export { default as ProcedureVideoForm } from './procedure/components/procedure-forms/ProcedureVideoForm.vue'
+export { default as ProcedureDataCollectionForm } from './procedure/components/procedure-forms/ProcedureDataCollectionForm.vue'
+export { default as ProcedureTopicForm } from './procedure/components/procedure-forms/ProcedureTopicForm.vue'
 
 // Hooks
 export {

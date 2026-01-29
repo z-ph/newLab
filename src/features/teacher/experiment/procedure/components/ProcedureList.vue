@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="mb-4 flex justify-end">
-      <Button label="添加步骤" icon="pi pi-plus" @click="showAddDialog = true" />
+      <Button label="添加步骤" icon="pi pi-plus" @click="handleOpenAddDialog" />
     </div>
     <DataTable :value="proceduresQuery.data.value || []" :loading="proceduresQuery.isLoading.value"
       :paginator="true" :rows="10" striped-rows>
@@ -58,9 +58,8 @@
 
     <!-- 添加步骤对话框 -->
     <ProcedureFormDialog
-      v-model:visible="showAddDialog"
+      ref="procedureFormDialogRef"
       :experiment-id="experimentId"
-      @success="handleAddSuccess"
     />
 
     <!-- 删除确认对话框 -->
@@ -97,7 +96,12 @@ const proceduresQuery = useQueryProceduresByExperiment(
 )
 
 const deleteMutation = useDeleteProcedure()
-const showAddDialog = ref(false)
+const procedureFormDialogRef = ref<InstanceType<typeof ProcedureFormDialog>>()
+
+const handleOpenAddDialog = () => {
+  procedureFormDialogRef.value?.open()
+  proceduresQuery.refetch()
+}
 
 const handleEdit = (_procedure: TeacherProcedureDetailResponse) => {
   toast.add({
@@ -130,12 +134,6 @@ const confirmDelete = async (id: number) => {
     detail: '步骤删除成功',
     life: 3000,
   })
-  proceduresQuery.refetch()
-  emit('refresh')
-}
-
-const handleAddSuccess = () => {
-  showAddDialog.value = false
   proceduresQuery.refetch()
   emit('refresh')
 }

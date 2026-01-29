@@ -47,7 +47,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import type { ExperimentResponse } from '@/core/api/generated'
-import ProcedureList from './ProcedureList.vue'
+import ProcedureList from '@/features/teacher/experiment/procedure/components/ProcedureList.vue'
 
 interface Props {
   experiment: ExperimentResponse | null
