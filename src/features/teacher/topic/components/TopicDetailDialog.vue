@@ -3,7 +3,7 @@
     <div v-if="topic" class="space-y-4">
       <!-- 题目类型和 ID -->
       <div class="flex items-center gap-4">
-        <Tag :value="getTopicTypeName(topic.type)" :severity="getTypeSeverity(topic.type)" />
+        <Tag :value="getTopicTypeName(topic.type)" :severity="getTopicTypeSeverity(topic.type)" />
         <span class="text-sm text-slate-500">ID: {{ topic.id }}</span>
       </div>
 
@@ -41,10 +41,10 @@
         <h3 class="text-sm font-medium text-slate-700 mb-2">标签</h3>
         <div class="flex flex-wrap gap-2">
           <Tag
-            v-for="tag in topic.tags"
-            :key="tag.tagId"
-            :value="tag.tagName"
-            :severity="getTagSeverity(tag.tagType)"
+            v-for="t in topic.tags"
+            :key="t.tagId"
+            :value="t.tagName"
+            :severity="getTagSeverity(t.tagType)"
           />
         </div>
       </div>
@@ -65,12 +65,10 @@
 
 <script setup lang="ts">
 import { ref } from "vue"
-import Dialog from "primevue/dialog"
-import Button from "primevue/button"
-import Tag from "primevue/tag"
 
 import type { TopicDetailResponse } from "@/core/api/generated"
-import { getTopicTypeName, formatChoices } from "@/features/teacher/topic/utils/formatters"
+import { getTopicTypeName, getTopicTypeSeverity } from "@/features/teacher/topic/constants"
+import { formatChoices } from "@/features/teacher/topic/utils/formatters"
 
 // ✅ 状态封装在组件内部
 const visible = ref(false)
@@ -88,26 +86,12 @@ function close() {
   topic.value = undefined
 }
 
-// 获取题目类型对应的 Tag 颜色
-function getTypeSeverity(type?: number): "success" | "info" | "warn" | "contrast" | undefined {
-  if (!type) return undefined
-  const severityMap: Record<number, "success" | "info" | "warn" | "contrast"> = {
-    1: "success",
-    2: "info",
-    3: "warn",
-    4: "contrast",
-    6: "contrast",
-  }
-  return severityMap[type]
-}
-
 // 获取标签颜色
-function getTagSeverity(tagType?: string): "success" | "info" | "warn" | "contrast" | undefined {
+function getTagSeverity(tagType?: string): "success" | "warn" | "contrast" | undefined {
   if (!tagType) return undefined
-  const severityMap: Record<string, "success" | "info" | "warn" | "contrast"> = {
+  const severityMap: Record<string, "success" | "warn" | "contrast"> = {
     "1": "success",
     "2": "warn",
-    "3": "info",
     "4": "contrast",
   }
   return severityMap[tagType]

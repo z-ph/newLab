@@ -7,7 +7,7 @@
           <label class="block text-sm font-medium text-slate-700 mb-2">题目类型</label>
           <Select
             v-model="localType"
-            :options="typeOptions"
+            :options="TOPIC_TYPE_OPTIONS"
             option-label="label"
             option-value="value"
             placeholder="全部类型"
@@ -74,6 +74,7 @@ import InputText from "primevue/inputtext"
 
 import type { TopicQueryRequest } from "@/core/api/generated"
 import type { TagInfo } from "@/core/api/generated"
+import { TOPIC_TYPE_OPTIONS } from "@/features/teacher/topic/constants"
 import { useQueryTags } from "@/features/teacher/topic/hooks"
 
 // ✅ 从 API 类型派生
@@ -95,15 +96,6 @@ const emit = defineEmits<Emits>()
 // ✅ 查询标签列表
 const { data: tags } = useQueryTags()
 
-// 题目类型选项
-const typeOptions = ref([
-  { label: "单选题", value: 1 },
-  { label: "多选题", value: 2 },
-  { label: "判断题", value: 3 },
-  { label: "填空题", value: 4 },
-  { label: "其他", value: 6 },
-])
-
 // 本地状态
 const localType = ref<number | undefined>(props.modelValue.type)
 const localKeyword = ref<string | undefined>(props.modelValue.keyword)
@@ -113,12 +105,12 @@ const localSubjectTagIds = ref<number[] | undefined>(props.modelValue.subjectTag
 // 标签选项（按类型分组）
 const difficultyTagOptions = computed(() => {
   if (!tags.value) return []
-  return tags.value.filter((tag: TagInfo) => tag.tagType === "2")
+  return tags.value.filter((tagggggg: TagInfo) => tagggggg.tagType === "2")
 })
 
 const subjectTagOptions = computed(() => {
   if (!tags.value) return []
-  return tags.value.filter((tag: TagInfo) => tag.tagType === "1")
+  return tags.value.filter((tagggggg: TagInfo) => tagggggg.tagType === "1")
 })
 
 // 查询按钮

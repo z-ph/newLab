@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-2">
     <!-- 单选题 -->
-    <div v-if="type === 1">
+    <div v-if="type === TOPIC_TYPE.SINGLE_CHOICE">
       <div v-for="(choice, idx) in validChoices" :key="idx" class="flex items-center gap-2">
         <RadioButton
           v-model="singleChoiceValue"
@@ -15,7 +15,7 @@
     </div>
 
     <!-- 多选题 -->
-    <div v-if="type === 2">
+    <div v-if="type === TOPIC_TYPE.MULTIPLE_CHOICE">
       <div v-for="(choice, idx) in validChoices" :key="idx" class="flex items-center gap-2">
         <Checkbox
           v-model="multiChoiceValue"
@@ -29,7 +29,7 @@
     </div>
 
     <!-- 判断题 -->
-    <div v-if="type === 3" class="flex gap-4">
+    <div v-if="type === TOPIC_TYPE.TRUE_FALSE" class="flex gap-4">
       <div class="flex items-center gap-2">
         <RadioButton v-model="correctAnswer" input-id="correct" value="T" />
         <label for="correct" class="cursor-pointer">正确</label>
@@ -40,8 +40,8 @@
       </div>
     </div>
 
-    <!-- 填空题/其他 -->
-    <div v-if="type === 4 || type === 6">
+    <!-- 填空题/简答题 -->
+    <div v-if="type === TOPIC_TYPE.FILL_BLANK || type === TOPIC_TYPE.SHORT_ANSWER">
       <InputText
         v-model="correctAnswer"
         placeholder="请输入正确答案"
@@ -56,6 +56,7 @@ import { computed } from 'vue'
 import RadioButton from 'primevue/radiobutton'
 import Checkbox from 'primevue/checkbox'
 import InputText from 'primevue/inputtext'
+import { TOPIC_TYPE, CHOICE_LABEL_START_CHAR_CODE } from '@/features/teacher/topic/constants'
 
 interface Props {
   type: number
@@ -103,8 +104,8 @@ const validChoices = computed(() => {
   return result
 })
 
-// 获取选项标签
+// 获取选项标签（A, B, C, ...）
 function getChoiceLabel(index: number): string {
-  return String.fromCharCode(65 + index) // A, B, C, ...
+  return String.fromCharCode(CHOICE_LABEL_START_CHAR_CODE + index)
 }
 </script>

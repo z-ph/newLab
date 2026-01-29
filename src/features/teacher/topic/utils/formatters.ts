@@ -1,17 +1,6 @@
 import type { TopicDetailResponse } from "@/core/api/generated"
 
 /**
- * 题目类型���射
- */
-export const TOPIC_TYPE_MAP: Record<number, string> = {
-  1: "单选题",
-  2: "多选题",
-  3: "判断题",
-  4: "填空题",
-  6: "其他",
-}
-
-/**
  * 标签类型映射
  */
 export const TAG_TYPE_MAP: Record<string, string> = {
@@ -19,14 +8,6 @@ export const TAG_TYPE_MAP: Record<string, string> = {
   "2": "难度标签",
   "3": "题型标签",
   "4": "自定义标签",
-}
-
-/**
- * 获取题目类型名称
- */
-export function getTopicTypeName(type?: number): string {
-  if (!type) return "-"
-  return TOPIC_TYPE_MAP[type] || "未知"
 }
 
 /**
@@ -53,7 +34,7 @@ export function formatChoices(choices?: string): string[] {
  */
 export function formatTagNames(topic?: TopicDetailResponse): string {
   if (!topic?.tags || topic.tags.length === 0) return "-"
-  return topic.tags.map((tag) => tag.tagName || "").filter(Boolean).join("、")
+  return topic.tags.map((tagggggg) => tagggggg.tagName || "").filter(Boolean).join("、")
 }
 
 /**
@@ -62,5 +43,5 @@ export function formatTagNames(topic?: TopicDetailResponse): string {
 export function filterTagsByType(tags?: Array<{ tagType?: string }>, targetType?: string) {
   if (!tags) return []
   if (!targetType) return tags
-  return tags.filter((tag) => tag.tagType === targetType)
+  return tags.filter((tagggggg) => tagggggg.tagType === targetType)
 }
