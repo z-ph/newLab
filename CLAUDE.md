@@ -508,6 +508,162 @@ emit('update:visible', false)
 - 表单数据的双向绑定
 - 任何需要父子组件同步的场景
 
+**对话框状态管理规范（CRITICAL）**
+
+**原则：状态封装在组件内部，通过 defineExpose 暴露操作方法**
+
+- ✅ **对话框状态定义在组件内部**：不涉及组件间共享的状态应该封装在组件内部
+- ✅ **通过 defineExpose 暴露方法**：只暴露 `open()`、`close()` 等操作方法
+- ✅ **父组件通过 ref 调用**：使用 `dialogRef.value?.open()` 调用
+- ❌ **禁止在父组件管理对话框状态**：不要在父组件定义 `showDialog` 等状态
+
+**正确示例**：
+
+```vue
+<!-- VideoUploadDialog.vue -->
+<template>
+  <Dialog v-model:visible="visible" header="上传视频" modal>
+    <!-- 对话框内容 -->
+  </Dialog>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+
+// ✅ 状态封装在组件内部
+const visible = ref(false)
+const formData = ref({
+  title: '',
+  description: '',
+})
+
+// ✅ 暴露操作方法
+function open(data?: any) {
+  if (data) {
+    formData.value = data
+  }
+  visible.value = true
+}
+
+function close() {
+  visible.value = false
+}
+
+// ✅ 只暴露方法，不暴露状态
+defineExpose({
+  open,
+  close,
+})
+</script>
+```
+
+**父组件使用**：
+
+```vue
+<!-- VideoPage.vue -->
+<template>
+  <div>
+    <Button label="上传" @click="handleUpload" />
+    <VideoUploadDialog ref="uploadDialogRef" />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import VideoUploadDialog from '@/features/teacher/video/components/VideoUploadDialog.vue'
+
+// ✅ 只需要 ref，不需要管理状态
+const uploadDialogRef = ref<InstanceType<typeof VideoUploadDialog>>()
+
+// ✅ 通过方法调用，简洁明了
+const handleUpload = () => {
+  uploadDialogRef.value?.open()
+}
+</script>
+```
+
+**错误示例**：
+
+```vue
+<!-- ❌ 错误：在父组件管理对话框状态 -->
+<script setup lang="ts">
+import { ref } from 'vue'
+
+// ❌ 父组件管理对话框状态，违反封装原则
+const showUploadDialog = ref(false)
+const showDetailDialog = ref(false)
+const showPlayDialog = ref(false)
+
+const handleUpload = () => {
+  showUploadDialog.value = true  // ❌ 状态管理分散
+}
+</script>
+```
+
+**适用场景**：
+- ✅ **对话框状态**：不涉及跨组件共享的对话框显示/隐藏
+- ✅ **抽屉状态**：Drawer 的显示/隐藏
+- ✅ **表单状态**：表单的编辑/新增状态
+- ✅ **局部UI状态**：只在组件内部使用的状态
+
+**例外场景**（需要在外部管理状态）：
+- ✅ **跨组件共享状态**：多个组件需要控制同一个对话框
+- ✅ **需要响应状态变化**：父组件需要监听对话框状态变化
+- ✅ **复杂联动**：对话框状态与其他状态有复杂联动
+
+**最佳实践模板**：
+
+```vue
+<!-- FeatureDialog.vue -->
+<template>
+  <Dialog v-model:visible="visible" :header="title">
+    <!-- 对话框内容 -->
+  </Dialog>
+</template>
+
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+
+interface Props {
+  title?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  title: '对话框',
+})
+
+// 状态封装
+const visible = ref(false)
+const formData = ref({})
+
+// 操作方法
+function open(initialData?: any) {
+  if (initialData) {
+    formData.value = initialData
+  }
+  visible.value = true
+}
+
+function close() {
+  visible.value = false
+  formData.value = {}
+}
+
+// 只暴露方法
+defineExpose({
+  open,
+  close,
+})
+</script>
+```
+
+**理由**：
+- **封装性更好**：状态管理集中在组件内部
+- **代码更简洁**：父组件不需要管理大量状态
+- **易于维护**：修改状态逻辑只需要修改组件本身
+- **复用性更强**：组件自包含，更容易复用
+- **职责清晰**：父组件只负责触发，子组件负责管理
+
 ### 类型定义黄金法则（CRITICAL）
 
 **禁止手动定义冗余接口，必须从 API 类型派生**
@@ -722,6 +878,168 @@ export function useQueryClassWrong() {
 
 使用 `select: (response) => response.data?.data` 提取后，组件中直接获得 `T[]` 或 `T` 类型。
 
+**Hook 必须封装页面级状态（CRITICAL）**
+
+**原则：筛选条件、分页参数等页面级响应式状态必须定义在 hook 内部，通过 return 暴露给页面组件使用**
+
+- ✅ **页面级状态定义在 hook 中**：筛选条件（filters）、分页参数（current、size）等必须定义在 hook 内部
+- ✅ **通过 return 暴露状态和方法**：hook 返回状态 ref 和修改方法，页面组件通过解构使用
+- ❌ **禁止在页面组件中定义状态**：不要在页面组件中直接 `ref()` 定义这些状态
+- ❌ **禁止在 hook 中使用 reactive**：统一使用 ref，保持一致性
+
+**正确示例**：
+
+```typescript
+// ✅ 正确：hook 封装所有状态
+// hooks/useQueryVideoPage.ts
+import { ref } from "vue"
+import { postApiTeacherVideosQuery } from "@/core/api/generated"
+import client from "@/core/api/config"
+import { useQuery } from "@tanstack/vue-query"
+
+export function useQueryVideoPage(initialParams: { current: number; size: number }) {
+  // ✅ 状态定义在 hook 内部
+  const filters = ref<VideoFilters>({})
+  const current = ref(initialParams.current)
+  const size = ref(initialParams.size)
+  const fileName = ref("")
+
+  // ✅ 查询逻辑
+  const query = useQuery({
+    queryKey: ["videos", current, size, fileName],
+    queryFn: () =>
+      postApiTeacherVideosQuery({
+        body: {
+          current: current.value,
+          size: size.value,
+          originalFileName: fileName.value || undefined,
+          pageable: true,
+        },
+        client,
+      }),
+    select: (response) => response.data?.data,
+  })
+
+  // ✅ 返回所有需要的状态和方法
+  return {
+    // 状态
+    filters,
+    current,
+    size,
+    fileName,
+    videos: query.data,
+    total: query.data?.total || 0,
+    // Query 对象
+    query,
+  }
+}
+```
+
+**页面组件使用**：
+
+```vue
+<!-- pages/teacher/videos/index.page.vue -->
+<template>
+  <div class="p-6">
+    <VideoFilter v-model="filters" />
+    <VideoTable
+      :videos="videos"
+      :is-loading="query.isLoading.value"
+      :total="total"
+      @page="onPage"
+    />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { useQueryVideoPage, useDeleteVideo } from "@/features/teacher/video"
+import { VideoFilter, VideoTable } from "@/features/teacher/video"
+
+// ✅ 从 hook 解构所有需要的状态
+const { filters, current, size, videos, total, query } = useQueryVideoPage({
+  current: 1,
+  size: 10,
+})
+
+const deleteMutation = useDeleteVideo()
+
+// ✅ 页面组件只保留事件处理逻辑
+const onPage = (event: any) => {
+  current.value = event.page + 1
+}
+</script>
+```
+
+**错误示例**：
+
+```vue
+<!-- ❌ 错误：在页面组件中定义状态 -->
+<script setup lang="ts">
+import { ref } from "vue"
+
+// ❌ 页面组件不应该定义这些状态
+const filters = ref<VideoFilters>({})
+const current = ref(1)
+const size = ref(10)
+const fileName = ref("")
+
+// ❌ hook 被迫接受外部状态
+const { videos, query } = useQueryVideoPage(current, size, fileName)
+
+const onPage = (event: any) => {
+  current.value = event.page + 1  // ❌ 状态管理分散
+}
+</script>
+```
+
+```typescript
+// ❌ 错误：hook 接受外部状态作为参数
+export function useQueryVideoPage(
+  current: Ref<number>,
+  size: Ref<number>,
+  fileName: Ref<string>
+) {
+  // ❌ 依赖外部传入的状态，破坏封装性
+  const query = useQuery({
+    queryKey: ["videos", current, size, fileName],
+    queryFn: () => postApiTeacherVideosQuery({
+      body: {
+        current: current.value,
+        size: size.value,
+        originalFileName: fileName.value || undefined,
+      },
+      client,
+    }),
+  })
+
+  return { videos: query.data }
+}
+```
+
+**适用场景**：
+- ✅ **筛选条件状态**：filters、searchParams 等查询条件
+- ✅ **分页参数状态**：current、size、total 等分页相关状态
+- ✅ **表单状态**：formData、validationErrors 等表单相关状态
+- ✅ **UI 状态**：selectedRows、expandedKeys 等 UI 交互状态
+
+**例外场景**（需要在外部管理状态）：
+- ✅ **跨组件共享状态**：多个组件需要访问同一个状态（使用 Pinia store）
+- ✅ **路由相关状态**：需要与路由参数同步的状态
+- ✅ **临时局部状态**：仅在某个事件处理函数中使用的临时变量
+
+**规范总结**：
+1. **Hook 封装**：所有页面级的响应式状态必须在 hook 内部定义
+2. **返回暴露**：通过 return 语句返回状态 ref，页面组件通过解构使用
+3. **统一 ref**：使用 ref 而不是 reactive，保持一致性
+4. **页面简化**：页面组件只保留事件处理逻辑，不定义状态
+
+**理由**：
+- **封装性**：状态管理逻辑集中在 hook 中，页面组件更简洁
+- **可复用**：hook 可以在不同页面中复用，状态管理逻辑跟随 hook
+- **可测试**：独立的 hook 更容易进行单元测试
+- **职责清晰**：hook 负责状态管理，页面组件负责 UI 交互
+- **易于维护**：修改状态逻辑只需要修改 hook，不影响页面组件
+
 ### 错误处理规范（CRITICAL）
 
 **禁止使用 try-catch 包裹 mutation 调用处理错误**
@@ -849,3 +1167,259 @@ const columns = [
 - **保证类型安全**：TypeScript 可以在编译时发现错误
 - **提高开发效率**：不需要在前后端类型之间做转换
 - **单一数据源**：API 类型是唯一真实来源
+
+### 功能开发工作流（CRITICAL）
+
+**标准三层架构：API → Feature → Page**
+
+项目采用严格的分层架构，新功能开发必须按照以下顺序进行：
+
+```
+┌─────────────────────────────────────────────┐
+│  1. API 层（自动生成）                        │
+│     @/core/api/generated/                   │
+└─────────────────┬───────────────────────────┘
+                  │
+                  ▼
+┌─────────────────────────────────────────────┐
+│  2. Feature 层（业务逻辑封装）                 │
+│     @/features/{module}/                     │
+│     ├── hooks/        # 数据获取和提交       │
+│     ├── components/   # UI 组件             │
+│     ├── utils/        # 工具函数             │
+│     └── index.ts      # 统一导出             │
+└─────────────────┬───────────────────────────┘
+                  │
+                  ▼
+┌─────────────────────────────────────────────┐
+│  3. Page 层（页面组装）                       │
+│     @/pages/{module}/                       │
+│     └── {page}.page.vue  # 只做组装，不写逻辑 │
+└─────────────────────────────────────────────┘
+```
+
+**开发步骤（严格遵守顺序）**：
+
+### 步骤 1：确认 API 已生成
+
+在开始开发前，确保后端 API 已经生成到 `@/core/api/generated/`：
+
+```bash
+# 检查生成的 API 函数
+grep "export.*function.*Api" /path/to/sdk.gen.ts | grep {moduleName}
+```
+
+**如果 API 不存在**：
+- ❌ **禁止使用 fetch/axios 手动调用 API**
+- ✅ 先运行 API 生成脚本
+- ✅ 或联系后端更新 OpenAPI 规范
+
+### 步骤 2：创建 Feature Hooks（优先）
+
+**路径**：`src/features/{module}/{entity}/hooks/`
+
+**规则**：
+- ✅ **必须使用自动生成的 API 函数**：从 `@/core/api/generated` 导入
+- ✅ **必须传入自定义 client**：确保拦截器生效
+- ✅ **Query 必须添加 select**：提取 `response.data?.data`
+- ✅ **Mutation 使用全局 toast**：从 `@/core/utils/toast` 导入
+- ❌ **禁止在页面组件中写 useQuery/useMutation**
+
+**目录结构**：
+```
+src/features/teacher/video/hooks/
+├── index.ts                   # 统一导出
+├── useQueryVideo.ts          # 查询 hooks
+└── useMutateVideo.ts         # 变更 hooks
+```
+
+**查询 Hook 模板**：
+```typescript
+// useQueryVideo.ts
+import { postApiTeacherVideosQuery } from "@/core/api/generated"
+import client from "@/core/api/config"
+import { useQuery } from "@tanstack/vue-query"
+
+export function useQueryVideoPage(params: { current: number; size: number }) {
+  return useQuery({
+    queryKey: ["videos", params.current, params.size],
+    queryFn: () =>
+      postApiTeacherVideosQuery({
+        body: {
+          current: params.current,
+          size: params.size,
+          pageable: true,
+        },
+        client,  // ✅ 必须传入
+      }),
+    select: (response) => response.data?.data,  // ✅ 提取数据
+  })
+}
+```
+
+**变更 Hook 模板**：
+```typescript
+// useMutateVideo.ts
+import { deleteApiTeacherVideosByVideoId } from "@/core/api/generated"
+import client from "@/core/api/config"
+import { useMutation } from "@tanstack/vue-query"
+import { toast } from "@/core/utils/toast"
+
+export function useDeleteVideo() {
+  return useMutation({
+    mutationFn: (videoId: number) =>
+      deleteApiTeacherVideosByVideoId({
+        path: { videoId },
+        client,  // ✅ 必须传入
+      }),
+    onSuccess: () => {
+      toast.success("视频删除成功")  // ✅ 使用全局 toast
+    },
+  })
+}
+```
+
+**导出文件**：
+```typescript
+// index.ts
+export * from "./useQueryVideo"
+export * from "./useMutateVideo"
+```
+
+### 步骤 3：创建 Feature 组件
+
+**路径**：`src/features/{module}/{entity}/components/`
+
+**规则**：
+- ✅ 使用 `defineModel()` 实现双向绑定
+- ✅ 使用 PrimeVue 组件
+- ✅ 只使用 TailwindCSS（禁止 `<style>`）
+- ✅ 组件内部逻辑通过 emit 传递给父组件
+
+**示例**：
+```vue
+<!-- VideoTable.vue -->
+<template>
+  <DataTable
+    :value="videos"
+    :loading="isLoading"
+    @page="$emit('page', $event)"
+  />
+</template>
+
+<script setup lang="ts">
+interface Emits {
+  (e: 'page', event: any): void
+}
+defineEmits<Emits>()
+</script>
+```
+
+### 步骤 4：创建 Page 组件（最后）
+
+**路径**：`src/pages/{module}/{page}.page.vue`
+
+**规则**：
+- ✅ **只做组件组装**：不写业务逻辑
+- ✅ **使用 Feature Hooks**：从 `@/features/{module}/{entity}` 导入
+- ✅ **使用 Feature 组件**：从 `@/features/{module}/{entity}` 导入
+- ❌ **禁止直接调用 API**：必须使用 hooks
+- ❌ **禁止定义 useQuery/useMutation**：必须在 hooks 中
+- ❌ **禁止写复杂业务逻辑**：逻辑应该在 hooks 或组件中
+
+**页面模板**：
+```vue
+<template>
+  <div class="p-6">
+    <VideoFilter v-model="filters" />
+    <VideoTable
+      :videos="videos"
+      :is-loading="query.isLoading.value"
+      @page="onPage"
+    />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from "vue"
+import { useQueryVideoPage, useDeleteVideo } from "@/features/teacher/video"
+import { VideoFilter, VideoTable } from "@/features/teacher/video"
+
+// ✅ 使用 hooks 管理状态
+const { videos, query } = useQueryVideoPage({ current: 1, size: 10 })
+const deleteMutation = useDeleteVideo()
+
+// ✅ 只保留 UI 交互逻辑
+const filters = ref({})
+const onPage = (event: any) => {
+  // 处理分页
+}
+</script>
+```
+
+**完整工作流示例**：
+
+```bash
+# 1. 确认 API 已生成
+grep "postApiTeacherVideosQuery" src/core/api/generated/sdk.gen.ts
+
+# 2. 创建 feature hooks
+mkdir -p src/features/teacher/video/hooks
+# 创建 useQueryVideo.ts
+# 创建 useMutateVideo.ts
+# 创建 index.ts
+
+# 3. 创建 feature 组件
+mkdir -p src/features/teacher/video/components
+# 创建 VideoFilter.vue
+# 创建 VideoTable.vue
+# 更新 src/features/teacher/video/index.ts
+
+# 4. 创建 page 组件
+# 创建 src/pages/teacher/videos/index.page.vue
+# 使用 hooks 和组件
+
+# 5. 验证
+pnpm typecheck
+```
+
+**禁止的反面示例**：
+
+```vue
+<!-- ❌ 错误：在页面中直接调用 API -->
+<script setup lang="ts">
+const { data } = useQuery({
+  queryFn: () => fetch('/api/videos')  // ❌ 禁止手动 fetch
+})
+</script>
+
+<!-- ❌ 错误：在页面中定义 mutation -->
+<script setup lang="ts">
+const uploadMutation = useMutation({  // ❌ 应该在 hooks 中
+  mutationFn: async (file) => {
+    const formData = new FormData()  // ❌ 应该用生成的 API
+    formData.append('file', file)
+    return fetch('/api/upload', {    // ❌ 禁止手动 fetch
+      method: 'POST',
+      body: formData,
+    })
+  }
+})
+</script>
+
+<!-- ✅ 正确：使用 feature hooks -->
+<script setup lang="ts">
+import { useQueryVideoPage, useUploadVideo } from "@/features/teacher/video"
+
+const { videos, query } = useQueryVideoPage({ current: 1, size: 10 })
+const uploadMutation = useUploadVideo()
+</script>
+```
+
+**理由**：
+- **职责分离**：API 层、业务层、展示层各司其职
+- **代码复用**：hooks 可在多个页面中复用
+- **易于测试**：独立的 hooks 和组件更容易测试
+- **维护性强**：修改 API 只需更新 hooks，不影响页面
+- **类型安全**：自动生成的 API 类型确保类型正确
+- **统一风格**：所有功能都按同样的结构组织
