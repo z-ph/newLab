@@ -61,5 +61,13 @@ export type TopicProcedureUpdateFormData = FormData<UpdateTopicProcedureRequest>
 /**
  * 导出表单相关类型
  */
-export type { ProcedureFormData } from './form'
-export { createDefaultProcedureFormData } from './form'
+export type {
+  ProcedureFormData,
+  BaseProcedureFields,
+  VideoProcedureFields,
+  KeyDataCollectionFields,
+  TableDataCollectionFields,
+  TopicProcedureFields,
+} from './form'
+
+export { createDefaultProcedureFormData, DATA_COLLECTION_TYPE } from './form'
