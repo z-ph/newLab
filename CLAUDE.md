@@ -338,6 +338,81 @@ const classOptions = computed(() => {
 - **更好的可维护性**：选项集中管理，易于更新
 - **符合规范**：遵循 PrimeVue v4 的组件设计理念
 
+**Tabs 组件使用规范（CRITICAL）**
+
+**PrimeVue v4：使用 Tabs 替代已弃用的 TabView**
+
+- ❌ **禁止使用 TabView**：PrimeVue v4 已弃用 `TabView` 组件
+- ✅ **使用 Tabs 组件**：PrimeVue v4 的新 API 结构
+- ✅ **正确的组件结构**：`Tabs` → `TabList` + `Tab` + `TabPanels` + `TabPanel`
+
+**正确的使用方式**：
+```vue
+<!-- ✅ 正确：使用 PrimeVue v4 的 Tabs 组件 -->
+<Tabs v-model:value="activeTab">
+  <TabList>
+    <Tab value="tab1">标签页 1</Tab>
+    <Tab value="tab2">标签页 2</Tab>
+  </TabList>
+  <TabPanels>
+    <TabPanel value="tab1">
+      内容 1
+    </TabPanel>
+    <TabPanel value="tab2">
+      内容 2
+    </TabPanel>
+  </TabPanels>
+</Tabs>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+
+// 使用字符串值而不是数字索引
+const activeTab = ref('tab1')
+</script>
+```
+
+**错误的使用方式**：
+```vue
+<!-- ❌ 错误：使用已弃用的 TabView -->
+<TabView v-model:active-index="activeTab">
+  <TabPanel header="标签页 1">
+    内容 1
+  </TabPanel>
+  <TabPanel header="标签页 2">
+    内容 2
+  </TabPanel>
+</TabView>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+
+// ❌ 旧 API 使用数字索引
+const activeTab = ref(0)
+</script>
+```
+
+**关键变化**：
+1. **组件名称**：`TabView` → `Tabs`
+2. **结构变化**：需要使用 `TabList` + `Tab` + `TabPanels` + `TabPanel`
+3. **属性变化**：
+   - `v-model:active-index` → `v-model:value`
+   - `header` 属性 → `<Tab>` 组件的子节点
+   - Tab value 从数字索引改为字符串值
+
+**最佳实践**：
+- ✅ 使用描述性的字符串作为 tab value（如 `'interactive'`, `'json'`）
+- ✅ 为每个 tab 提供清晰的标签文本
+- ✅ 保持 tab 内容的简洁和相关性
+- ❌ 不要使用数字索引（如 0, 1, 2）作为 tab value
+
+**理由**：
+- **避免弃用警告**：TabView 在 PrimeVue v4 中已弃用，会产生警告
+- **更好的类型安全**：字符串 value 比数字索引更具描述性和类型安全
+- **更清晰的 API**：新的结构更明确，标签和内容分离
+- **未来兼容性**：遵循最新的组件 API，避免未来版本升级问题
+- **更好的可维护性**：新 API 更符合 Vue 3 的组合式 API 设计理念
+
 ### 样式规范（CRITICAL）
 
 **禁止使用 `<style>` 标签**
