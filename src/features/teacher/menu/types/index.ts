@@ -105,6 +105,11 @@ const ROUTE_META: Partial<Record<TeacherRoutePath, RouteMeta>> = {
     title: '视频管理',
     icon: 'pi pi-video',
   },
+  '/teacher/topics/': {
+    name: 'topics',
+    title: '题目管理',
+    icon: 'pi pi-question-circle',
+  },
 }
 
 // ============================================================================
@@ -141,6 +146,7 @@ export const MENU_ITEMS: TeacherMenuItem[] = Object.entries(ROUTE_META)
       '/teacher/experiments/',
       '/teacher/class-experiments/',
       '/teacher/videos/',
+      '/teacher/topics/',
     ]
     return order.indexOf(a.path) - order.indexOf(b.path)
   })
