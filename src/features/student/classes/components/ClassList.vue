@@ -9,10 +9,7 @@
         v-for="classInfo in classes"
         :key="classInfo.classCode"
         class="cursor-pointer active:scale-[0.98] transition-transform"
-        const handleView = (classCode: string) => {
-  if (!classCode) return
-  $emit('view', classCode)
-}
+        @click="() => classInfo.classCode && $emit('view', classInfo.classCode)"
       >
         <template #content>
           <div class="flex items-center justify-between">
@@ -39,14 +36,13 @@
     <div v-else class="text-center py-12">
       <i class="pi pi-inbox text-4xl text-gray-300 mb-3" />
       <p class="text-sm text-gray-500">暂无班级</p>
-      <p class="text-xs text-gray-400 mt-1">点击上方按钮加入班级</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useQueryClasses } from '../hooks'
-import { formatDateTime } from '../utils'
+import { formatDateTime } from '@/features/shared/utils'
 
 interface Emits {
   (e: 'view', classCode: string): void

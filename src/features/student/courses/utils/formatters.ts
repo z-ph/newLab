@@ -1,4 +1,8 @@
 /**
+ * 课程相关格式化函数
+ */
+
+/**
  * 从提交记录中提取课程名称
  */
 export function getCourseName(submissions: any[]): string {
@@ -34,23 +38,4 @@ export function getCourseProgress(submissions: any[]): { completed: number; tota
   ).length
 
   return { completed, total }
-}
-
-/**
- * 格式化日期时间
- */
-export function formatDateTime(dateStr?: string): string {
-  if (!dateStr) return '-'
-  try {
-    const date = new Date(dateStr)
-    return date.toLocaleString('zh-CN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
-  } catch {
-    return dateStr
-  }
 }

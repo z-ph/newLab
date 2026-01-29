@@ -36,7 +36,7 @@ pnpm typecheck
 
 **任务开始前必须确立错误边界**
 
-在开始任何代码修改任务前，必须先���行 `pnpm typecheck` 确立当前的类型检查状态：
+在开始任何代码修改任务前，必须先运行 `pnpm typecheck` 确立当前的类型检查状态：
 
 ```bash
 # 任务开始前运行
@@ -125,6 +125,198 @@ src/
 
 vite-plugin-openapi-ts 插件用于从 OpenAPI 规范生成 TypeScript 类型。配置需要在 vite.config.ts 中添加选项。
 
+## 学生端架构设计（CRITICAL）
+
+**核心设计理念：以课程为中心**
+
+学生端采用层级式导航结构，所有功能模块都是课程的附属模块，而不是平铺式的独立模块。
+
+### 导航层级结构
+
+```
+┌─────────────────────────────────────────────────┐
+│  第一层：首页（课程列表）                         │
+│  /student/index                                 │
+│  展示学生加入的所有课程                           │
+└─────────────────┬───────────────────────────────┘
+                  │ 点击课程
+                  ▼
+┌─────────────────────────────────────────────────┐
+│  第二层：课程详情（实验列表）                     │
+│  /student/courses/[courseId]                    │
+│  展示该课程的所有实验                             │
+└─────────────────┬───────────────────────────────┘
+                  │ 点击实验
+                  ▼
+┌─────────────────────────────────────────────────┐
+│  第三层：实验详情（功能聚合页）                   │
+│  /student/courses/[courseId]/experiments/[expId]│
+│  包含：签到 + 实验步骤 + 提交                     │
+└─────────────────────────────────────────────────┘
+```
+
+### 路由结构规范
+
+**第一层：课程列表**
+```
+/student/index.vue 或 /student/courses/index.vue
+```
+- 展示学生加入的所有课程
+- 每个课程卡片显示：课程名称、教师、进度等
+- 点击课程 → 进入课程详情
+
+**第二层：课程详情（实验列表）**
+```
+/student/courses/[courseId]/index.vue
+```
+- 展示该课程的所有实验
+- 实验列表显示：实验名称、状态、进度等
+- 点击实验 → 进入实验详情
+
+**第三层：实验详情（功能聚合页）**
+```
+/student/courses/[courseId]/experiments/[experimentId].page.vue
+```
+- **功能聚合**：签到 + 实验步骤 + 提交
+- 使用 Tabs 或分段式布局组织功能
+- **签到功能**：
+  - 微信扫码签到（调用微信浏览器 JS-SDK）
+  - 如有必要，下载微信浏览器 SDK
+  - 参考：[微信 JS-SDK 文档](https://developers.weixin.qq.com/doc/offiaccount/OA_Web_Apps/JS-SDK.html)
+
+### 签到功能实现规范
+
+**微信扫码签到（推荐）**
+
+学生端主要通过微信浏览器访问，签到功能使用微信扫码：
+
+1. **安装微信 JS-SDK**：
+   ```bash
+   pnpm add weixin-js-sdk
+   ```
+
+2. **配置微信 SDK**：
+   ```typescript
+   // src/core/utils/wechat.ts
+   import wx from 'weixin-js-sdk'
+
+   export function initWeChatConfig(config: {
+     appId: string
+     timestamp: number
+     nonceStr: string
+     signature: string
+   }) {
+     wx.config({
+       debug: false,
+       appId: config.appId,
+       timestamp: config.timestamp,
+       nonceStr: config.nonceStr,
+       signature: config.signature,
+       jsApiList: ['scanQRCode']
+     })
+   }
+
+   export function scanQRCode() {
+     return new Promise((resolve, reject) => {
+       wx.scanQRCode({
+         needResult: 1, // 1 表示需要返回结果
+         scanType: ['qrCode', 'barCode'],
+         success: (res) => resolve(res.resultStr),
+         fail: (err) => reject(err)
+       })
+     })
+   }
+   ```
+
+3. **使用扫码签到**：
+   ```vue
+   <script setup lang="ts">
+   import { scanQRCode } from '@/core/utils/wechat'
+
+   const handleScan = async () => {
+     try {
+       const result = await scanQRCode()
+       // 处理签到逻辑
+       await submitAttendance(result)
+     } catch (error) {
+       toast.error('扫码失败')
+     }
+   }
+   </script>
+   ```
+
+**备用方案：手动输入签到码**
+
+如果微信扫码不可用（如非微信浏览器），提供手动输入签到码的输入框。
+
+### 移动端布局规范
+
+**底部导航栏**：
+
+学生端底部导航固定显示，但只包含**核心入口**：
+- 🏠 首页（课程列表）
+- 📚 我的课程
+- 👤 个人中心
+
+**导航不包含**：
+- ❌ 独立的签到入口（签到在实验详情页内）
+- ❌ 独立的实验入口（实验在课程详情页内）
+- ❌ 独立的成绩入口（成绩在实验详情页或个人中心）
+
+### 页面组件组织规范
+
+**目录结构**：
+```
+src/features/student/courses/
+├── components/
+│   ├── CourseList.vue           # 课程列表（首页）
+│   ├── CourseCard.vue           # 课程卡片
+│   ├── ExperimentList.vue       # 实验列表（课程详情页）
+│   ├── ExperimentCard.vue       # 实验卡片
+│   └── ExperimentDetail.vue     # 实验详情（功能聚合页）
+│       ├── AttendanceTab.vue    # 签到标签页
+│       ├── StepsTab.vue         # 实验步骤标签页
+│       └── SubmissionTab.vue    # 提交标签页
+├── hooks/
+│   ├── useQueryCourses.ts       # 查询课程列表
+│   ├── useQueryExperiments.ts   # 查询实验列表
+│   └── useScanAttendance.ts     # 扫码签到
+└── utils/
+    └── wechat.ts                # 微信 SDK 工具
+```
+
+### 交互流程示例
+
+**学生完整操作流程**：
+1. 打开应用 → 看到课程列表
+2. 点击某个课程 → 看到该课程的实验列表
+3. 点击某个实验 → 看到实验详情（包含签到、步骤、提交）
+4. 点击"扫码签到" → 调用微信扫码 → 完成签到
+5. 查看实验步骤 → 完成实验 → 提交结果
+
+**理由**：
+- **符合用户心智模型**：课程 → 实验 → 功能，自然层级
+- **上下文清晰**：用户始终知道自己在哪里，在做什么课程/实验
+- **减少导航跳转**：相关功能聚合在同一页面，不需要来回切换
+- **移动端友好**：层级式导航更适合移动端的单手操作
+- **微信生态适配**：扫码签到利用微信原生能力，体验更好
+
+### 迁移指南
+
+**当前架构问题**：
+- ❌ 签到、实验、成绩等平铺为独立模块
+- ❌ 缺少课程层级，无法区分不同课程的数据
+- ❌ 底部导航包含太多入口，不符合层级式设计
+
+**迁移步骤**：
+1. ✅ 创建课程详情页 `/student/courses/[courseId]/index.vue`
+2. ✅ 创建实验详情页 `/student/courses/[courseId]/experiments/[experimentId].page.vue`
+3. ✅ 将签到功能集成到实验详情页内
+4. ✅ 简化底部导航，只保留核心入口
+5. ✅ 实现微信扫码签到功能
+6. ❌ 删除独立的签到页面（`/student/attendance`）
+7. ❌ 删除独立的实验页面（`/student/experiments`）
+
 ## 开发注意事项
 
 1. **类型生成**：
@@ -170,9 +362,9 @@ vite-plugin-openapi-ts 插件用于从 OpenAPI 规范生成 TypeScript 类型。
 3. 改进类型定义，而不是绕过类型检查
 4. 使用 Zod 或类似库进行运行时验证
 
-### 类型定义架构（CRITICAL）
+### 类型定义规范（CRITICAL）
 
-**原则：基于自动生成的 API 类型派生，避免重复定义**
+**核心原则：基于自动生成的 API 类型派生，避免重复定义**
 
 项目使用 OpenAPI 自动生成 API 类型（`@/core/api/generated`），所有业务类型应通过类型运算从这些 API 类型派生。
 
@@ -180,7 +372,7 @@ vite-plugin-openapi-ts 插件用于从 OpenAPI 规范生成 TypeScript 类型。
 ```
 src/
 ├── core/api/generated/    # 自动生成的 API 类型（单一数据源）
-│   └── types.gen.ts       # ← 所有类型定义的源���
+│   └── types.gen.ts       # ← 所有类型定义的源头
 ├── features/
 │   ├── shared/
 │   │   └── types/         # 通用工具类型（跨 feature 共享）
@@ -197,28 +389,47 @@ src/
 │       └── constants/     # 老师 feature 常量
 ```
 
-**类型定义规则**：
+**类型定义黄金法则**：
 1. ✅ **使用类型别名**：`export type ClassEntity = Class`
-2. ✅ **使用工具类型**：`export type ClassFormData = FormData<CreateClassRequest>`
+2. ✅ **使用工具类型**：`export type ClassFormData = Partial<CreateClassRequest>`
 3. ✅ **从 API 类型导入**：`import type { Class, CreateClassRequest } from '@/core/api/generated'`
-4. ❌ **禁止重复定义**：不要手动写与 API 类型相同的接口
-5. ❌ **禁止手动定义 Schema**：不要自己写 JSON Schema，使用 API 类型
+4. ✅ **优先使用 satisfies**：保留精确类型推断，防止访问未定义属性
+5. ❌ **禁止重复定义**：不要手动写与 API 类型相同的接口
+6. ❌ **禁止手动定义 Schema**：不要自己写 JSON Schema，使用 API 类型
 
-**示例**：
+**satisfies vs 泛型断言**：
 ```typescript
-// ✅ 正确：从 API 类型派生
-import type { Class, CreateClassRequest } from '@/core/api/generated'
-import type { FormData } from '@/features/shared/types'
+// ✅ satisfies - 保留精确类型推断 + 严格的属性访问检查
+type FormData = Partial<CreateRequest>
+const formData = reactive({
+  courseName: '',  // 类型推断为 string literal ""
+}) satisfies FormData
 
-export type ClassEntity = Class
-export type ClassFormData = FormData<CreateClassRequest>
+// 访问未定义的属性会报错（防止误访问）
+formData.courseId  // TypeScript Error: Property 'courseId' does not exist
 
-// ❌ 错误：重复定义
-export interface ClassEntity {
-  id: string
-  className: string  // 这些字段 API 已经定义了！
-}
+// ❌ 泛型断言 - 类型 widening + 宽松的属性访问
+const formData = reactive<Partial<CreateRequest>>({
+  courseName: '',  // 类型被 widening 为 string
+})
+
+// 可以访问类型中的所有属性（即使未定义）
+formData.courseId  // 不报错，类型为 string | undefined
 ```
+
+**类型运算工具**：
+- `Partial<T>` - 所有字段变为可选
+- `Required<T>` - 所有字段变为必需
+- `Pick<T, K>` - 选择部分字段
+- `Omit<T, K>` - 排除部分字段
+- **`satisfies`** - 验证类型同时保留精确推断（**优先使用**）
+
+**理由**：
+- 单一数据源：API 类型是唯一真实来源
+- 避免重复：手动维护两份类型容易出错
+- 自动同步：API 变更时自动反映到类型
+- 减少维护：只需关注 API 类型定义
+- 保留推断：satisfies 保留字面量的精确类型，提供更好的类型安全
 
 ### UI 框架规范
 
@@ -304,18 +515,6 @@ toast.warn('警告消息')
   option-value="classId"
   placeholder="请选择班级"
 />
-
-<!-- ❌ 错误：使用 InputNumber 让用户手动输入 ID -->
-<InputNumber
-  v-model="formData.classId"
-  placeholder="请输入班级ID"
-/>
-
-<!-- ❌ 错误：使用 InputText 让用户手动输入代码 -->
-<InputText
-  v-model="formData.statusCode"
-  placeholder="请输入状态码"
-/>
 ```
 
 **数据准备**：
@@ -328,15 +527,6 @@ const classOptions = computed(() => {
   }))
 })
 ```
-
-**理由**：
-- **API 设计**：PrimeVue v4 将选择功能从 Dropdown 中分离，形成专门的 Select 组件
-- **避免错误**：防止用户输入错误的 ID 或代码
-- **提升体验**：用户可以看到可选选项，无需记忆
-- **数据一致性**：确保只能选择已存在的有效数据
-- **类型安全**：下拉选择可以保证类型安全
-- **更好的可维护性**：选项集中管理，易于更新
-- **符合规范**：遵循 PrimeVue v4 的组件设计理念
 
 **Tabs 组件使用规范（CRITICAL）**
 
@@ -355,40 +545,15 @@ const classOptions = computed(() => {
     <Tab value="tab2">标签页 2</Tab>
   </TabList>
   <TabPanels>
-    <TabPanel value="tab1">
-      内容 1
-    </TabPanel>
-    <TabPanel value="tab2">
-      内容 2
-    </TabPanel>
+    <TabPanel value="tab1">内容 1</TabPanel>
+    <TabPanel value="tab2">内容 2</TabPanel>
   </TabPanels>
 </Tabs>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-
 // 使用字符串值而不是数字索引
 const activeTab = ref('tab1')
-</script>
-```
-
-**错误的使用方式**：
-```vue
-<!-- ❌ 错误：使用已弃用的 TabView -->
-<TabView v-model:active-index="activeTab">
-  <TabPanel header="标签页 1">
-    内容 1
-  </TabPanel>
-  <TabPanel header="标签页 2">
-    内容 2
-  </TabPanel>
-</TabView>
-
-<script setup lang="ts">
-import { ref } from 'vue'
-
-// ❌ 旧 API 使用数字索引
-const activeTab = ref(0)
 </script>
 ```
 
@@ -400,19 +565,6 @@ const activeTab = ref(0)
    - `header` 属性 → `<Tab>` 组件的子节点
    - Tab value 从数字索引改为字符串值
 
-**最佳实践**：
-- ✅ 使用描述性的字符串作为 tab value（如 `'interactive'`, `'json'`）
-- ✅ 为每个 tab 提供清晰的标签文本
-- ✅ 保持 tab 内容的简洁和相关性
-- ❌ 不要使用数字索引（如 0, 1, 2）作为 tab value
-
-**理由**：
-- **避免弃用警告**：TabView 在 PrimeVue v4 中已弃用，会产生警告
-- **更好的类型安全**：字符串 value 比数字索引更具描述性和类型安全
-- **更清晰的 API**：新的结构更明确，标签和内容分离
-- **未来兼容性**：遵循最新的组件 API，避免未来版本升级问题
-- **更好的可维护性**：新 API 更符合 Vue 3 的组合式 API 设计理念
-
 ### 样式规范（CRITICAL）
 
 **禁止使用 `<style>` 标签**
@@ -422,44 +574,14 @@ const activeTab = ref(0)
 - ✅ **使用 PrimeVue 组件的内置样式属性**：`class`, `pt`（pass through）等
 
 **样式编写规则**：
-1. **使用 TailwindCSS 工具类**：
-   ```vue
-   <!-- ✅ 正确 -->
-   <div class="flex items-center justify-between p-4 bg-white rounded-lg shadow">
-     <h2 class="text-xl font-semibold text-gray-900">标题</h2>
-   </div>
-
-   <!-- ❌ 错误 -->
-   <div class="container">
-     <h2 class="title">标题</h2>
-   </div>
-   <style scoped>
-   .container { display: flex; padding: 1rem; }
-   .title { font-size: 1.25rem; font-weight: 600; }
-   </style>
-   ```
-
-2. **使用 PrimeVue 组件的样式属性**：
-   ```vue
-   <!-- ✅ 正确：使用 PrimeVue 组件的 class 和 pt 属性 -->
-   <Button class="p-button-lg" pt:root:class="custom-button">
-     点击
-   </Button>
-   ```
-
-3. **动态样式**：
-   ```vue
-   <!-- ✅ 正确：使用动态 class 绑定 -->
-   <div :class="['flex', isActive ? 'bg-blue-500' : 'bg-gray-200']">
-     内容
-   </div>
-   ```
+1. **使用 TailwindCSS 工具类**
+2. **使用 PrimeVue 组件的样式属性**：`class`, `pt` 等
+3. **动态样式**：使用动态 class 绑定
 
 **理由**：
 - 统一样式系统，避免样式冲突
 - 提高代码可维护性
 - 减小打包体积
-- 更好的开发体验和性能
 - 保持项目风格一致性
 
 **例外情况**：
@@ -471,13 +593,12 @@ const activeTab = ref(0)
 **使用 `defineModel()` 实现双向绑定**
 
 - ✅ **使用 `defineModel()`**：无需手动定义 props 和 emits
-- ❌ **禁止重复定义**：使用 `defineModel()` 时不要定义相���的 prop 和 emit
+- ❌ **禁止重复定义**：使用 `defineModel()` 时不要定义相应的 prop 和 emit
 
 **示例**：
 ```typescript
 // ✅ 正确：使用 defineModel()
 const visible = defineModel<boolean>()
-
 // 直接修改即可
 visible.value = false
 
@@ -485,28 +606,13 @@ visible.value = false
 interface Props {
   visible: boolean
 }
-
 interface Emits {
   (e: 'update:visible', value: boolean): void
 }
-
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
-
-// 使用时需要手动 emit
 emit('update:visible', false)
 ```
-
-**注意事项**：
-- `defineModel()` 自动处理双向绑定，无需额外配置
-- 直接修改返回的 ref 即可触发更新
-- 如果有多个 v-model，可以传入参数：`defineModel<'visible' | 'value'>()`
-- 注意函数引用顺序：使用 watch 时，被引用的函数必须先定义
-
-**常见场景**：
-- Dialog 的显示/隐藏
-- 表单数据的双向绑定
-- 任何需要父子组件同步的场景
 
 **对话框状态管理规范（CRITICAL）**
 
@@ -517,152 +623,13 @@ emit('update:visible', false)
 - ✅ **父组件通过 ref 调用**：使用 `dialogRef.value?.open()` 调用
 - ❌ **禁止在父组件管理对话框状态**：不要在父组件定义 `showDialog` 等状态
 
-**正确示例**：
-
-```vue
-<!-- VideoUploadDialog.vue -->
-<template>
-  <Dialog v-model:visible="visible" header="上传视频" modal>
-    <!-- 对话框内容 -->
-  </Dialog>
-</template>
-
-<script setup lang="ts">
-import { ref } from 'vue'
-
-// ✅ 状态封装在组件内部
-const visible = ref(false)
-const formData = ref({
-  title: '',
-  description: '',
-})
-
-// ✅ 暴露操作方法
-function open(data?: any) {
-  if (data) {
-    formData.value = data
-  }
-  visible.value = true
-}
-
-function close() {
-  visible.value = false
-}
-
-// ✅ 只暴露方法，不暴露状态
-defineExpose({
-  open,
-  close,
-})
-</script>
-```
-
-**父组件使用**：
-
-```vue
-<!-- VideoPage.vue -->
-<template>
-  <div>
-    <Button label="上传" @click="handleUpload" />
-    <VideoUploadDialog ref="uploadDialogRef" />
-  </div>
-</template>
-
-<script setup lang="ts">
-import { ref } from 'vue'
-import VideoUploadDialog from '@/features/teacher/video/components/VideoUploadDialog.vue'
-
-// ✅ 只需要 ref，不需要管理状态
-const uploadDialogRef = ref<InstanceType<typeof VideoUploadDialog>>()
-
-// ✅ 通过方法调用，简洁明了
-const handleUpload = () => {
-  uploadDialogRef.value?.open()
-}
-</script>
-```
-
-**错误示例**：
-
-```vue
-<!-- ❌ 错误：在父组件管理对话框状态 -->
-<script setup lang="ts">
-import { ref } from 'vue'
-
-// ❌ 父组件管理对话框状态，违反封装原则
-const showUploadDialog = ref(false)
-const showDetailDialog = ref(false)
-const showPlayDialog = ref(false)
-
-const handleUpload = () => {
-  showUploadDialog.value = true  // ❌ 状态管理分散
-}
-</script>
-```
-
 **适用场景**：
-- ✅ **对话框状态**：不涉及跨组件共享的对话框显示/隐藏
-- ✅ **抽屉状态**：Drawer 的显示/隐藏
-- ✅ **表单状态**：表单的编辑/新增状态
-- ✅ **局部UI状态**：只在组件内部使用的状态
+- ✅ 对话框状态、抽屉状态、表单状态、局部 UI 状态
 
 **例外场景**（需要在外部管理状态）：
-- ✅ **跨组件共享状态**：多个组件需要控制同一个对话框
-- ✅ **需要响应状态变化**：父组件需要监听对话框状态变化
-- ✅ **复杂联动**：对话框状态与其他状态有复杂联动
-
-**最佳实践模板**：
-
-```vue
-<!-- FeatureDialog.vue -->
-<template>
-  <Dialog v-model:visible="visible" :header="title">
-    <!-- 对话框内容 -->
-  </Dialog>
-</template>
-
-<script setup lang="ts">
-import { ref, computed } from 'vue'
-
-interface Props {
-  title?: string
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  title: '对话框',
-})
-
-// 状态封装
-const visible = ref(false)
-const formData = ref({})
-
-// 操作方法
-function open(initialData?: any) {
-  if (initialData) {
-    formData.value = initialData
-  }
-  visible.value = true
-}
-
-function close() {
-  visible.value = false
-  formData.value = {}
-}
-
-// 只暴露方法
-defineExpose({
-  open,
-  close,
-})
-</script>
-```
-
-**理由**：
-- **封装性更好**：状态管理集中在组件内部
-- **代码更简洁**：父组件不需要管理大量状态
-- **易于维护**：修改状态逻辑只需要修改组件本身
-- **复用性更强**：组件自包含，更容易复用
-- **职责清晰**：父组件只负责触发，子组件负责管理
+- ✅ 跨组件共享状态
+- ✅ 需要响应状态变化
+- ✅ 复杂联动
 
 **组件数据获取规范（CRITICAL）**
 
@@ -670,142 +637,9 @@ defineExpose({
 
 - ✅ **组件内部直接调用 hook**：数据获取逻辑封装在组件内部
 - ✅ **利用 Vue Query 缓存**：相同 queryKey 的请求会自动共享缓存
-- ✅ **Props ��用于配置参数**：props 用于传递配置项，不传递数据
+- ✅ **Props 只用于配置参数**：props 用于传递配置项，不传递数据
 - ✅ **Emits 只用于事件通知**：emit 用于通知父组件用户交互
 - ❌ **禁止通过 props 传递数据**：不要将 topics、isLoading、total 等数据通过 props 传递
-
-**正确示例**：
-
-```vue
-<!-- TopicTable.vue -->
-<template>
-  <DataTable
-    :value="topics"
-    :loading="query.isLoading.value"
-    :total-rows="total"
-    @page="$emit('page', $event)"
-    @view="handleView"
-  />
-</template>
-
-<script setup lang="ts">
-import { useQueryTopicPage } from '@/features/teacher/topic/hooks'
-
-// ✅ 组件内部直接调用 hook 获取数据
-const { topics, total, query } = useQueryTopicPage({
-  current: 1,
-  size: 10,
-})
-
-// ✅ 只保留事件通知的 emit
-interface Emits {
-  (e: 'page', event: any): void
-  (e: 'view', topic: TopicDetailResponse): void
-  (e: 'edit', topic: TopicDetailResponse): void
-  (e: 'delete', topic: TopicDetailResponse): void
-}
-
-defineEmits<Emits>()
-
-// ✅ 事件处理函数
-const handleView = (topic: TopicDetailResponse) => {
-  // 处理查看逻辑
-}
-</script>
-```
-
-**父组件使用**：
-
-```vue
-<!-- TopicsPage.vue -->
-<template>
-  <div class="p-6">
-    <!-- ✅ 不需要传递数据 props -->
-    <TopicTable
-      @page="onPage"
-      @view="handleView"
-      @edit="handleEdit"
-      @delete="handleDelete"
-    />
-  </div>
-</template>
-
-<script setup lang="ts">
-import TopicTable from '@/features/teacher/topic/components/TopicTable.vue'
-
-// ✅ 父组件不需要管理数据，只需要处理事件
-const onPage = (event: any) => {
-  // 处理分页
-}
-
-const handleView = (topic: TopicDetailResponse) => {
-  // 处理查看
-}
-</script>
-```
-
-**错误示例**：
-
-```vue
-<!-- ❌ 错误：通过 props 传递数据 -->
-<script setup lang="ts">
-interface Props {
-  topics: TopicDetailResponse[]      // ❌ 不应该通过 props 传递数据
-  isLoading: boolean                 // ❌ 不应该通过 props 传递 loading 状态
-  total?: number                     // ❌ 不应该通过 props 传递总数
-  isDeleting?: boolean               // ❌ 不应该通过 props 传递 UI 状态
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  total: 0,
-  isDeleting: false,
-})
-
-interface Emits {
-  (e: 'page', event: any): void
-  (e: 'view', topic: TopicDetailResponse): void
-  (e: 'edit', topic: TopicDetailResponse): void
-  (e: 'delete', topic: TopicDetailResponse): void
-}
-
-defineEmits<Emits>()
-
-// ❌ 数据来自 props，组件无法独立工作
-const topics = computed(() => props.topics)
-const isLoading = computed(() => props.isLoading)
-</script>
-```
-
-```vue
-<!-- ❌ 错误：父组件需要管理数据 -->
-<script setup lang="ts">
-// ❌ 父组件需要管理所有数据
-const { topics, total, query } = useQueryTopicPage({
-  current: 1,
-  size: 10,
-})
-
-// ❌ 必须手动传递数据给子组件
-<TopicTable
-  :topics="topics"
-  :is-loading="query.isLoading.value"
-  :total="total"
-  @page="onPage"
-  @view="handleView"
-/>
-</script>
-```
-
-**适用场景**：
-- ✅ **列表组件**：Table、List、Grid 等展示数据的组件
-- ✅ **表单组件**：需要获取初始数据或选项数据的表单
-- ✅ **详情组件**：展示单个资源详情的组件
-- ✅ **卡片组件**：展示摘要信息的卡片组件
-
-**例外场景**（需要通过 props 传递数据）：
-- ✅ **静态数据展示**：数据不会变化，且与后端无关
-- ✅ **已加载的数据**：父组件已经获取的数据，子组件直接使用
-- ✅ **复合组件**：子组件是纯 UI 组件，不应该包含数据逻辑
 
 **规范总结**：
 1. **数据获取**：组件内部调用 hook，利用 Vue Query 缓存
@@ -813,28 +647,10 @@ const { topics, total, query } = useQueryTopicPage({
 3. **Emits 用途**：只用于事件通知（如 click、submit、cancel）
 4. **组件独立性**：组件应该能够独立工作，不依赖父组件传递数据
 
-**理由**：
-- **利用缓存**：Vue Query 会自动缓存相同 queryKey 的数据，避免重复请求
-- **组件独立性**：组件自包含数据逻辑，更容易复用和测试
-- **代码简洁**：父组件不需要管理数据，只需处理事件
-- **性能优化**：多个组件使用相同 hook 时，共享缓存，减少网络请求
-- **职责清晰**：数据获取在组件内部，事件处理在父组件，职责分离
-
-**Vue Query 缓存机制示例**：
-
-```typescript
-// 父组件调用 hook
-const { topics: topics1 } = useQueryTopicPage({ current: 1, size: 10 })
-// 发起网络请求，数据被缓存
-
-// 子组件也调用同一个 hook
-const { topics: topics2 } = useQueryTopicPage({ current: 1, size: 10 })
-// ✅ 不会发起新请求，直接使用缓存
-
-// 修改参数
-const { topics: topics3 } = useQueryTopicPage({ current: 2, size: 10 })
-// ✅ queryKey 变化，发起新请求
-```
+**例外场景**（需要通过 props 传递数据）：
+- ✅ 静态数据展示：数据不会变化，且与后端无关
+- ✅ 已加载的数据：父组件已经获取的数据，子组件直接使用
+- ✅ 复合组件：子组件是纯 UI 组件，不应该包含数据逻辑
 
 **工具函数组织规范（CRITICAL）**
 
@@ -858,117 +674,6 @@ src/features/{module}/{entity}/
 └── hooks/
 ```
 
-**正确示例**：
-
-```typescript
-// ✅ utils/formatters.ts
-/**
- * 格式化日期时间
- * @param dateStr - 日期字符串
- * @returns 格式化后的日期时间字符串
- */
-export function formatDateTime(dateStr?: string): string {
-  if (!dateStr) return "-"
-  try {
-    const date = new Date(dateStr)
-    return date.toLocaleString("zh-CN", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    })
-  } catch {
-    return dateStr
-  }
-}
-
-/**
- * 格式化时长（秒 → HH:MM:SS）
- * @param seconds - 秒数
- * @returns 格式化后的时长字符串
- */
-export function formatDuration(seconds?: number): string {
-  if (!seconds) return "-"
-  const hours = Math.floor(seconds / 3600)
-  const minutes = Math.floor((seconds % 3600) / 60)
-  const secs = seconds % 60
-
-  if (hours > 0) {
-    return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
-  }
-  return `${minutes}:${secs.toString().padStart(2, '0')}`
-}
-```
-
-```typescript
-// ✅ utils/index.ts
-export * from "./formatters"
-export * from "./validators"
-export * from "./helpers"
-```
-
-```vue
-<!-- ✅ 组件中使用工具函数 -->
-<script setup lang="ts">
-import { formatDateTime, formatDuration } from "@/features/teacher/video/utils"
-
-// 直接导入使用，不需要重复定义
-</script>
-
-<template>
-  <div>
-    <span>{{ formatDateTime(topic.createdAt) }}</span>
-    <span>{{ formatDuration(video.seconds) }}</span>
-  </div>
-</template>
-```
-
-**错误示例**：
-
-```vue
-<!-- ❌ 错误：在组件内部定义工具函数 -->
-<script setup lang="ts">
-// ❌ 不应该在组件中定义这些函数
-function formatDateTime(dateStr?: string): string {
-  if (!dateStr) return "-"
-  try {
-    const date = new Date(dateStr)
-    return date.toLocaleString("zh-CN", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    })
-  } catch {
-    return dateStr
-  }
-}
-
-function formatDuration(seconds?: number): string {
-  if (!seconds) return "-"
-  const hours = Math.floor(seconds / 3600)
-  const minutes = Math.floor((seconds % 3600) / 60)
-  const secs = seconds % 60
-  // ... 省略
-}
-</script>
-```
-
-```vue
-<!-- ❌ 错误：多个组件重复定义相同的函数 -->
-<!-- VideoTable.vue -->
-<script setup lang="ts">
-function formatDateTime(dateStr?: string): string { /* ... */ }
-</script>
-
-<!-- TopicTable.vue -->
-<script setup lang="ts">
-function formatDateTime(dateStr?: string): string { /* ... */ }  // ❌ 重复定义
-</script>
-```
-
 **工具函数分类**：
 
 1. **格式化函数（formatters.ts）**：
@@ -988,32 +693,6 @@ function formatDateTime(dateStr?: string): string { /* ... */ }  // ❌ 重复�
    - `debounce()` - 防抖函数
    - `throttle()` - 节流函数
 
-**适用场景**：
-- ✅ **格式化函数**：日期、时间、数字、文件大小等格式化
-- ✅ **验证函数**：表单验证、数据校验
-- ✅ **辅助函数**：通用工具方法
-- ✅ **业务逻辑函数**：复杂的业务计算或转换
-
-**例外场景**（可以在组件内定义）：
-- ✅ **组件特定逻辑**：只在当前组件使用，且与组件状态紧密相关的函数
-- ✅ **事件处理函数**：如 `handleClick`、`handleSubmit` 等
-- ✅ **简单的计算函数**：非常简单的内联函数（如单行表达式）
-
-**规范总结**：
-1. **提取工具函数**：所有可复用的工具函数必须提取到 utils 目录
-2. **分类组织**：按功能分类到 formatters.ts、validators.ts、helpers.ts
-3. **统一导出**：通过 utils/index.ts 统一导出
-4. **纯函数优先**：工具函数应该是纯函数，无副作用
-5. **添加注释**：导出的工具函数应该添加 JSDoc 注释
-
-**理由**：
-- **代码复用**：避免在多个组件中重复定义相同的函数
-- **易于维护**：修改工具函数只需要改一处
-- **易于测试**：独立的工具函数更容易进行单元测试
-- **代码简洁**：组件代码更简洁，专注于 UI 逻辑
-- **统一风格**：所有工具函数有统一的代码风格和错误处理
-- **职责分离**：工具逻辑与 UI 逻辑分离
-
 **常量和选项数据组织规范（CRITICAL）**
 
 **原则：常量、枚举选项、配置数据必须提取到 constants 目录，禁止在组件内部定义**
@@ -1022,8 +701,8 @@ function formatDateTime(dateStr?: string): string { /* ... */ }  // ❌ 重复�
 - ✅ **按功能分类**：按模块或功能分类到不同的常量文件
 - ✅ **统一导出**：通过 constants/index.ts 统一导出
 - ✅ **使用 TypeScript 类型**：为选项数据定义明确的类型
+- ✅ **避免魔法数字**：使用有意义的常量名代替数字
 - ❌ **禁止在组件内部定义常量**：不要在 .vue 文件中定义 typeOptions、statusOptions 等
-- ❌ **禁止魔法数字**：不要在代码中直接使用 0、1、2 等未命名的数字
 
 **目录结构**：
 ```
@@ -1039,170 +718,13 @@ src/features/{module}/{entity}/
 └── utils/
 ```
 
-**正确示例**：
-
-```typescript
-// ✅ constants/types.ts
-import type { SelectOption } from "@/features/shared/types"
-
-/**
- * 题目类型选项
- */
-export const TOPIC_TYPE_OPTIONS: SelectOption<number>[] = [
-  { label: "单选题", value: 1 },
-  { label: "多选题", value: 2 },
-  { label: "判断题", value: 3 },
-  { label: "填空题", value: 4 },
-  { label: "其他", value: 6 },
-]
-
-/**
- * 题目类型枚举
- */
-export const TOPIC_TYPE = {
-  SINGLE_CHOICE: 1,    // 单选题
-  MULTIPLE_CHOICE: 2,  // 多选题
-  TRUE_FALSE: 3,       // 判断题
-  FILL_BLANK: 4,       // 填空题
-  SHORT_ANSWER: 5,     // 简答题
-} as const
-
-export type TopicType = typeof TOPIC_TYPE[keyof typeof TOPIC_TYPE]
-
-/**
- * 选项标签 ASCII 码起始值（A = 65）
- * 用于生成 A, B, C, D... 选项标签
- */
-export const CHOICE_LABEL_START_CHAR_CODE = 65
-
-/**
- * 题目难度选项
- */
-export const DIFFICULTY_OPTIONS: SelectOption<number>[] = [
-  { label: "简单", value: 1 },
-  { label: "中等", value: 2 },
-  { label: "困难", value: 3 },
-]
-```
-
-```typescript
-// ✅ constants/status.ts
-/**
- * 审核状态
- */
-export const REVIEW_STATUS = {
-  PENDING: 0,
-  APPROVED: 1,
-  REJECTED: 2,
-} as const
-
-export const REVIEW_STATUS_OPTIONS: SelectOption<number>[] = [
-  { label: "待审核", value: REVIEW_STATUS.PENDING },
-  { label: "已通过", value: REVIEW_STATUS.APPROVED },
-  { label: "已拒绝", value: REVIEW_STATUS.REJECTED },
-]
-
-/**
- * 获取状态对应的文本
- */
-export function getStatusText(status: number): string {
-  const statusMap: Record<number, string> = {
-    [REVIEW_STATUS.PENDING]: "待审核",
-    [REVIEW_STATUS.APPROVED]: "已通过",
-    [REVIEW_STATUS.REJECTED]: "已拒绝",
-  }
-  return statusMap[status] || "未知"
-}
-```
-
-```typescript
-// ✅ constants/index.ts
-export * from "./types"
-export * from "./status"
-export * from "./messages"
-export * from "./config"
-```
-
-```vue
-<!-- ✅ 组件中使用常量 -->
-<script setup lang="ts">
-import { TOPIC_TYPE_OPTIONS, DIFFICULTY_OPTIONS } from "@/features/teacher/topic/constants"
-
-// 直接导入使用，不需要重复定义
-</script>
-
-<template>
-  <div>
-    <Select
-      v-model="formData.type"
-      :options="TOPIC_TYPE_OPTIONS"
-      placeholder="请选择题目类型"
-    />
-    <Select
-      v-model="formData.difficulty"
-      :options="DIFFICULTY_OPTIONS"
-      placeholder="请选择难度"
-    />
-  </div>
-</template>
-```
-
-**错误示例**：
-
-```vue
-<!-- ❌ 错误：在组件内部定义常量 -->
-<script setup lang="ts">
-// ❌ 不应该在组件中定义这些选项
-const typeOptions = [
-  { label: "单选题", value: 1 },
-  { label: "多选题", value: 2 },
-  { label: "判断题", value: 3 },
-  { label: "填空题", value: 4 },
-  { label: "简答题", value: 5 },
-]
-
-const difficultyOptions = [
-  { label: "简单", value: 1 },
-  { label: "中等", value: 2 },
-  { label: "困难", value: 3 },
-]
-</script>
-```
-
-```vue
-<!-- ❌ 错误：魔法数字 -->
-<template>
-  <div>
-    <!-- ❌ 直接使用数字，可读性差 -->
-    <Tag v-if="topic.type === 1" value="单选题" />
-    <Tag v-else-if="topic.type === 2" value="多选题" />
-
-    <!-- ✅ 使用常量 -->
-    <Tag v-if="topic.type === TOPIC_TYPE.SINGLE_CHOICE" value="单选题" />
-    <Tag v-else-if="topic.type === TOPIC_TYPE.MULTIPLE_CHOICE" value="多选题" />
-  </div>
-</template>
-```
-
-```vue
-<!-- ❌ 错误：多个组件重复定义相同的选项 -->
-<!-- TopicFilter.vue -->
-<script setup lang="ts">
-const typeOptions = [ /* ... */ ]  // ❌ 重复定义
-</script>
-
-<!-- TopicFormDialog.vue -->
-<script setup lang="ts">
-const typeOptions = [ /* ... */ ]  // ❌ 重复定义
-</script>
-```
-
 **常量分类**：
 
 1. **类型常量（types.ts）**：
    - 枚举选项（单选、多选、判断等）
    - 类型映射
    - 类型相关的配置
+   - Magic Number 替换
 
 2. **状态常量（status.ts）**：
    - 审核状态（待审核、已通过、已拒绝）
@@ -1218,7 +740,12 @@ const typeOptions = [ /* ... */ ]  // ❌ 重复定义
    - 分页配置（默认页码、默认每页条数）
    - 上传配置（文件大小限制、允许的文件类型）
    - 表单配置（最大长度、最小值等）
-   - Magic Number 替换（ASCII 码起始值等特殊数字）
+
+**命名规范**：
+- ✅ **枚举对象**：使用 UPPER_SNAKE_CASE，如 `TOPIC_TYPE`、`REVIEW_STATUS`
+- ✅ **选项数组**：使用 XXX_OPTIONS，如 `TOPIC_TYPE_OPTIONS`、`STATUS_OPTIONS`
+- ✅ **常量值**：使用 UPPER_SNAKE_CASE，如 `SINGLE_CHOICE`、`PENDING`
+- ✅ **类型导出**：使用 PascalCase，如 `TopicType`、`ReviewStatus`
 
 **Magic Number 处理**：
 
@@ -1233,135 +760,11 @@ Magic Number 是指代码中直接出现的、没有明确含义的数字。这�
 export const CHOICE_LABEL_START_CHAR_CODE = 65
 ```
 
-```vue
-<!-- ✅ 正确：使用常量 -->
-<script setup lang="ts">
-import { CHOICE_LABEL_START_CHAR_CODE } from '@/features/teacher/topic/constants'
-
-function getChoiceLabel(index: number): string {
-  return String.fromCharCode(CHOICE_LABEL_START_CHAR_CODE + index)
-}
-</script>
-
-<!-- ❌ 错误：直接使用 Magic Number -->
-<script setup lang="ts">
-function getChoiceLabel(index: number): string {
-  return String.fromCharCode(65 + index)  // ❌ 65 的含义不明确
-}
-</script>
-```
-
 **常见的 Magic Number 示例**：
 - ASCII 码起始值（`65` - 'A'）
 - 数组索引边界（`0`, `1`）
 - 特殊状态值（`-1`, `0`, `1`）
 - 时间转换常量（`1000`, `3600`, `86400`）
-
-**命名规范**：
-- ✅ **枚举对象**：使用 UPPER_SNAKE_CASE，如 `TOPIC_TYPE`、`REVIEW_STATUS`
-- ✅ **选项数组**：使用 XXX_OPTIONS，如 `TOPIC_TYPE_OPTIONS`、`STATUS_OPTIONS`
-- ✅ **常量值**：使用 UPPER_SNAKE_CASE，如 `SINGLE_CHOICE`、`PENDING`
-- ✅ **类型导出**：使用 PascalCase，如 `TopicType`、`ReviewStatus`
-
-**适用场景**：
-- ✅ **枚举选项**：类型、状态、级别等选项
-- ✅ **配置参数**：分页、上传、表单等配置
-- ✅ **提示信息**：成功、错误、确认等文本
-- ✅ **映射关系**：状态到文本、ID 到名称等映射
-- ✅ **常量值**：任何不会变化的固定值
-
-**例外场景**（可以在组件内定义）：
-- ✅ **组件特定配置**：只在当前组件使用，且与组件 UI 紧密相关的配置
-- ✅ **动态数据**：需要根据 props 或状态动态计算的选项
-
-**规范总结**：
-1. **提取常量**：所有常量、选项、配置必须提取到 constants 目录
-2. **分类组织**：按功能分类到 types.ts、status.ts、messages.ts、config.ts
-3. **统一导出**：通过 constants/index.ts 统一导出
-4. **类型安全**：使用 TypeScript 为选项数据定义类型
-5. **命名规范**：使用统一的命名规范（UPPER_SNAKE_CASE）
-6. **避免魔法数字**：使用有意义的常量名代替数字
-
-**理由**：
-- **避免重复**：避免在多个组件中重复定义相同的选项
-- **易于维护**：修改选项只需要改一处，自动同步到所有使用的地方
-- **类型安全**：统一的类型定义，减少类型错误
-- **代码可读**：使用常量名代替魔法数字，代码更易读
-- **易于测试**：独立的常量文件更容易测试
-- **职责分离**：配置数据与 UI 逻辑分离
-
-### 类型定义黄金法则（CRITICAL）
-
-**禁止手动定义冗余接口，必须从 API 类型派生**
-
-- ✅ **使用 API 类型 + 类型运算**：`type FormData = Partial<CreateRequest>`
-- ✅ **优先使用 satisfies 而不是泛型断言**
-- ❌ **禁止重复定义字段**：不要手动写与 API 类型相同的接口
-
-**示例**：
-```typescript
-// ✅ 正确：从 API 类型派生 + satisfies
-import type { CreateCourseRequest } from '@/core/api/generated'
-
-type CourseFormData = Partial<CreateCourseRequest>
-
-const formData = reactive({
-  courseName: '',
-}) satisfies CourseFormData
-
-// ❌ 错误1：手动定义冗余接口
-interface CourseFormData {
-  courseId?: string
-  courseName?: string
-}
-
-// ❌ 错误2：使用泛型断言（优先使用 satisfies）
-const formData = reactive<CourseFormData>({
-  courseName: '',
-})
-```
-
-**satisfies vs 泛型断言**：
-```typescript
-// satisfies - 保留精确类型推断 + 严格的属性访问检查
-const formData = reactive({
-  courseName: '',  // 类型推断为 string literal ""
-}) satisfies CourseFormData
-
-// ❌ 访问未定义的属性会报错（防止误访问）
-formData.courseId  // TypeScript Error: Property 'courseId' does not exist
-
-// 泛型断言 - 类型 widening + 宽松的属性访问
-const formData = reactive<CourseFormData>({
-  courseName: '',  // 类型被 widening 为 string
-})
-
-// ✅ 可以访问类型中的所有属性（即使未定义）
-formData.courseId  // 不报错，类型为 string | undefined
-```
-
-**重要区别**：
-- `satisfies`：最终类型是对象字面量的实际类型，只能访问已定义的属性
-- 泛型断言：最终类型是目标类型，可以访问类型中的所有属性（包括未定义的）
-
-**为什么 satisfies 更好**：
-- **防止错��**：访问未定义的属性会立即报错，捕获潜在 bug
-- **精确推断**：保留字面量的精确类型
-- **更安全**：强制只能使用实际定义的字段
-
-**类型运算工具**：
-- `Partial<T>` - 所有字段变为可选
-- `Required<T>` - 所有字段变为必需
-- `Pick<T, K>` - 选择部分字段
-- `Omit<T, K>` - 排除部分字段
-- **`satisfies`** - 验证类型同时保留精确推断（**优先使用**）
-
-**理由**：
-- 单一数据源：API 类型是唯一真实来源
-- 避免重复：手动维护两份类型容易出错
-- 自动同步：API 变更时自动反映到类型
-- 减少维护：只需关注 API 类型定义
-- **保留推断**：satisfies 保留字面量的精确类型，提供更好的类型安全
 
 ### Hook 封装规范（CRITICAL）
 
@@ -1370,7 +773,6 @@ formData.courseId  // 不报错，类型为 string | undefined
 - ✅ **必须导入并传入 client**：从 `@/core/api/config` 导入 client 并传给 API
 - ❌ **禁止使用默认 client**：不传 client 会绕过拦截器，导致认证和错误处理失效
 
-**正确示例**：
 ```typescript
 // ✅ 正确：导入并传入 client
 import { postApiTeacherClassQuery } from "@/core/api/generated"
@@ -1382,32 +784,6 @@ export function useQueryClass() {
       postApiTeacherClassQuery({
         body: { pageable: false },
         client,  // ✅ 必须传入自定义 client
-      }),
-  })
-}
-
-// ✅ 正确：Mutation 也需要传入 client
-import { deleteApiTeacherClassById } from "@/core/api/generated"
-import client from "@/core/api/config"
-
-export function useDeleteClass() {
-  return useMutation({
-    mutationFn: async (params) => {
-      return await deleteApiTeacherClassById({
-        ...params,
-        client,  // ✅ 必须传入自定义 client
-      })
-    },
-  })
-}
-
-// ❌ 错误：不传 client，使用默认 client
-export function useQueryClassWrong() {
-  return useQuery({
-    queryFn: () =>
-      postApiTeacherClassQuery({
-        body: { pageable: false },
-        // ❌ 缺少 client 参数
       }),
   })
 }
@@ -1426,68 +802,12 @@ config.ts 中创建的 client 包含了关键的 axios 拦截器：
 - ❌ 401 错误不会自动跳转登录
 - ❌ 业务错误码不会统一处理
 - ❌ 错误不会自动显示 Toast
-- ❌ 需要手动处理所有这些逻辑，增加维护成本
-
-**规范总结**：
-所有自定义 hooks 中调用生成的 API 时，必须：
-```typescript
-import client from "@/core/api/config"
-
-// Query 或 Mutation 中
-someApiFunction({
-  ...params,
-  client,  // ✅ 永远不要忘记
-})
-```
 
 **useQuery 必须添加 select 字段提取数据**
 
 - ✅ **必须添加 select 字段**：当 API 返回 JSON 数据时，使用 `select` 提取实际数据
 - ✅ **标准格式**：`select: (response) => response.data?.data`
 - ❌ **禁止直接返回完整响应**：不要返回包含 `data` 包装的完整响应
-
-**正确示例**：
-```typescript
-// ✅ 正确：使用 select 提取数据
-import { getApiTeacherClassQuery } from "@/core/api/generated"
-import client from "@/core/api/config"
-
-export function useQueryClass() {
-  return useQuery({
-    queryKey: ['class'],
-    queryFn: () =>
-      getApiTeacherClassQuery({
-        query: { pageable: false },
-        client,
-      }),
-    select: (response) => response.data?.data,  // ✅ 提取实际数据
-  })
-}
-
-// ❌ 错误：没有 select，返回完整响应
-export function useQueryClassWrong() {
-  return useQuery({
-    queryKey: ['class'],
-    queryFn: () =>
-      getApiTeacherClassQuery({
-        query: { pageable: false },
-        client,
-      }),
-    // ❌ 缺少 select，返回的是 { data: { data: [...] } }
-  })
-}
-```
-
-**使用场景**：
-- ✅ 所有使用 `useQuery` 获取数据时
-- ✅ API 返回格式为 `{ data: { data: ... } }` 时
-- ✅ 需要在组件中直接使用实际数据而不是包装响应时
-
-**理由**：
-- **数据一致性**：统一的数据提取方式，避免组件中重复写 `response.data?.data`
-- **类型安全**：select 会自动推断返回类型，提供更好的类型提示
-- **代码简洁**：组件中直接使用 `data.value` 而不是 `data.value.data?.data`
-- **易于维护**：数据提取逻辑集中在 hook 中，修改时只需改一处
 
 **API 返回格式**：
 后端 API 通常返回如下格式：
@@ -1502,8 +822,6 @@ export function useQueryClassWrong() {
 }
 ```
 
-使用 `select: (response) => response.data?.data` 提取后，组件中直接获得 `T[]` 或 `T` 类型。
-
 **Hook 必须封装页面级状态（CRITICAL）**
 
 **原则：筛选条件、分页参数等页面级响应式状态必须定义在 hook 内部，通过 return 暴露给页面组件使用**
@@ -1513,158 +831,11 @@ export function useQueryClassWrong() {
 - ❌ **禁止在页面组件中定义状态**：不要在页面组件中直接 `ref()` 定义这些状态
 - ❌ **禁止在 hook 中使用 reactive**：统一使用 ref，保持一致性
 
-**正确示例**：
-
-```typescript
-// ✅ 正确：hook 封装所有状态
-// hooks/useQueryVideoPage.ts
-import { ref } from "vue"
-import { postApiTeacherVideosQuery } from "@/core/api/generated"
-import client from "@/core/api/config"
-import { useQuery } from "@tanstack/vue-query"
-
-export function useQueryVideoPage(initialParams: { current: number; size: number }) {
-  // ✅ 状态定义在 hook 内部
-  const filters = ref<VideoFilters>({})
-  const current = ref(initialParams.current)
-  const size = ref(initialParams.size)
-  const fileName = ref("")
-
-  // ✅ 查询逻辑
-  const query = useQuery({
-    queryKey: ["videos", current, size, fileName],
-    queryFn: () =>
-      postApiTeacherVideosQuery({
-        body: {
-          current: current.value,
-          size: size.value,
-          originalFileName: fileName.value || undefined,
-          pageable: true,
-        },
-        client,
-      }),
-    select: (response) => response.data?.data,
-  })
-
-  // ✅ 返回所有需要的状态和方法
-  return {
-    // 状态
-    filters,
-    current,
-    size,
-    fileName,
-    videos: query.data,
-    total: query.data?.total || 0,
-    // Query 对象
-    query,
-  }
-}
-```
-
-**页面组件使用**：
-
-```vue
-<!-- pages/teacher/videos/index.page.vue -->
-<template>
-  <div class="p-6">
-    <VideoFilter v-model="filters" />
-    <VideoTable
-      :videos="videos"
-      :is-loading="query.isLoading.value"
-      :total="total"
-      @page="onPage"
-    />
-  </div>
-</template>
-
-<script setup lang="ts">
-import { useQueryVideoPage, useDeleteVideo } from "@/features/teacher/video"
-import { VideoFilter, VideoTable } from "@/features/teacher/video"
-
-// ✅ 从 hook 解构所有需要的状态
-const { filters, current, size, videos, total, query } = useQueryVideoPage({
-  current: 1,
-  size: 10,
-})
-
-const deleteMutation = useDeleteVideo()
-
-// ✅ 页面组件只保留事件处理逻辑
-const onPage = (event: any) => {
-  current.value = event.page + 1
-}
-</script>
-```
-
-**错误示例**：
-
-```vue
-<!-- ❌ 错误：在页面组件中定义状态 -->
-<script setup lang="ts">
-import { ref } from "vue"
-
-// ❌ 页面组件不应该定义这些状态
-const filters = ref<VideoFilters>({})
-const current = ref(1)
-const size = ref(10)
-const fileName = ref("")
-
-// ❌ hook 被迫接受外部状态
-const { videos, query } = useQueryVideoPage(current, size, fileName)
-
-const onPage = (event: any) => {
-  current.value = event.page + 1  // ❌ 状态管理分散
-}
-</script>
-```
-
-```typescript
-// ❌ 错误：hook 接受外部状态作为参数
-export function useQueryVideoPage(
-  current: Ref<number>,
-  size: Ref<number>,
-  fileName: Ref<string>
-) {
-  // ❌ 依赖外部传入的状态，破坏封装性
-  const query = useQuery({
-    queryKey: ["videos", current, size, fileName],
-    queryFn: () => postApiTeacherVideosQuery({
-      body: {
-        current: current.value,
-        size: size.value,
-        originalFileName: fileName.value || undefined,
-      },
-      client,
-    }),
-  })
-
-  return { videos: query.data }
-}
-```
-
-**适用场景**：
-- ✅ **筛选条件状态**：filters、searchParams 等查询条件
-- ✅ **分页参数状态**：current、size、total 等分页相关状态
-- ✅ **表单状态**：formData、validationErrors 等表单相关状态
-- ✅ **UI 状态**：selectedRows、expandedKeys 等 UI 交互状态
-
-**例外场景**（需要在外部管理状态）：
-- ✅ **跨组件共享状态**：多个组件需要访问同一个状态（使用 Pinia store）
-- ✅ **路由相关状态**：需要与路由参数同步的状态
-- ✅ **临时局部状态**：仅在某个事件处理函数中使用的临时变量
-
 **规范总结**：
 1. **Hook 封装**：所有页面级的响应式状态必须在 hook 内部定义
 2. **返回暴露**：通过 return 语句返回状态 ref，页面组件通过解构使用
 3. **统一 ref**：使用 ref 而不是 reactive，保持一致性
 4. **页面简化**：页面组件只保留事件处理逻辑，不定义状态
-
-**理由**：
-- **封装性**：状态管理逻辑集中在 hook 中，页面组件更简洁
-- **可复用**：hook 可以在不同页面中复用，状态管理逻辑跟随 hook
-- **可测试**：独立的 hook 更容易进行单元测试
-- **职责清晰**：hook 负责状态管理，页面组件负责 UI 交互
-- **易于维护**：修改状态逻辑只需要修改 hook，不影响页面组件
 
 ### 错误处理规范（CRITICAL）
 
@@ -1680,37 +851,18 @@ export function useQueryVideoPage(
 // ❌ 错误：不必要的 try-catch
 const handleDelete = async (id: number) => {
   try {
-    await deleteMutation.mutateAsync({
-      path: { id },
-    })
-    toast.add({
-      severity: 'success',
-      summary: '成功',
-      detail: '删除成功',
-      life: 3000,
-    })
+    await deleteMutation.mutateAsync({ path: { id } })
+    toast.add({ severity: 'success', summary: '成功', detail: '删除成功', life: 3000 })
     query.refetch()
   } catch (error) {
-    toast.add({
-      severity: 'error',
-      summary: '错误',
-      detail: '删除失败',
-      life: 3000,
-    })
+    toast.add({ severity: 'error', summary: '错误', detail: '删除失败', life: 3000 })
   }
 }
 
 // ✅ 正确：只处理成功，错误由全局处理
 const handleDelete = async (id: number) => {
-  await deleteMutation.mutateAsync({
-    path: { id },
-  })
-  toast.add({
-    severity: 'success',
-    summary: '成功',
-    detail: '删除成功',
-    life: 3000,
-  })
+  await deleteMutation.mutateAsync({ path: { id } })
+  toast.add({ severity: 'success', summary: '成功', detail: '删除成功', life: 3000 })
   query.refetch()
 }
 ```
@@ -1721,130 +873,16 @@ const handleDelete = async (id: number) => {
 - 统一的错误提示风格
 - 减少代码冗余
 
-**适用场景**：
-- ✅ Mutation 调用（创建、更新、删除）
-- ✅ Query 调用（如有全局错误处理）
-- ❌ 特殊场景需要自定义错误处理时除外（需注释说明原因）
-
 ### 表单和列表设计规范（CRITICAL）
 
 **严格依据后端 API 字段，禁止擅自添加或修改**
 
 - ✅ **表单字段必须与 API 请求/响应类型一致**
 - ✅ **列表列定义必须与 API 响应类型一致**
+- ✅ **使用 satisfies 而不是泛型断言**
 - ❌ **禁止添加后端 API 中不存在的字段**
 - ❌ **擅自修改字段类型或名称**
 - ❌ **增加冗余的类型定义**
-
-**表单设计原则**：
-
-**1. 使用 satisfies 而不是泛型断言（CRITICAL）**
-
-```typescript
-// ✅ 正确：使用 satisfies
-import type { CreateTopicRequest } from '@/core/api/generated'
-
-type TopicFormData = Partial<CreateTopicRequest>
-
-// reactive 使用 satisfies
-const formData = reactive({
-  type: undefined,
-  content: '',
-  choices: undefined,
-  correctAnswer: '',
-  tagIds: [],
-}) satisfies TopicFormData
-
-// ref 也使用 satisfies
-const formData = ref<TopicFormData>({
-  type: undefined,
-  content: '',
-  choices: undefined,
-  correctAnswer: '',
-  tagIds: [],
-})
-
-// ❌ 错误：使用泛型断言（丢失类型推断）
-const formData = reactive<Partial<CreateTopicRequest>>({
-  type: undefined,
-  content: '',
-  choices: undefined,
-  correctAnswer: '',
-  tagIds: [],
-})
-
-// ❌ 错误：泛型断言导致可以访问未定义的属性
-formData.someUndefinedField  // ❌ 不报错，类型是 any | undefined
-```
-
-**为什么必须使用 satisfies**：
-
-```typescript
-// satisfies - 保留精确类型推断 + 严格的属性访问检查
-const formData = reactive({
-  type: undefined,  // 类型推断为 undefined
-  content: '',      // 类型推断为 string literal ""
-}) satisfies TopicFormData
-
-// ✅ 访问未定义的属性会报错（防止误访问）
-formData.someUndefinedField  // TypeScript Error: Property 'someUndefinedField' does not exist
-
-// ✅ 保留字面量的精确类型
-formData.content  // 类型是 string literal ""
-
-// 泛型断言 - 类型 widening + 宽松的属性访问
-const formData = reactive<Partial<CreateTopicRequest>>({
-  type: undefined,  // 类型被 widening 为 undefined | number
-  content: '',      // 类型被 widening 为 string
-})
-
-// ❌ 可以访问类型中的所有属性（即使未定义）
-formData.someUndefinedField  // 不报错，类型为 any | undefined
-
-// ❌ 失去字面量的精确类型
-formData.content  // 类型是 string | undefined
-```
-
-**2. 严格依据后端 API 字段，禁止擅自添加或修改**
-
-```typescript
-// ✅ 正确：直接使用 API 类型
-import type { CreateExperimentRequest } from '@/core/api/generated'
-
-type ExperimentFormData = Partial<CreateExperimentRequest>
-
-const formData = reactive({
-  experimentName: '',
-  description: '',
-}) satisfies ExperimentFormData
-
-// ❌ 错误：擅自添加后端没有的字段
-const formData = reactive({
-  experimentName: '',
-  description: '',
-  customField: '',  // 后端 API 没有这个字段！
-  experimentDate: '',  // 后端不叫这个名字！
-}) satisfies ExperimentFormData  // ❌ TypeScript Error: Object literal may only specify known properties
-```
-
-**列表设计原则**：
-```typescript
-// ✅ 正确：列定义与 API 响应类型一致
-import type { ExperimentInfo } from '@/core/api/generated'
-
-const columns: TableColumn<ExperimentInfo>[] = [
-  { field: 'experimentName', header: '实验名称' },
-  { field: 'description', header: '描述' },
-  { field: 'createdAt', header: '创建时间' },
-]
-
-// ❌ 错误：擅自添加不存在的字段
-const columns = [
-  { field: 'experimentName', header: '实验名称' },
-  { field: 'customField', header: '自定义字段' },  // API 中没有！
-  { field: 'experimentDate', header: '实验日期' },  // 字段名不对！
-]
-```
 
 **工作流程**：
 1. **先查看 API 类型**：使用 `Go to Definition` 查看后端 API 定义的类型
@@ -1858,11 +896,11 @@ const columns = [
 - ✅ 或使用前端的计算属性（不提交到后端）
 
 **理由**：
-- **避免运行时错误**：擅自添加字段会导致请求失败或数据不显示
-- **降低维护成本**：API 变更时只需更新类型定义，不需要修改多处
-- **保证类型安全**：TypeScript 可以在编译时发现错误
-- **提高开发效率**：不需要在前后端类型之间做转换
-- **单一数据源**：API 类型是唯一真实来源
+- 避免运行时错误：擅自添加字段会导致请求失败或数据不显示
+- 降低维护成本：API 变更时只需更新类型定义，不需要修改多处
+- 保证类型安全：TypeScript 可以在编译时发现错误
+- 提高开发效率：不需要在前后端类型之间做转换
+- 单一数据源：API 类型是唯一真实来源
 
 ### 功能开发工作流（CRITICAL）
 
@@ -1898,12 +936,7 @@ const columns = [
 
 ### 步骤 1：确认 API 已生成
 
-在开始开发前，确保后端 API 已经生成到 `@/core/api/generated/`：
-
-```bash
-# 检查生成的 API 函数
-grep "export.*function.*Api" /path/to/sdk.gen.ts | grep {moduleName}
-```
+在开始开发前，确保后端 API 已经生成到 `@/core/api/generated/`。
 
 **如果 API 不存在**：
 - ❌ **禁止使用 fetch/axios 手动调用 API**
@@ -1921,17 +954,8 @@ grep "export.*function.*Api" /path/to/sdk.gen.ts | grep {moduleName}
 - ✅ **Mutation 使用全局 toast**：从 `@/core/utils/toast` 导入
 - ❌ **禁止在页面组件中写 useQuery/useMutation**
 
-**目录结构**：
-```
-src/features/teacher/video/hooks/
-├── index.ts                   # 统一导出
-├── useQueryVideo.ts          # 查询 hooks
-└── useMutateVideo.ts         # 变更 hooks
-```
-
 **查询 Hook 模板**：
 ```typescript
-// useQueryVideo.ts
 import { postApiTeacherVideosQuery } from "@/core/api/generated"
 import client from "@/core/api/config"
 import { useQuery } from "@tanstack/vue-query"
@@ -1941,11 +965,7 @@ export function useQueryVideoPage(params: { current: number; size: number }) {
     queryKey: ["videos", params.current, params.size],
     queryFn: () =>
       postApiTeacherVideosQuery({
-        body: {
-          current: params.current,
-          size: params.size,
-          pageable: true,
-        },
+        body: { current: params.current, size: params.size, pageable: true },
         client,  // ✅ 必须传入
       }),
     select: (response) => response.data?.data,  // ✅ 提取数据
@@ -1955,7 +975,6 @@ export function useQueryVideoPage(params: { current: number; size: number }) {
 
 **变更 Hook 模板**：
 ```typescript
-// useMutateVideo.ts
 import { deleteApiTeacherVideosByVideoId } from "@/core/api/generated"
 import client from "@/core/api/config"
 import { useMutation } from "@tanstack/vue-query"
@@ -1975,13 +994,6 @@ export function useDeleteVideo() {
 }
 ```
 
-**导出文件**：
-```typescript
-// index.ts
-export * from "./useQueryVideo"
-export * from "./useMutateVideo"
-```
-
 ### 步骤 3：创建 Feature 组件
 
 **路径**：`src/features/{module}/{entity}/components/`
@@ -1991,25 +1003,6 @@ export * from "./useMutateVideo"
 - ✅ 使用 PrimeVue 组件
 - ✅ 只使用 TailwindCSS（禁止 `<style>`）
 - ✅ 组件内部逻辑通过 emit 传递给父组件
-
-**示例**：
-```vue
-<!-- VideoTable.vue -->
-<template>
-  <DataTable
-    :value="videos"
-    :loading="isLoading"
-    @page="$emit('page', $event)"
-  />
-</template>
-
-<script setup lang="ts">
-interface Emits {
-  (e: 'page', event: any): void
-}
-defineEmits<Emits>()
-</script>
-```
 
 ### 步骤 4：创建 Page 组件（最后）
 
@@ -2037,7 +1030,6 @@ defineEmits<Emits>()
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue"
 import { useQueryVideoPage, useDeleteVideo } from "@/features/teacher/video"
 import { VideoFilter, VideoTable } from "@/features/teacher/video"
 
@@ -2046,69 +1038,9 @@ const { videos, query } = useQueryVideoPage({ current: 1, size: 10 })
 const deleteMutation = useDeleteVideo()
 
 // ✅ 只保留 UI 交互逻辑
-const filters = ref({})
 const onPage = (event: any) => {
   // 处理分页
 }
-</script>
-```
-
-**完整工作流示例**：
-
-```bash
-# 1. 确认 API 已生成
-grep "postApiTeacherVideosQuery" src/core/api/generated/sdk.gen.ts
-
-# 2. 创建 feature hooks
-mkdir -p src/features/teacher/video/hooks
-# 创建 useQueryVideo.ts
-# 创建 useMutateVideo.ts
-# 创建 index.ts
-
-# 3. 创建 feature 组件
-mkdir -p src/features/teacher/video/components
-# 创建 VideoFilter.vue
-# 创建 VideoTable.vue
-# 更新 src/features/teacher/video/index.ts
-
-# 4. 创建 page 组件
-# 创建 src/pages/teacher/videos/index.page.vue
-# 使用 hooks 和组件
-
-# 5. 验证
-pnpm typecheck
-```
-
-**禁止的反面示例**：
-
-```vue
-<!-- ❌ 错误：在页面中直接调用 API -->
-<script setup lang="ts">
-const { data } = useQuery({
-  queryFn: () => fetch('/api/videos')  // ❌ 禁止手动 fetch
-})
-</script>
-
-<!-- ❌ 错误：在页面中定义 mutation -->
-<script setup lang="ts">
-const uploadMutation = useMutation({  // ❌ 应该在 hooks 中
-  mutationFn: async (file) => {
-    const formData = new FormData()  // ❌ 应该用生成的 API
-    formData.append('file', file)
-    return fetch('/api/upload', {    // ❌ 禁止手动 fetch
-      method: 'POST',
-      body: formData,
-    })
-  }
-})
-</script>
-
-<!-- ✅ 正确：使用 feature hooks -->
-<script setup lang="ts">
-import { useQueryVideoPage, useUploadVideo } from "@/features/teacher/video"
-
-const { videos, query } = useQueryVideoPage({ current: 1, size: 10 })
-const uploadMutation = useUploadVideo()
 </script>
 ```
 

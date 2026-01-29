@@ -59,7 +59,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useQueryProcedureSubmissions } from '../hooks'
-import { formatDateTime, formatFileSize } from '../utils'
+import { formatDateTime, formatFileSize } from '@/features/shared/utils'
 import type { ProcedureSubmissionResponse } from '@/core/api/generated'
 
 interface Props {

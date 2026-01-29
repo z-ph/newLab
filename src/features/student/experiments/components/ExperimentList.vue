@@ -50,7 +50,8 @@
 
 <script setup lang="ts">
 import { useQueryProcedureSubmissions } from '../hooks'
-import { formatDateTime, formatFileSize, getSubmissionTypeSeverity } from '../utils'
+import { formatDateTime, formatFileSize } from '@/features/shared/utils'
+import { getSubmissionTypeSeverity } from '../utils'
 import type { ProcedureSubmissionResponse } from '@/core/api/generated'
 
 interface Emits {

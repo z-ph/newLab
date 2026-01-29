@@ -1,39 +1,95 @@
 <template>
   <MobileLayout title="我的课程">
-    <!-- 加入班级按钮 -->
-    <div class="mb-4">
-      <Button
-        label="加入班级"
-        icon="pi pi-plus"
-        outlined
-        class="w-full"
-        @click="handleJoinClass"
-      />
+    <div class="space-y-4">
+      <!-- 课程列表 -->
+      <Card>
+        <template #content>
+          <div v-if="query.isLoading.value" class="flex justify-center py-8">
+            <ProgressSpinner />
+          </div>
+
+          <div v-else-if="courses && courses.length > 0" class="space-y-3">
+            <div
+              v-for="course in courses"
+              :key="course.courseId"
+              class="border border-gray-200 rounded-lg p-4 cursor-pointer active:scale-[0.98] transition-transform"
+              @click="router.push(`/student/courses/${course.courseId}`)"
+            >
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex-1">
+                  <h3 class="text-base font-semibold text-gray-900">
+                    {{ getCourseName(course.submissions) }}
+                  </h3>
+                  <p class="text-sm text-gray-500 mt-1">
+                    {{ getTeacherName(course.submissions) }}
+                  </p>
+                </div>
+                <i class="pi pi-chevron-right text-gray-400" />
+              </div>
+
+              <!-- 课程进度 -->
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-gray-500">
+                  实验进度: {{ getCourseProgress(course.submissions).completed }}/{{
+                    getCourseProgress(course.submissions).total
+                  }}
+                </span>
+                <Tag
+                  :value="getProgressLabel(course.submissions)"
+                  :severity="getProgressSeverity(course.submissions)"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div v-else class="text-center py-12">
+            <i class="pi pi-inbox text-4xl text-gray-300 mb-3" />
+            <p class="text-sm text-gray-500">暂无课程</p>
+          </div>
+        </template>
+      </Card>
     </div>
-
-    <!-- 课程列表 -->
-    <CourseList @select="handleSelectCourse" />
-
-    <!-- 加入班级对话框 -->
-    <BindClassDialog ref="bindClassDialogRef" />
   </MobileLayout>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import MobileLayout from '@/features/student/components/MobileLayout.vue'
-import { CourseList } from '@/features/student/courses'
-import BindClassDialog from '@/features/student/classes/components/BindClassDialog.vue'
+import { useQueryCourses } from '@/features/student/courses/hooks'
+import { getCourseName, getCourseProgress } from '@/features/student/courses/utils'
 
 const router = useRouter()
-const bindClassDialogRef = ref<InstanceType<typeof BindClassDialog>>()
+const { courses, query } = useQueryCourses()
 
-const handleJoinClass = () => {
-  bindClassDialogRef.value?.open()
+/**
+ * 获取教师名称
+ */
+function getTeacherName(submissions: any[]): string {
+  if (!submissions || submissions.length === 0) return '未知教师'
+  return submissions[0].teacherName || '教师'
 }
 
-const handleSelectCourse = (courseId: string) => {
-  router.push(`/student/courses/${courseId}`)
+/**
+ * 获取进度标签
+ */
+function getProgressLabel(submissions: any[]): string {
+  const { completed, total } = getCourseProgress(submissions)
+  if (total === 0) return '未开始'
+  const percentage = (completed / total) * 100
+  if (percentage === 100) return '已完成'
+  if (percentage >= 50) return '进行中'
+  return '刚开始'
+}
+
+/**
+ * 获取进度标签颜色
+ */
+function getProgressSeverity(submissions: any[]): 'success' | 'info' | 'warning' | 'danger' {
+  const { completed, total } = getCourseProgress(submissions)
+  if (total === 0) return 'info'
+  const percentage = (completed / total) * 100
+  if (percentage === 100) return 'success'
+  if (percentage >= 50) return 'info'
+  return 'warning'
 }
 </script>

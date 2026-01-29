@@ -40,7 +40,7 @@
 
 <script setup lang="ts">
 import { useQueryAttendanceRecords } from '../hooks'
-import { formatDateTime } from '../utils'
+import { formatDateTime } from '@/features/shared/utils'
 
 const { records, query } = useQueryAttendanceRecords()
 </script>
