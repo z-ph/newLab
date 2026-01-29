@@ -37,9 +37,6 @@
 
     <!-- 视频播放对话框 -->
     <VideoPlayDialog ref="playDialogRef" />
-
-    <!-- 删除确认对话框 -->
-    <ConfirmDialog />
   </div>
 </template>
 
@@ -47,7 +44,6 @@
 import { ref, watch } from "vue"
 import { useConfirm } from "primevue/useconfirm"
 import Button from "primevue/button"
-import ConfirmDialog from "primevue/confirmdialog"
 
 import type { VideoUploadResponse, VideoQueryRequest } from "@/core/api/generated"
 

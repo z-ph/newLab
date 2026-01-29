@@ -61,9 +61,6 @@
       ref="procedureFormDialogRef"
       :experiment-id="experimentId"
     />
-
-    <!-- 删除确认对话框 -->
-    <ConfirmDialog></ConfirmDialog>
   </div>
 </template>
 
