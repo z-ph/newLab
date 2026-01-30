@@ -1,18 +1,11 @@
 <template>
   <div class="p-6">
-    <div class="mb-6 flex items-center justify-between">
-      <div>
-        <h1 class="text-2xl font-bold text-slate-900">题目管理</h1>
-        <p class="text-sm text-slate-500 mt-1">管理题库资源</p>
-      </div>
-      <div class="flex gap-2">
-        <Button label="标签管理" icon="pi pi-tags" outlined severity="secondary" @click="handleTagManage" />
-        <Button label="新增题目" icon="pi pi-plus" @click="handleAddClick" />
-      </div>
-    </div>
-
     <!-- 筛选器 -->
-    <TopicFilter v-model="filters" class="mb-6" @search="handleSearch" />
+    <Card class="mb-6">
+      <template #content>
+        <TopicFilter v-model="filters" @search="handleSearch" />
+      </template>
+    </Card>
 
     <!-- 题目列表 -->
     <TopicTable
@@ -20,7 +13,17 @@
       @view="handleView"
       @edit="handleEdit"
       @batch-delete="handleBatchDeleteClick"
-    />
+    >
+      <template #header>
+        <div class="flex items-center justify-between px-6 py-4">
+          <h1 class="text-2xl font-bold text-slate-900">题目管理</h1>
+          <div class="flex gap-2">
+            <Button label="标签管理" icon="pi pi-tags" outlined severity="secondary" @click="handleTagManage" />
+            <Button label="新增题目" icon="pi pi-plus" @click="handleAddClick" />
+          </div>
+        </div>
+      </template>
+    </TopicTable>
 
     <!-- 新增/编辑对话框 -->
     <TopicFormDialog

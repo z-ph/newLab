@@ -1,20 +1,12 @@
 <template>
-  <Card>
-    <template #content>
-      <div class="flex gap-4 items-end">
-        <div class="flex-1">
-          <label class="block text-sm font-medium text-slate-700 mb-2">搜索视频</label>
-          <InputText v-model="fileName" placeholder="输入文件名搜索" class="w-full" />
-        </div>
-      </div>
-    </template>
-  </Card>
+  <div class="flex gap-4 items-center">
+    <InputText v-model="fileName" placeholder="输入文件名搜索" class="w-full" />
+  </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import InputText from 'primevue/inputtext'
-import Card from 'primevue/card'
 
 import type { VideoQueryRequest } from '@/core/api/generated'
 

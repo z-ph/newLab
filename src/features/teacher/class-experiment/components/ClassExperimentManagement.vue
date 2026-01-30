@@ -12,19 +12,16 @@
           :rows="10"
         >
           <template #header>
-            <div class="flex flex-col gap-4">
-              <div class="flex items-center justify-between">
-                <h1 class="text-2xl font-bold text-slate-900">班级实验管理</h1>
-                <Button label="添加班级实验" icon="pi pi-plus" @click="openAddDialog" />
-              </div>
-              <div class="flex flex-wrap gap-4">
+            <div class="flex items-center justify-between">
+              <h1 class="text-2xl font-bold text-slate-900">班级实验管理</h1>
+              <div class="flex items-center gap-4 flex-wrap">
                 <Select
                   v-model="selectedCourseId"
                   :options="courseOptions"
                   option-label="label"
                   option-value="value"
                   placeholder="选择课程"
-                  class="w-full md:w-64"
+                  class="w-64"
                   filter
                 />
                 <Select
@@ -33,7 +30,7 @@
                   option-label="label"
                   option-value="value"
                   placeholder="选择班级"
-                  class="w-full md:w-64"
+                  class="w-64"
                   filter
                 />
                 <Select
@@ -42,9 +39,10 @@
                   option-label="label"
                   option-value="value"
                   placeholder="选择实验"
-                  class="w-full md:w-64"
+                  class="w-64"
                   filter
                 />
+                <Button label="添加班级实验" icon="pi pi-plus" @click="openAddDialog" />
               </div>
             </div>
           </template>

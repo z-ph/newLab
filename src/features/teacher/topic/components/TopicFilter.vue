@@ -1,10 +1,9 @@
 <template>
-  <Card class="mb-6">
+  <Card>
     <template #content>
-      <div class="flex flex-wrap gap-4 items-end">
+      <div class="flex flex-wrap gap-4 items-center">
         <!-- 题目类型筛选 -->
         <div class="flex-1 min-w-[200px]">
-          <label class="block text-sm font-medium text-slate-700 mb-2">题目类型</label>
           <Select
             v-model="localType"
             :options="TOPIC_TYPE_OPTIONS"
@@ -18,7 +17,6 @@
 
         <!-- 关键词搜索 -->
         <div class="flex-1 min-w-[200px]">
-          <label class="block text-sm font-medium text-slate-700 mb-2">关键词</label>
           <InputText
             v-model="localKeyword"
             placeholder="搜索题目内容"
@@ -28,7 +26,6 @@
 
         <!-- 难度标签筛选 -->
         <div class="flex-1 min-w-[200px]">
-          <label class="block text-sm font-medium text-slate-700 mb-2">难度标签</label>
           <MultiSelect
             v-model="localDifficultyTagIds"
             :options="difficultyTagOptions"
@@ -42,7 +39,6 @@
 
         <!-- 学科标签筛选 -->
         <div class="flex-1 min-w-[200px]">
-          <label class="block text-sm font-medium text-slate-700 mb-2">学科标签</label>
           <MultiSelect
             v-model="localSubjectTagIds"
             :options="subjectTagOptions"

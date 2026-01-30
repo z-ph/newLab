@@ -1,36 +1,27 @@
 <template>
   <div>
-    <!-- ��面头部 -->
-    <div class="mb-6 flex items-center justify-between">
-      <div>
-        <h1 class="text-2xl font-bold text-slate-900">实验模版管理</h1>
-        <p class="text-slate-600">管理实验模版的基本信息和步骤配置</p>
-      </div>
-      <Button label="新建实验模版" icon="pi pi-plus" @click="showCreateDialog = true" />
-    </div>
-
-    <!-- 筛选 -->
-    <Card class="mb-6">
-      <template #content>
-        <div class="flex gap-4">
-          <Select
-            v-model="selectedCourseId"
-            :options="courseOptions"
-            option-label="label"
-            option-value="value"
-            placeholder="筛选课程"
-            class="w-64"
-            show-clear
-          />
-        </div>
-      </template>
-    </Card>
-
     <!-- 实验列表 -->
     <Card>
       <template #content>
         <DataTable v-model:selection="selectedExperiments" :value="experiments"
           :loading="query.isLoading.value" selection-mode="multiple" :paginator="true" :rows="10">
+          <template #header>
+            <div class="flex items-center justify-between">
+              <h1 class="text-2xl font-bold text-slate-900">实验模版管理</h1>
+              <div class="flex items-center gap-4">
+                <Select
+                  v-model="selectedCourseId"
+                  :options="courseOptions"
+                  option-label="label"
+                  option-value="value"
+                  placeholder="筛选课程"
+                  class="w-64"
+                  show-clear
+                />
+                <Button label="新建实验模版" icon="pi pi-plus" @click="showCreateDialog = true" />
+              </div>
+            </div>
+          </template>
           <Column key="selection" selection-mode="multiple" header-style="width: 3rem" />
           <Column key="experimentName" field="experimentName" header="实验名称" />
           <Column key="courseName" field="courseName" header="课程" />

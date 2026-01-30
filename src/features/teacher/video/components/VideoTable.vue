@@ -12,6 +12,9 @@
         striped-rows
         :empty-message="'暂无视频数据'"
       >
+        <template #header>
+          <slot name="header" />
+        </template>
         <Column field="id" header="ID" style="width: 80px" />
         <Column field="originalFileName" header="文件名" class="min-w-[200px]" />
         <Column header="文件大小" style="width: 120px">

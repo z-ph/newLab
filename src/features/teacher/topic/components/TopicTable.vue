@@ -1,19 +1,21 @@
 <template>
   <Card>
     <template #header>
-      <div class="flex items-center justify-between px-6 py-4">
-        <div class="text-lg font-semibold">题目列表</div>
-        <div class="flex gap-2">
-          <Button
-            v-if="selectedTopics.length > 0"
-            :label="`删除选中 (${selectedTopics.length})`"
-            icon="pi pi-trash"
-            severity="danger"
-            size="small"
-            @click="handleBatchDelete"
-          />
+      <slot name="header">
+        <div class="flex items-center justify-between px-6 py-4">
+          <div class="text-lg font-semibold">题目列表</div>
+          <div class="flex gap-2">
+            <Button
+              v-if="selectedTopics.length > 0"
+              :label="`删除选中 (${selectedTopics.length})`"
+              icon="pi pi-trash"
+              severity="danger"
+              size="small"
+              @click="handleBatchDelete"
+            />
+          </div>
         </div>
-      </div>
+      </slot>
     </template>
     <template #content>
       <DataTable :value="topics" :loading="query.isLoading.value" :paginator="true" :rows="size" :total-records="total"

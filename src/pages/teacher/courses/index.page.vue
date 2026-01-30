@@ -1,14 +1,5 @@
 <template>
   <div>
-    <!-- 页面头部 -->
-    <div class="mb-6 flex items-center justify-between">
-      <div>
-        <h1 class="text-2xl font-bold text-slate-900">课程管理</h1>
-        <p class="text-slate-600">管理您的课程信息</p>
-      </div>
-      <Button label="新建课程" icon="pi pi-plus" @click="openCreateDialog" />
-    </div>
-
     <!-- 课程列表 -->
     <CourseTable
       :courses="query.data.value?.records || []"
@@ -18,7 +9,14 @@
       @page-change="onPageChange"
       @edit="openEditDialog"
       @delete="confirmDelete"
-    />
+    >
+      <template #header>
+        <div class="flex items-center justify-between">
+          <h1 class="text-2xl font-bold text-slate-900">课程管理</h1>
+          <Button label="新建课程" icon="pi pi-plus" @click="openCreateDialog" />
+        </div>
+      </template>
+    </CourseTable>
 
     <!-- 创建/编辑课程对话框 -->
     <CourseFormDialog

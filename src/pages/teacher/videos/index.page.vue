@@ -1,16 +1,5 @@
 <template>
   <div class="p-6">
-    <div class="mb-6 flex items-center justify-between">
-      <div>
-        <h1 class="text-2xl font-bold text-slate-900">视频管理</h1>
-        <p class="text-sm text-slate-500 mt-1">管理教学视频资源库</p>
-      </div>
-      <Button label="上传视频" icon="pi pi-upload" @click="handleUploadClick" />
-    </div>
-
-    <!-- 筛选器 -->
-    <VideoFilter v-model="filters" class="mb-6" />
-
     <!-- 视频列表 -->
     <VideoTable
       :videos="videos"
@@ -21,7 +10,17 @@
       @view="handleView"
       @play="handlePlay"
       @delete="handleDelete"
-    />
+    >
+      <template #header>
+        <div class="flex items-center justify-between">
+          <h1 class="text-2xl font-bold text-slate-900">视频管理</h1>
+          <div class="flex items-center gap-4">
+            <VideoFilter v-model="filters" />
+            <Button label="上传视频" icon="pi pi-upload" @click="handleUploadClick" />
+          </div>
+        </div>
+      </template>
+    </VideoTable>
 
     <!-- 上传视频对话框 -->
     <VideoUploadDialog

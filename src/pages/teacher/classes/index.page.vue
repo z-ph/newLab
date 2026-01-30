@@ -1,20 +1,17 @@
 <template>
   <div>
-    <!-- 页面头部 -->
-    <div class="mb-6 flex items-center justify-between">
-      <div>
-        <h1 class="text-2xl font-bold text-slate-900">班级管理</h1>
-        <p class="text-slate-600">管理您的班级及学生信息</p>
-      </div>
-      <Button label="新建班级" icon="pi pi-plus" @click="showCreateDialog = true" />
-    </div>
-
     <!-- 班级列表 -->
     <Card>
       <template #content>
         <DataTable generic="Class" v-model:selection="selectedClasses" :value="query.data.value?.records || []"
           :paginator="true" :rows="size" :loading="query.isLoading.value" selection-mode="multiple"
           :total-records="query.data.value?.total" @page="onPageChange">
+          <template #header>
+            <div class="flex items-center justify-between">
+              <h1 class="text-2xl font-bold text-slate-900">班级管理</h1>
+              <Button label="新建班级" icon="pi pi-plus" @click="showCreateDialog = true" />
+            </div>
+          </template>
           <Column key="selection" selection-mode="multiple" header-style="width: 3rem" />
           <Column key="className" field="className" header="班级名称" />
           <Column key="studentCount" field="studentCount" header="学生数" />
