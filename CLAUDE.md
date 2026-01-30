@@ -622,6 +622,7 @@ emit('update:visible', false)
 - ✅ **通过 defineExpose 暴露方法**：只暴露 `open()`、`close()` 等操作方法
 - ✅ **父组件通过 ref 调用**：使用 `dialogRef.value?.open()` 调用
 - ❌ **禁止在父组件管理对话框状态**：不要在父组件定义 `showDialog` 等状态
+- ❌ **禁止使用 v-model:visible**：不要通过 props 控制对话框显示
 
 **适用场景**：
 - ✅ 对话框状态、抽屉状态、表单状态、局部 UI 状态
@@ -630,6 +631,65 @@ emit('update:visible', false)
 - ✅ 跨组件共享状态
 - ✅ 需要响应状态变化
 - ✅ 复杂联动
+
+**标准实现模式**：
+
+```vue
+<!-- DialogComponent.vue -->
+<template>
+  <Dialog v-model:visible="visible" header="标题">
+    <!-- 对话框内容 -->
+  </Dialog>
+</template>
+
+<script setup lang="ts">
+// 1. 对话框状态定义在组件内部
+const visible = ref(false)
+
+// 2. 定义 open 方法的参数类型
+interface OpenOptions {
+  id: number
+  name: string
+  // ... 其他配置参数
+}
+
+// 3. 实现 open 方法
+function open(options: OpenOptions) {
+  // 使用传入的参数进行初始化
+  visible.value = true
+}
+
+// 4. 暴露 open 方法
+defineExpose({ open })
+</script>
+```
+
+**父组件调用方式**：
+
+```vue
+<!-- ParentComponent.vue -->
+<template>
+  <div>
+    <Button label="打开对话框" @click="handleOpen" />
+    <DialogComponent ref="dialogRef" />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import DialogComponent from './DialogComponent.vue'
+
+const dialogRef = ref<InstanceType<typeof DialogComponent>>()
+
+const handleOpen = () => {
+  // 通过 ref 调用 open 方法
+  dialogRef.value?.open({
+    id: 1,
+    name: 'Example'
+  })
+}
+</script>
+```
 
 **组件数据获取规范（CRITICAL）**
 
