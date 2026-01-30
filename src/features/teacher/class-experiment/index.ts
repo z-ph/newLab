@@ -8,7 +8,13 @@ export { default as AttendanceManagementDialog } from './components/AttendanceMa
 export { default as ClassExperimentStatisticsDialog } from './components/ClassExperimentStatisticsDialog.vue'
 export { default as ExperimentStatistics } from './components/ExperimentStatistics.vue'
 export { default as StudentGradingDialog } from './components/StudentGradingDialog.vue'
+export { default as BindClassExperimentDialog } from './components/BindClassExperimentDialog.vue'
+export { default as ClassExperimentManagement } from './components/ClassExperimentManagement.vue'
 
-// Hooks - 从 experiment feature 导入（如果需要）
-// 这些 hooks 在 experiment/hooks 中
+// Hooks
+export { useQueryClassExperiments } from './hooks'
+
+// Utils
+export { formatDateTime } from './utils'
+
 
