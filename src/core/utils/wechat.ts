@@ -14,6 +14,7 @@ let wxConfigured = false
  * @param nonceStr - 生成签名的随机字符串
  * @param signature - 签名
  * @param jsApiList - 需要使用的 JS 接口列表
+ * @param debug - 是否开启调试模式（默认 false）
  */
 export function initWechatSDK(config: {
   appId: string
@@ -21,6 +22,7 @@ export function initWechatSDK(config: {
   nonceStr: string
   signature: string
   jsApiList: string[]
+  debug?: boolean
 }): Promise<void> {
   return new Promise((resolve, reject) => {
     // 检查是否在微信环境中
@@ -37,7 +39,7 @@ export function initWechatSDK(config: {
       if (window.wx) {
         // @ts-ignore
         window.wx.config({
-          debug: false,
+          debug: config.debug ?? false,
           appId: config.appId,
           timestamp: config.timestamp,
           nonceStr: config.nonceStr,
@@ -55,7 +57,8 @@ export function initWechatSDK(config: {
         // @ts-ignore
         window.wx.error((res: any) => {
           console.error('微信 JS-SDK 初始化失败', res)
-          reject(new Error('微信 JS-SDK 初始化失败'))
+          const errMsg = res?.errMsg || '未知错误'
+          reject(new Error(`微信 JS-SDK 初始化失败: ${errMsg}`))
         })
       } else {
         reject(new Error('微信 JS-SDK 加载失败'))
@@ -108,7 +111,8 @@ export function scanQRCode(): Promise<string> {
       },
       fail: (err: any) => {
         console.error('扫码失败', err)
-        reject(new Error('扫码失败'))
+        const errMsg = err?.errMsg || '未知错误'
+        reject(new Error(`扫码失败: ${errMsg}`))
       },
     })
   })
@@ -116,6 +120,24 @@ export function scanQRCode(): Promise<string> {
 
 /**
  * 从后端获取微信 JS-SDK 配置
+ *
+ * 后端接口示例：
+ * GET /api/wechat/jsapi-signature?url=当前页面URL
+ *
+ * 返回格式：
+ * {
+ *   "appId": "wx1234567890",
+ *   "timestamp": 1738084800,
+ *   "nonceStr": "abc123",
+ *   "signature": "计算后的签名"
+ * }
+ *
+ * 签名计算步骤（后端实现）：
+ * 1. 获取 access_token：GET https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=APPID&secret=APPSECRET
+ * 2. 获取 jsapi_ticket：GET https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=ACCESS_TOKEN&type=jsapi
+ * 3. 计算签名：sha1(jsapi_ticket=xxx&noncestr=xxx&timestamp=xxx&url=xxx)
+ *
+ * 文档：https://developers.weixin.qq.com/doc/offiaccount/OA_Web_Apps/JS-SDK.html
  */
 export async function fetchWechatConfig(): Promise<{
   appId: string
@@ -124,18 +146,20 @@ export async function fetchWechatConfig(): Promise<{
   signature: string
 }> {
   try {
-    // TODO: 调用后端接口获取配置
+    // 生产环境：调用后端接口获取配置
     // const url = window.location.href.split('#')[0]
-    // const response = await fetch('/api/wechat/jsapi-signature?url=' + encodeURIComponent(url))
+    // const response = await fetch(`/api/wechat/jsapi-signature?url=${encodeURIComponent(url)}`)
+    // if (!response.ok) throw new Error('获取微信配置失败')
     // const data = await response.json()
     // return data
 
-    // 模拟返回配置
+    // 测试环境：从环境变量读取 appId，签名留空
+    const appId = import.meta.env.VITE_WECHAT_APP_ID || ''
     return {
-      appId: '',
-      timestamp: Date.now(),
+      appId,
+      timestamp: Math.floor(Date.now() / 1000), // 秒级时间戳
       nonceStr: Math.random().toString(36).substring(2),
-      signature: '',
+      signature: '', // 签名需要后端生成
     }
   } catch (error) {
     console.error('获取微信配置失败', error)
@@ -147,7 +171,7 @@ export async function fetchWechatConfig(): Promise<{
  * 自动初始化微信 JS-SDK
  * 在需要使用微信功能的页面调用此函数
  */
-export async function setupWechatSDK(): Promise<void> {
+export async function setupWechatSDK(options?: { debug?: boolean }): Promise<void> {
   if (!isWechatBrowser()) {
     console.log('不在微信浏览器中，跳过初始化')
     return
@@ -159,6 +183,7 @@ export async function setupWechatSDK(): Promise<void> {
     await initWechatSDK({
       ...config,
       jsApiList: ['scanQRCode'],
+      debug: options?.debug,
     })
   } catch (error) {
     console.error('微信 JS-SDK 自动初始化失败', error)
