@@ -3,7 +3,7 @@
     <!-- 班级选择 -->
     <Card>
       <template #content>
-        <div class="flex gap-4 items-end">
+        <div class="flex flex-wrap gap-4 items-end">
           <div class="flex-1">
             <label class="mb-2 block text-sm font-medium text-slate-700">选择班级</label>
             <Select
