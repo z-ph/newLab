@@ -45,17 +45,6 @@
             </div>
 
             <Divider />
-
-            <div
-              class="flex items-center justify-between py-3 px-2 cursor-pointer active:bg-gray-50 rounded"
-              @click="handleMenuClick('classes')"
-            >
-              <div class="flex items-center gap-3">
-                <i class="pi pi-users text-indigo-600" />
-                <span class="text-sm text-gray-900">我的班级</span>
-              </div>
-              <i class="pi pi-chevron-right text-gray-400 text-sm" />
-            </div>
           </div>
         </template>
       </Card>
@@ -117,9 +106,6 @@ const handleMenuClick = (menu: string) => {
       break
     case 'attendance':
       router.push('/student/attendance')
-      break
-    case 'classes':
-      router.push('/student/classes')
       break
     case 'settings':
       toast.warn('设置功能开发中')

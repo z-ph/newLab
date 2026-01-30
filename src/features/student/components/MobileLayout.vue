@@ -7,14 +7,14 @@
       </div>
     </header>
 
-    <!-- 主内容区域 -->
+    <!-- ��内容区域 -->
     <main class="px-4 py-4">
       <slot />
     </main>
 
     <!-- 底部导航栏 -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-20">
-      <div class="grid grid-cols-3 gap-0">
+      <div class="grid grid-cols-2 gap-0">
         <RouterLink
           v-for="item in navItems"
           :key="item.path"
@@ -45,7 +45,6 @@ const route = useRoute()
 
 const navItems = [
   { path: '/student', icon: 'pi pi-home', label: '首页' },
-  { path: '/student/classes', icon: 'pi pi-users', label: '班级' },
   { path: '/student/profile', icon: 'pi pi-user', label: '我的' },
 ]
 
