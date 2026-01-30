@@ -96,7 +96,7 @@ export class TokenManager {
         return null
       }
 
-      // ���码 Base64URL 格式的 payload
+      // 解码 Base64URL 格式的 payload
       const base64Url = parts[1]!
       // 将 Base64URL 转换为 Base64
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')

@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/vue-query";
 import client from "@/core/api/config";
 
 /**
- * 标记视��步骤已观看
+ * 标记视频步骤已观看
  * 用于学生端记录视频观看进度
  */
 export function useMarkVideoViewed() {

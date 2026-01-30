@@ -12,7 +12,7 @@
 // ============================================================================
 
 export type {
-  // 表���相关
+  // 表单相关
   FormData,
   FormFieldConfig,
   FormDialogConfig,

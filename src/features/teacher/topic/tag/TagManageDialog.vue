@@ -256,7 +256,7 @@ async function handleUpdateTag() {
 // 删除标签
 function handleDelete(tagggggg: Tag) {
   confirm.require({
-    message: `确定要删除标签"${tagggggg.tagName}"吗？删除后该标签将从所有���目中移除。`,
+    message: `确定要删除标签"${tagggggg.tagName}"吗？删除后该标签将从所有题目中移除。`,
     header: "删除确认",
     icon: "pi pi-exclamation-triangle",
     acceptLabel: "确定",

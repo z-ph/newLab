@@ -1,5 +1,5 @@
 /**
- * ���新签到状态 Hook
+ * 更新签到状态 Hook
  */
 
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
