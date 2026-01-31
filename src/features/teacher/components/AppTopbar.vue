@@ -15,20 +15,31 @@
     </div>
 
     <div class="flex items-center gap-2">
-      <Button icon="pi pi-bell" severity="secondary" text rounded />
-      <Button icon="pi pi-cog" severity="secondary" text rounded />
+      <Button
+        icon="pi pi-cog"
+        severity="secondary"
+        text
+        rounded
+        @click="($event) => settingsMenuRef?.toggle($event)"
+      />
     </div>
+
+    <SettingsMenu ref="settingsMenuRef" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import type { RouteNamedMap } from 'vue-router/auto-routes'
 import Button from 'primevue/button'
 import { MENU_ITEMS } from '@/features/teacher/constants'
+import SettingsMenu from './SettingsMenu.vue'
 
 const route = useRoute()
+
+// 设置菜单引用
+const settingsMenuRef = ref<InstanceType<typeof SettingsMenu>>()
 
 /**
  * 获取当前页面的标题
