@@ -1,28 +1,29 @@
 <template>
   <Card>
-    <template #header>
-      <slot name="header">
-        <div class="flex items-center justify-between px-6 py-4">
-          <div class="text-lg font-semibold">题目列表</div>
-          <div class="flex gap-2">
-            <Button
-              v-if="selectedTopics.length > 0"
-              :label="`删除选中 (${selectedTopics.length})`"
-              icon="pi pi-trash"
-              severity="danger"
-              size="small"
-              @click="handleBatchDelete"
-            />
-          </div>
-        </div>
-      </slot>
-    </template>
     <template #content>
       <DataTable :value="topics" :loading="query.isLoading.value" :paginator="true" :rows="size" :total-records="total"
         lazy
         paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
         :rows-per-page-options="[10, 20, 50]" current-page-report-template="显示 {first} 到 {last} 共 {totalRecords} 条"
-        @page="onPage" v-model:selection="selectedTopics" data-key="id">
+        @page="onPage" v-model:selection="selectedTopics" data-key="id"
+        :pt="{ header: { class: 'px-0!' } }">
+        <template #header>
+          <div class="flex items-center justify-between">
+            <h1 class="text-xl font-bold text-slate-900">题目管理</h1>
+            <div class="flex gap-2">
+              <Button
+                v-if="selectedTopics.length > 0"
+                :label="`删除选中 (${selectedTopics.length})`"
+                icon="pi pi-trash"
+                severity="danger"
+                size="small"
+                @click="handleBatchDelete"
+              />
+              <Button label="标签管理" icon="pi pi-tags" outlined severity="secondary" @click="emit('tag-manage')" />
+              <Button label="新增题目" icon="pi pi-plus" @click="emit('add')" />
+            </div>
+          </div>
+        </template>
 
         <Column field="id" header="ID" sortable  />
 
@@ -100,6 +101,8 @@ interface Emits {
   (e: 'update:current', value: number): void
   (e: 'view', topic: TopicDetailResponse): void
   (e: 'edit', topic: TopicDetailResponse): void
+  (e: 'tag-manage'): void
+  (e: 'add'): void
 }
 
 const emit = defineEmits<Emits>()

@@ -1,68 +1,63 @@
 <template>
-  <Card>
-    <template #content>
-      <div class="flex flex-wrap gap-4 items-center">
-        <!-- 题目类型筛选 -->
-        <div class="flex-1 min-w-[200px]">
-          <Select
-            v-model="localType"
-            :options="TOPIC_TYPE_OPTIONS"
-            option-label="label"
-            option-value="value"
-            placeholder="全部类型"
-            class="w-full"
-            show-clear
-          />
-        </div>
+  <div class="flex flex-wrap gap-4 items-center">
+    <!-- 题目类型筛选 -->
+    <div class="flex-1 min-w-[200px]">
+      <Select
+        v-model="localType"
+        :options="TOPIC_TYPE_OPTIONS"
+        option-label="label"
+        option-value="value"
+        placeholder="全部类型"
+        class="w-full"
+        show-clear
+      />
+    </div>
 
-        <!-- 关键词搜索 -->
-        <div class="flex-1 min-w-[200px]">
-          <InputText
-            v-model="localKeyword"
-            placeholder="搜索题目内容"
-            class="w-full"
-          />
-        </div>
+    <!-- 关键词搜索 -->
+    <div class="flex-1 min-w-[200px]">
+      <InputText
+        v-model="localKeyword"
+        placeholder="搜索题目内容"
+        class="w-full"
+      />
+    </div>
 
-        <!-- 难度标签筛选 -->
-        <div class="flex-1 min-w-[200px]">
-          <MultiSelect
-            v-model="localDifficultyTagIds"
-            :options="difficultyTagOptions"
-            option-label="tagName"
-            option-value="tagId"
-            placeholder="选择难度"
-            class="w-full"
-            display="chip"
-          />
-        </div>
+    <!-- 难度标签筛选 -->
+    <div class="flex-1 min-w-[200px]">
+      <MultiSelect
+        v-model="localDifficultyTagIds"
+        :options="difficultyTagOptions"
+        option-label="tagName"
+        option-value="tagId"
+        placeholder="选择难度"
+        class="w-full"
+        display="chip"
+      />
+    </div>
 
-        <!-- 学科标签筛选 -->
-        <div class="flex-1 min-w-[200px]">
-          <MultiSelect
-            v-model="localSubjectTagIds"
-            :options="subjectTagOptions"
-            option-label="tagName"
-            option-value="tagId"
-            placeholder="选择学科"
-            class="w-full"
-            display="chip"
-          />
-        </div>
+    <!-- 学科标签筛选 -->
+    <div class="flex-1 min-w-[200px]">
+      <MultiSelect
+        v-model="localSubjectTagIds"
+        :options="subjectTagOptions"
+        option-label="tagName"
+        option-value="tagId"
+        placeholder="选择学科"
+        class="w-full"
+        display="chip"
+      />
+    </div>
 
-        <!-- 操作按钮 -->
-        <div class="flex gap-2">
-          <Button label="查询" severity="primary" @click="handleSearch" />
-          <Button label="重置" severity="secondary" outlined @click="handleReset" />
-        </div>
-      </div>
-    </template>
-  </Card>
+    <!-- 操作按钮 -->
+    <div class="flex gap-2">
+      <Button label="查询" severity="primary" @click="handleSearch" />
+      <Button label="重置" severity="secondary" outlined @click="handleReset" />
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch } from "vue"
-import Card from "primevue/card"
 import Button from "primevue/button"
 import Select from "primevue/select"
 import MultiSelect from "primevue/multiselect"

@@ -3,61 +3,52 @@
     <template #content>
       <DataTable
         :value="videos"
-        :loading="isLoading"
+        :loading="query.isLoading.value"
         :paginator="true"
-        :rows="rows"
+        :rows="size"
         :total-records="total"
         :lazy="true"
-        @page="$emit('page', $event)"
+        @page="onPageChange"
         striped-rows
         :empty-message="'暂无视频数据'"
+        :pt="{ header: { class: 'px-0!' } }"
       >
         <template #header>
           <slot name="header" />
         </template>
-        <Column field="id" header="ID" style="width: 80px" />
-        <Column field="originalFileName" header="文件名" class="min-w-[200px]" />
-        <Column header="文件大小" style="width: 120px">
+
+        <Column field="id" header="ID" />
+        <Column header="文件名">
+          <template #body="slotProps">
+            <span v-tooltip="slotProps.data.originalFileName" class="truncate max-w-[200px] block">
+              {{ truncateFileName(slotProps.data.originalFileName) }}
+            </span>
+          </template>
+        </Column>
+        <Column header="文件大小">
           <template #body="slotProps">
             {{ slotProps.data.fileSizeHumanReadable || formatFileSize(slotProps.data.fileSize) }}
           </template>
         </Column>
-        <Column header="视频时长" style="width: 120px">
+        <Column header="视频时长">
           <template #body="slotProps">
             {{ formatDuration(slotProps.data.videoSeconds) }}
           </template>
         </Column>
-        <Column header="上传时间" style="width: 180px">
+        <Column header="上传时间">
           <template #body="slotProps">
             {{ formatDateTime(slotProps.data.uploadTime) }}
           </template>
         </Column>
-        <Column header="操作" style="width: 150px">
+        <Column header="操作">
           <template #body="slotProps">
             <div class="flex gap-2">
-              <Button
-                icon="pi pi-eye"
-                outlined
-                size="small"
-                v-tooltip="'查看详情'"
-                @click="$emit('view', slotProps.data)"
-              />
-              <Button
-                icon="pi pi-play"
-                outlined
-                size="small"
-                v-tooltip="'播放视频'"
-                @click="$emit('play', slotProps.data)"
-              />
-              <Button
-                icon="pi pi-trash"
-                outlined
-                severity="danger"
-                size="small"
-                v-tooltip="'删除'"
-                @click="$emit('delete', slotProps.data)"
-                :loading="isDeleting"
-              />
+              <Button icon="pi pi-eye" outlined size="small" v-tooltip="'查看详情'"
+                @click="emit('view', slotProps.data)" />
+              <Button icon="pi pi-play" outlined size="small" v-tooltip="'播放视频'"
+                @click="emit('play', slotProps.data)" />
+              <Button icon="pi pi-trash" outlined severity="danger" size="small" v-tooltip="'删除'"
+                @click="handleDelete(slotProps.data)" :loading="deleteMutation.isPending.value" />
             </div>
           </template>
         </Column>
@@ -67,33 +58,52 @@
 </template>
 
 <script setup lang="ts">
+import { useConfirm } from 'primevue/useconfirm'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Button from 'primevue/button'
 import Card from 'primevue/card'
 
 import type { VideoUploadResponse } from '@/core/api/generated'
-import { formatDuration, formatFileSize, formatDateTime } from '../utils/formatters'
-
-interface Props {
-  videos: VideoUploadResponse[]
-  isLoading: boolean
-  total: number
-  rows?: number
-  isDeleting?: boolean
-}
+import { formatDuration, formatFileSize, formatDateTime, truncateFileName } from '../utils/formatters'
+import { useQueryVideoPage, useDeleteVideo } from '../hooks'
 
 interface Emits {
   (e: 'page', event: any): void
   (e: 'view', video: VideoUploadResponse): void
   (e: 'play', video: VideoUploadResponse): void
-  (e: 'delete', video: VideoUploadResponse): void
 }
 
-withDefaults(defineProps<Props>(), {
-  rows: 10,
-  isDeleting: false,
+const emit = defineEmits<Emits>()
+
+// ✅ 表格内部调用 hook 获取数据
+const { current, size, videos, total, query } = useQueryVideoPage({
+  current: 1,
+  size: 10,
 })
 
-defineEmits<Emits>()
+// ✅ 表格内部调用 mutation
+const deleteMutation = useDeleteVideo()
+const confirm = useConfirm()
+
+// 分页处理
+const onPageChange = (event: any) => {
+  current.value = event.page + 1
+  emit('page', event)
+}
+
+// 删除处理
+const handleDelete = (video: VideoUploadResponse) => {
+  confirm.require({
+    message: `确定要删除视频「${video.originalFileName}」吗？删除后将无法恢复。`,
+    header: '删除确认',
+    icon: 'pi pi-exclamation-triangle',
+    acceptLabel: '确定',
+    rejectLabel: '取消',
+    accept: async () => {
+      await deleteMutation.mutateAsync(video.id!)
+      query.refetch()
+    },
+  })
+}
 </script>

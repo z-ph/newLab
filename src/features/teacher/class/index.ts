@@ -4,6 +4,7 @@
 
 // Components
 export { default as StudentListDialog } from './components/StudentListDialog.vue'
+export { default as ClassTable } from './components/ClassTable.vue'
 
 // Hooks
 export {

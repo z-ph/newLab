@@ -1,18 +1,10 @@
 <template>
-  <div>
+  <div class="p-1">
     <!-- 课程列表 -->
-    <CourseTable
-      :courses="query.data.value?.records || []"
-      :loading="query.isLoading.value"
-      :size="size"
-      :total="query.data.value?.total"
-      @page-change="onPageChange"
-      @edit="openEditDialog"
-      @delete="confirmDelete"
-    >
+    <CourseTable @edit="openEditDialog">
       <template #header>
         <div class="flex items-center justify-between">
-          <h1 class="text-2xl font-bold text-slate-900">课程管理</h1>
+          <h1 class="text-xl font-bold text-slate-900">课程管理</h1>
           <Button label="新建课程" icon="pi pi-plus" @click="openCreateDialog" />
         </div>
       </template>
@@ -33,31 +25,16 @@
 // ==================== 导入 ====================
 import { ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
-import { useConfirm } from 'primevue/useconfirm'
 import {
-  useQueryCoursePage,
   useCreateCourse,
   useUpdateCourse,
-  useDeleteCourse,
   CourseTable,
   CourseFormDialog,
 } from '@/features/teacher/course'
 import type { CourseResponse } from '@/core/api/generated'
 
-// ==================== 类型定义 ====================
-interface PageStateEvent {
-  page: number
-  first: number
-  rows: number
-  pageCount: number
-}
-
 // ==================== Toast & Confirm ====================
 const toast = useToast()
-const confirm = useConfirm()
-
-// ==================== 查询状态 ====================
-const { current, size, query } = useQueryCoursePage({ current: 1, size: 10 })
 
 // ==================== 对话框状态 ====================
 const showDialog = ref(false)
@@ -67,7 +44,6 @@ const isSubmitting = ref(false)
 
 const createMutation = useCreateCourse()
 const updateMutation = useUpdateCourse()
-const deleteMutation = useDeleteCourse()
 
 // ==================== 打开创建对话框 ====================
 const openCreateDialog = () => {
@@ -133,49 +109,6 @@ const handleSubmit = async (data: Partial<CourseResponse>) => {
   }
 
   showDialog.value = false
-  query.refetch()
   isSubmitting.value = false
-}
-
-// ==================== 删除确认 ====================
-const confirmDelete = (course: CourseResponse) => {
-  confirm.require({
-    message: `确定要删除课程"${course.courseName}"吗？此操作不可撤销。`,
-    header: '删除确认',
-    icon: 'pi pi-exclamation-triangle',
-    rejectLabel: '取消',
-    acceptLabel: '删除',
-    acceptClass: 'p-button-danger',
-    accept: () => handleDelete(course),
-  })
-}
-
-// ==================== 执行删除 ====================
-const handleDelete = async (course: CourseResponse) => {
-  if (!course.id) {
-    toast.add({
-      severity: 'error',
-      summary: '错误',
-      detail: '缺少课程ID',
-      life: 3000,
-    })
-    return
-  }
-
-  await deleteMutation.mutateAsync(course.id)
-
-  toast.add({
-    severity: 'success',
-    summary: '成功',
-    detail: '课程删除成功',
-    life: 3000,
-  })
-
-  query.refetch()
-}
-
-// ==================== 分页处理 ====================
-const onPageChange = (event: PageStateEvent) => {
-  current.value = event.page + 1
 }
 </script>

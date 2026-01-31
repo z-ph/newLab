@@ -1,7 +1,7 @@
 <template>
-  <div class="p-6">
+  <div class="p-1">
     <!-- 筛选器 -->
-    <Card class="mb-6">
+    <Card class="mb-4">
       <template #content>
         <TopicFilter v-model="filters" @search="handleSearch" />
       </template>
@@ -12,18 +12,9 @@
       @update:current="current = $event"
       @view="handleView"
       @edit="handleEdit"
-      @batch-delete="handleBatchDeleteClick"
-    >
-      <template #header>
-        <div class="flex items-center justify-between px-6 py-4">
-          <h1 class="text-2xl font-bold text-slate-900">题目管理</h1>
-          <div class="flex gap-2">
-            <Button label="标签管理" icon="pi pi-tags" outlined severity="secondary" @click="handleTagManage" />
-            <Button label="新增题目" icon="pi pi-plus" @click="handleAddClick" />
-          </div>
-        </div>
-      </template>
-    </TopicTable>
+      @tag-manage="handleTagManage"
+      @add="handleAddClick"
+    />
 
     <!-- 新增/编辑对话框 -->
     <TopicFormDialog
@@ -35,13 +26,6 @@
     <!-- 详情对话框 -->
     <TopicDetailDialog ref="detailDialogRef" />
 
-    <!-- 批量删除对话框 -->
-    <TopicBatchDeleteDialog
-      ref="batchDeleteDialogRef"
-      :is-loading="batchDeleteMutation.isPending.value"
-      @confirm="handleBatchDelete"
-    />
-
     <!-- 标签管理对话框 -->
     <TagManageDialog ref="tagManageDialogRef" />
 
@@ -50,7 +34,6 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue"
-import Button from "primevue/button"
 
 import type { TopicDetailResponse, CreateTopicRequest, UpdateTopicRequest } from "@/core/api/generated"
 
@@ -59,14 +42,12 @@ import {
   TopicTable,
   TopicFormDialog,
   TopicDetailDialog,
-  TopicBatchDeleteDialog,
   TagManageDialog,
 } from "@/features/teacher/topic"
 import {
   useQueryTopicPage,
   useCreateTopic,
   useUpdateTopic,
-  useBatchDeleteTopics,
 } from "@/features/teacher/topic/hooks"
 
 // ✅ 使用题目查询 hook，直接从 hook 获取所有状态
@@ -95,12 +76,10 @@ const filters = computed({
 // 使用 mutations
 const createMutation = useCreateTopic()
 const updateMutation = useUpdateTopic()
-const batchDeleteMutation = useBatchDeleteTopics()
 
 // ✅ 对话框 ref（不管理状态）
 const formDialogRef = ref<InstanceType<typeof TopicFormDialog>>()
 const detailDialogRef = ref<InstanceType<typeof TopicDetailDialog>>()
-const batchDeleteDialogRef = ref<InstanceType<typeof TopicBatchDeleteDialog>>()
 const tagManageDialogRef = ref<InstanceType<typeof TagManageDialog>>()
 
 // ✅ 新增按钮点击
@@ -140,18 +119,6 @@ const handleSubmit = async (data: CreateTopicRequest | UpdateTopicRequest) => {
     await createMutation.mutateAsync(data)
   }
   formDialogRef.value?.close()
-  query.refetch()
-}
-
-// ✅ 批量删除点击（来自 TopicTable）
-const handleBatchDeleteClick = (topicIds: number[]) => {
-  batchDeleteDialogRef.value?.open(topicIds)
-}
-
-// ✅ 执行批量删除
-const handleBatchDelete = async (topicIds: number[]) => {
-  await batchDeleteMutation.mutateAsync(topicIds)
-  batchDeleteDialogRef.value?.close()
   query.refetch()
 }
 </script>

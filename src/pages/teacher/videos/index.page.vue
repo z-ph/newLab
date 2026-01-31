@@ -1,35 +1,25 @@
 <template>
-  <div class="p-6">
+  <div class="p-1">
+    <!-- 筛选 -->
+    <Card class="mb-4">
+      <template #content>
+        <VideoFilter v-model="filters" />
+      </template>
+    </Card>
+
     <!-- 视频列表 -->
-    <VideoTable
-      :videos="videos"
-      :is-loading="query.isLoading.value"
-      :total="total"
-      :is-deleting="deleteMutation.isPending.value"
-      @page="onPage"
-      @view="handleView"
-      @play="handlePlay"
-      @delete="handleDelete"
-    >
+    <VideoTable @view="handleView" @play="handlePlay">
       <template #header>
         <div class="flex items-center justify-between">
-          <h1 class="text-2xl font-bold text-slate-900">视频管理</h1>
-          <div class="flex items-center gap-4">
-            <VideoFilter v-model="filters" />
-            <Button label="上传视频" icon="pi pi-upload" @click="handleUploadClick" />
-          </div>
+          <h1 class="text-xl font-bold text-slate-900">视频管理</h1>
+          <Button label="上传视频" icon="pi pi-upload" @click="handleUploadClick" />
         </div>
       </template>
     </VideoTable>
 
     <!-- 上传视频对话框 -->
-    <VideoUploadDialog
-      ref="uploadDialogRef"
-      :course-options="courseOptions"
-      :experiment-options="experimentOptions"
-      :is-loading="uploadMutation.isPending.value"
-      @confirm="handleUploadConfirm"
-    />
+    <VideoUploadDialog ref="uploadDialogRef" :course-options="courseOptions" :experiment-options="experimentOptions"
+      :is-loading="uploadMutation.isPending.value" @confirm="handleUploadConfirm" />
 
     <!-- 视频详情对话框 -->
     <VideoDetailDialog ref="detailDialogRef" />
@@ -40,8 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue"
-import { useConfirm } from "primevue/useconfirm"
+import { ref } from "vue"
 import Button from "primevue/button"
 
 import type { VideoUploadResponse, VideoQueryRequest } from "@/core/api/generated"
@@ -53,7 +42,7 @@ import {
   VideoDetailDialog,
   VideoPlayDialog,
 } from "@/features/teacher/video"
-import { useQueryVideoPage, useUploadVideo, useDeleteVideo } from "@/features/teacher/video/hooks"
+import { useUploadVideo } from "@/features/teacher/video/hooks"
 
 // ✅ 从 API 类型派生
 type VideoFilters = Pick<VideoQueryRequest, 'originalFileName'>
@@ -61,24 +50,13 @@ type VideoFilters = Pick<VideoQueryRequest, 'originalFileName'>
 // 筛选条件
 const filters = ref<VideoFilters>({})
 
-// 使用视频查询 hook
-const { current, fileName, videos, total, query } = useQueryVideoPage({
-  current: 1,
-  size: 10,
-})
-
 // 使用上传 mutation
 const uploadMutation = useUploadVideo()
-
-// 使用删除 mutation
-const deleteMutation = useDeleteVideo()
 
 // ✅ 对话框 ref（不管理状态）
 const uploadDialogRef = ref<InstanceType<typeof VideoUploadDialog>>()
 const detailDialogRef = ref<InstanceType<typeof VideoDetailDialog>>()
 const playDialogRef = ref<InstanceType<typeof VideoPlayDialog>>()
-
-const confirm = useConfirm()
 
 // 课程选项（上传表单使用）
 const courseOptions = ref<Array<{ courseId: string; courseName: string }>>([])
@@ -104,15 +82,9 @@ const handleUploadConfirm = (data: any) => {
     {
       onSuccess: () => {
         uploadDialogRef.value?.close()
-        query.refetch()
       },
     },
   )
-}
-
-// 分页
-const onPage = (event: any) => {
-  current.value = event.page + 1
 }
 
 // 查看详情 - 通过 ref 调用
@@ -124,27 +96,4 @@ const handleView = (video: VideoUploadResponse) => {
 const handlePlay = (video: VideoUploadResponse) => {
   playDialogRef.value?.open(video.id!)
 }
-
-// 删除视频
-const handleDelete = (video: VideoUploadResponse) => {
-  confirm.require({
-    message: `确定要删除视频「${video.originalFileName}」吗？删除后将无法恢复。`,
-    header: "删除确认",
-    icon: "pi pi-exclamation-triangle",
-    acceptLabel: "确定",
-    rejectLabel: "取消",
-    accept: async () => {
-      await deleteMutation.mutateAsync(video.id!)
-      query.refetch()
-    },
-  })
-}
-
-// 监听筛选条件变化
-watch(
-  () => filters.value.originalFileName,
-  (newFileName) => {
-    fileName.value = newFileName || ""
-  },
-)
 </script>

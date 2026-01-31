@@ -1,7 +1,5 @@
 <template>
-  <div class="flex gap-4 items-center">
-    <InputText v-model="fileName" placeholder="输入文件名搜索" class="w-full" />
-  </div>
+  <InputText v-model="fileName" placeholder="输入文件名搜索" class="w-full md:w-64" />
 </template>
 
 <script setup lang="ts">

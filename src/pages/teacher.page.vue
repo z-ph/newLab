@@ -5,7 +5,7 @@
     <div class="flex-1 flex flex-col overflow-hidden">
       <AppTopbar @toggle-drawer="sidebarRef?.toggleDrawer()" />
 
-      <main class="flex-1 overflow-y-auto p-6">
+      <main class="flex-1 overflow-y-auto p-2">
         <router-view />
       </main>
     </div>

@@ -5,6 +5,7 @@
 // Components
 export { default as ExperimentDetailDialog } from './components/ExperimentDetailDialog.vue'
 export { default as ExperimentFormDialog } from './components/ExperimentFormDialog.vue'
+export { default as ExperimentTable } from './components/ExperimentTable.vue'
 export { default as ProcedureFormDialog } from './procedure/components/ProcedureFormDialog.vue'
 export { default as ProcedureList } from './procedure/components/ProcedureList.vue'
 

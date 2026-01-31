@@ -1,5 +1,40 @@
 <template>
-  <div>
+  <div class="p-1">
+    <!-- 搜索和筛选 -->
+    <Card class="mb-4">
+      <template #content>
+        <div class="flex flex-wrap gap-4">
+          <Select
+            v-model="selectedCourseId"
+            :options="courseOptions"
+            option-label="label"
+            option-value="value"
+            placeholder="选择课程"
+            class="w-full md:w-64"
+            filter
+          />
+          <Select
+            v-model="selectedClassCode"
+            :options="classOptions"
+            option-label="label"
+            option-value="value"
+            placeholder="选择班级"
+            class="w-full md:w-64"
+            filter
+          />
+          <Select
+            v-model="selectedExperimentId"
+            :options="experimentOptions"
+            option-label="label"
+            option-value="value"
+            placeholder="选择实验"
+            class="w-full md:w-64"
+            filter
+          />
+        </div>
+      </template>
+    </Card>
+
     <!-- 班级实验列表 -->
     <Card>
       <template #content>
@@ -10,40 +45,12 @@
           selection-mode="multiple"
           :paginator="true"
           :rows="10"
+          :pt="{ header: { class: 'px-0!' } }"
         >
           <template #header>
             <div class="flex items-center justify-between">
-              <h1 class="text-2xl font-bold text-slate-900">班级实验管理</h1>
-              <div class="flex items-center gap-4 flex-wrap">
-                <Select
-                  v-model="selectedCourseId"
-                  :options="courseOptions"
-                  option-label="label"
-                  option-value="value"
-                  placeholder="选择课程"
-                  class="w-64"
-                  filter
-                />
-                <Select
-                  v-model="selectedClassCode"
-                  :options="classOptions"
-                  option-label="label"
-                  option-value="value"
-                  placeholder="选择班级"
-                  class="w-64"
-                  filter
-                />
-                <Select
-                  v-model="selectedExperimentId"
-                  :options="experimentOptions"
-                  option-label="label"
-                  option-value="value"
-                  placeholder="选择实验"
-                  class="w-64"
-                  filter
-                />
-                <Button label="添加班级实验" icon="pi pi-plus" @click="openAddDialog" />
-              </div>
+              <h1 class="text-xl font-bold text-slate-900">班级实验管理</h1>
+              <Button label="添加班级实验" icon="pi pi-plus" @click="openAddDialog" />
             </div>
           </template>
           <Column selection-mode="multiple" header-style="width: 3rem" />

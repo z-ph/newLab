@@ -2,8 +2,8 @@
   <Card>
     <template #content>
       <DataTable
-        v-model:selection="selectedCourses"
-        :value="courses"
+        v-model:selection="selectedClasses"
+        :value="classes"
         :paginator="true"
         :rows="size"
         :loading="query.isLoading.value"
@@ -16,17 +16,18 @@
           <slot name="header" />
         </template>
         <Column key="selection" selection-mode="multiple" header-style="width: 3rem" />
-        <Column key="courseId" field="courseId" header="课程编号" />
-        <Column key="courseName" field="courseName" header="课程名称" />
-        <Column key="teacherUsername" field="teacherUsername" header="教师名称" />
-        <Column key="createTime" field="createTime" header="创建时间">
-          <template #body="slotProps">
-            {{ formatDate(slotProps.data.createTime) }}
-          </template>
-        </Column>
+        <Column key="className" field="className" header="班级名称" />
+        <Column key="studentCount" field="studentCount" header="学生数" />
         <Column key="actions" header="操作">
           <template #body="slotProps">
             <div class="flex gap-2">
+              <Button
+                icon="pi pi-users"
+                outlined
+                size="small"
+                v-tooltip.top="'查看学生'"
+                @click="emit('view-students', slotProps.data)"
+              />
               <Button
                 icon="pi pi-pencil"
                 outlined
@@ -52,8 +53,9 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
-import type { CourseResponse } from '@/core/api/generated'
-import { useQueryCoursePage, useDeleteCourse } from '../hooks'
+import type { Class } from '@/core/api/generated'
+import { useQueryClassPage } from '../hooks/useQueryClass'
+import { useDeleteClass } from '../hooks/useMutateClassDelete'
 
 interface PageStateEvent {
   page: number
@@ -64,25 +66,26 @@ interface PageStateEvent {
 
 interface Emits {
   (e: 'page-change', event: PageStateEvent): void
-  (e: 'edit', course: CourseResponse): void
+  (e: 'edit', classItem: Class): void
+  (e: 'view-students', classItem: Class): void
 }
 
 const emit = defineEmits<Emits>()
 
 // ✅ 表格内部调用 hook 获取数据
-const { current, size, query } = useQueryCoursePage({
+const { current, size, query } = useQueryClassPage({
   current: 1,
-  size: 20,
+  size: 10,
 })
 
 // ✅ 表格内部调用 mutation
-const deleteMutation = useDeleteCourse()
+const deleteMutation = useDeleteClass()
 const confirm = useConfirm()
 
-const selectedCourses = ref<CourseResponse[]>([])
+const selectedClasses = ref<Class[]>([])
 
 // 计算属性
-const courses = computed(() => query.data.value?.records || [])
+const classes = computed(() => query.data.value?.records || [])
 const total = computed(() => query.data.value?.total || 0)
 
 // 事件处理
@@ -92,39 +95,28 @@ const onPageChange = (event: PageStateEvent) => {
 }
 
 // 删除处理
-const handleDelete = (course: CourseResponse) => {
-  const courseId = course.id
-  if (!courseId) return
+const handleDelete = (classItem: Class) => {
+  const classId = classItem.id
+  if (!classId) return
 
   confirm.require({
-    message: `确定要删除课程"${course.courseName}"吗？此操作不可撤销。`,
+    message: `确定要删除班级"${classItem.className}"吗？此操作不可撤销。`,
     header: '删除确认',
     icon: 'pi pi-exclamation-triangle',
     rejectLabel: '取消',
     acceptLabel: '删除',
     acceptClass: 'p-button-danger',
     accept: async () => {
-      await deleteMutation.mutateAsync(courseId)
+      await deleteMutation.mutateAsync({
+        path: { id: classId },
+      })
       query.refetch()
     },
   })
 }
 
-// 工具函数
-const formatDate = (dateStr?: string) => {
-  if (!dateStr) return '-'
-  const date = new Date(dateStr)
-  return date.toLocaleString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
-
 // 暴露
 defineExpose({
-  selectedCourses,
+  selectedClasses,
 })
 </script>

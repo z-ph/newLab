@@ -35,3 +35,15 @@ export function formatDateTime(dateTime?: string): string {
   if (!dateTime) return '-'
   return new Date(dateTime).toLocaleString('zh-CN')
 }
+
+/**
+ * 截断文件名显示
+ * @param fileName 文件名
+ * @param maxLength 最大显示长度（默认 20）
+ * @returns 截断后的文件名（如 "very-long-filename-..."）
+ */
+export function truncateFileName(fileName: string | undefined, maxLength = 20): string {
+  if (!fileName) return ''
+  if (fileName.length <= maxLength) return fileName
+  return fileName.slice(0, maxLength) + '...'
+}

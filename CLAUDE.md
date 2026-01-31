@@ -712,6 +712,181 @@ const handleOpen = () => {
 - ✅ 已加载的数据：父组件已经获取的数据，子组件直接使用
 - ✅ 复合组件：子组件是纯 UI 组件，不应该包含数据逻辑
 
+### 表格组件设计规范（CRITICAL）
+
+**原则：表格组件内部调用 hook 获取数据和执行操作，简化组件使用方式**
+
+- ✅ **表格内部调用查询 hook**：数据获取逻辑封装在表格组件内部
+- ✅ **表格内部调用 mutation hook**：增删改操作逻辑封装在表格组件内部
+- ✅ **通过 slot 传递 header**：使用 header slot 让页面自定义标题和操作按钮
+- ✅ **通过 emit 通知页面**：只在需要页面级联动时使用 emit（如打开对话框）
+- ❌ **禁止通过 props 传递数据**：不要将 items、isLoading、total、isDeleting 等数据通过 props 传递
+- ❌ **禁止在页面中处理操作**：删除、编辑等操作应该在表格组件内部处理
+
+**标准实现模式**：
+
+```vue
+<!-- VideoTable.vue -->
+<template>
+  <Card>
+    <template #content>
+      <DataTable
+        :value="videos"
+        :loading="query.isLoading.value"
+        :paginator="true"
+        :rows="size"
+        :total-records="total"
+        :lazy="true"
+        @page="onPageChange"
+        :pt="{ header: { class: 'px-0!' } }"
+      >
+        <template #header>
+          <slot name="header" />
+        </template>
+
+        <!-- 列定义 -->
+        <Column field="id" header="ID" />
+        <Column header="操作">
+          <template #body="slotProps">
+            <Button @click="handleView(slotProps.data)" />
+            <Button @click="handleDelete(slotProps.data)" :loading="deleteMutation.isPending.value" />
+          </template>
+        </Column>
+      </DataTable>
+    </template>
+  </Card>
+</template>
+
+<script setup lang="ts">
+import { useConfirm } from 'primevue/useconfirm'
+import type { VideoUploadResponse } from '@/core/api/generated'
+import { useQueryVideoPage, useDeleteVideo } from '../hooks'
+
+// ✅ 表格内部调用 hook 获取数据
+const { current, size, videos, total, query } = useQueryVideoPage({
+  current: 1,
+  size: 10,
+})
+
+// ✅ 表格内部调用 mutation
+const deleteMutation = useDeleteVideo()
+const confirm = useConfirm()
+
+// ✅ 分页逻辑封装在组件内部
+const onPageChange = (event: any) => {
+  current.value = event.page + 1
+}
+
+// ✅ 删除逻辑封装在组件内部
+const handleDelete = (video: VideoUploadResponse) => {
+  confirm.require({
+    message: `确定要删除视频「${video.originalFileName}」吗？`,
+    accept: async () => {
+      await deleteMutation.mutateAsync(video.id!)
+      query.refetch()
+    },
+  })
+}
+
+// ✅ 需要页面处理的事件通过 emit 通知
+const emit = defineEmits<{
+  (e: 'view', video: VideoUploadResponse): void
+}>()
+
+const handleView = (video: VideoUploadResponse) => {
+  emit('view', video)
+}
+</script>
+```
+
+**页面使用方式**：
+
+```vue
+<!-- videos/index.page.vue -->
+<template>
+  <div class="p-1">
+    <!-- ✅ 极简使用，不需要传递任何数据 props -->
+    <VideoTable @view="handleView" @play="handlePlay">
+      <template #header>
+        <div class="flex items-center justify-between">
+          <h1 class="text-xl font-bold text-slate-900">视频管理</h1>
+          <Button label="上传视频" icon="pi pi-upload" @click="handleUploadClick" />
+        </div>
+      </template>
+    </VideoTable>
+
+    <!-- 对话框 -->
+    <VideoDetailDialog ref="detailDialogRef" />
+    <VideoPlayDialog ref="playDialogRef" />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import { VideoTable, VideoDetailDialog, VideoPlayDialog } from '@/features/teacher/video'
+import type { VideoUploadResponse } from '@/core/api/generated'
+
+// ✅ 页面只需要处理需要联动的事件
+const detailDialogRef = ref<InstanceType<typeof VideoDetailDialog>>()
+const playDialogRef = ref<InstanceType<typeof VideoPlayDialog>>()
+
+const handleView = (video: VideoUploadResponse) => {
+  detailDialogRef.value?.open(video)
+}
+
+const handlePlay = (video: VideoUploadResponse) => {
+  playDialogRef.value?.open(video.id!)
+}
+
+const handleUploadClick = () => {
+  // 打开上传对话框
+}
+</script>
+```
+
+**对比旧模式**：
+
+```vue
+<!-- ❌ 旧模式：需要传递大量 props -->
+<VideoTable
+  :videos="videos"
+  :is-loading="query.isLoading.value"
+  :total="total"
+  :is-deleting="deleteMutation.isPending.value"
+  @page="onPage"
+  @view="handleView"
+  @play="handlePlay"
+  @delete="handleDelete"
+/>
+
+<script setup lang="ts">
+// ❌ 页面需要管理大量状态和逻辑
+const { current, size, videos, total, query } = useQueryVideoPage({ current: 1, size: 10 })
+const deleteMutation = useDeleteVideo()
+
+const onPage = (event: any) => {
+  current.value = event.page + 1
+}
+
+const handleDelete = (video: VideoUploadResponse) => {
+  confirm.require({
+    message: `确定要删除视频「${video.originalFileName}」吗？`,
+    accept: async () => {
+      await deleteMutation.mutateAsync(video.id!)
+      query.refetch()
+    },
+  })
+}
+</script>
+```
+
+**优势**：
+1. **简化使用**：页面组件不需要传递大量 props
+2. **逻辑内聚**：数据获取、分页、删除等逻辑都在表格组件内部
+3. **易于维护**：修改表格逻辑不需要修改页面组件
+4. **复用性强**：表格组件可以在多个页面中复用，无需重复编写逻辑
+5. **类型安全**：Vue Query 自动处理缓存和状态管理
+
 **工具函数组织规范（CRITICAL）**
 
 **原则：工具函数必须提取到 utils 目录，禁止在组件内部定义**
