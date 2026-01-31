@@ -9,7 +9,7 @@
           option-label="label"
           option-value="value"
           placeholder="筛选课程"
-          class="w-64"
+          class="w-full"
           show-clear
         />
       </template>
