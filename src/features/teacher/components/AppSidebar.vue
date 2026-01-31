@@ -38,18 +38,7 @@
     </div>
 
     <!-- 底部用户信息 -->
-    <div class="p-4 border-t border-slate-200">
-      <div class="flex rounded-lg bg-slate-50 p-3 justify-between">
-        <Avatar icon="pi pi-user" class="bg-emerald-500 text-white" shape="circle" />
-        <Button
-          icon="pi pi-sign-out"
-          severity="secondary"
-          text
-          rounded
-          @click="handleLogout"
-        />
-      </div>
-    </div>
+    <UserInfo @logout="handleLogout" />
 
     <!-- 拖拽手柄（仅桌面端） -->
     <div
@@ -113,18 +102,7 @@
         </div>
 
         <!-- 底部用户信息 -->
-        <div class="p-4 border-t border-slate-200">
-          <div class="flex rounded-lg bg-slate-50 p-3 justify-between">
-            <Avatar icon="pi pi-user" class="bg-emerald-500 text-white" shape="circle" />
-            <Button
-              icon="pi pi-sign-out"
-              severity="secondary"
-              text
-              rounded
-              @click="handleLogoutAndCloseDrawer"
-            />
-          </div>
-        </div>
+        <UserInfo @logout="handleLogoutAndCloseDrawer" />
       </div>
     </Transition>
 
@@ -149,14 +127,12 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useBreakpoints } from '@vueuse/core'
-import { useRoute, useRouter } from 'vue-router'
-import Avatar from 'primevue/avatar'
+import { useRoute } from 'vue-router'
 import Button from 'primevue/button'
 import PanelMenu from 'primevue/panelmenu'
 import type { MenuItem } from 'primevue/menuitem'
 import { MENU_ITEMS } from '@/features/teacher/constants'
-import { TokenManager } from '@/core/entity/TokenManager'
-import { UserManager } from '@/core/entity/UserManager'
+import UserInfo from './UserInfo.vue'
 
 // ==================== 断点检测 ====================
 const breakpoints = useBreakpoints({
@@ -232,7 +208,6 @@ function closeDrawer() {
 
 // ==================== 路由相关 ====================
 const route = useRoute()
-const router = useRouter()
 
 /**
  * 将自定义菜单项转换为 PrimeVue MenuItem 格式
@@ -245,14 +220,11 @@ const panelMenuItems: MenuItem[] = MENU_ITEMS.map((item) => ({
 }))
 
 const handleLogout = () => {
-  TokenManager.removeToken()
-  UserManager.removeUserInfo()
-  router.replace({ name: '/login' })
+  // 桌面端登出，无需额外操作
 }
 
 const handleLogoutAndCloseDrawer = () => {
   closeDrawer()
-  handleLogout()
 }
 
 // ==================== 计算样式 ====================
