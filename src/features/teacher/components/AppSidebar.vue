@@ -17,7 +17,7 @@
     </div>
 
     <!-- 菜单区域 -->
-    <div class="flex-1 overflow-y-auto p-4">
+    <div class="flex-1 overflow-y-auto">
       <PanelMenu :model="panelMenuItems" class="gap-0!">
         <template #item="{ item, props }">
           <router-link
