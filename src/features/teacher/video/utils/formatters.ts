@@ -39,10 +39,10 @@ export function formatDateTime(dateTime?: string): string {
 /**
  * 截断文件名显示
  * @param fileName 文件名
- * @param maxLength 最大显示长度（默认 20）
+ * @param maxLength 最大显示长度（默认 10）
  * @returns 截断后的文件名（如 "very-long-filename-..."）
  */
-export function truncateFileName(fileName: string | undefined, maxLength = 20): string {
+export function truncateFileName(fileName: string | undefined, maxLength = 10): string {
   if (!fileName) return ''
   if (fileName.length <= maxLength) return fileName
   return fileName.slice(0, maxLength) + '...'

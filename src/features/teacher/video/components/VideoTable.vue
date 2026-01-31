@@ -20,9 +20,13 @@
         <Column field="id" header="ID" />
         <Column header="文件名">
           <template #body="slotProps">
-            <span v-tooltip="slotProps.data.originalFileName" class="truncate max-w-[200px] block">
-              {{ truncateFileName(slotProps.data.originalFileName) }}
+            <span @click="($event) => filenamePopoverRef?.toggle($event)"
+              class="truncate max-w-50 block cursor-pointer select-none">
+              {{ truncateFileName(slotProps.data.originalFileName, 10) }}
             </span>
+            <Popover ref="filenamePopoverRef">
+              <span class="break-all max-w-xs">{{ slotProps.data.originalFileName }}</span>
+            </Popover>
           </template>
         </Column>
         <Column header="文件大小">
@@ -58,11 +62,9 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
-import DataTable from 'primevue/datatable'
-import Column from 'primevue/column'
-import Button from 'primevue/button'
-import Card from 'primevue/card'
+import Popover from 'primevue/popover'
 
 import type { VideoUploadResponse } from '@/core/api/generated'
 import { formatDuration, formatFileSize, formatDateTime, truncateFileName } from '../utils/formatters'
@@ -85,6 +87,9 @@ const { current, size, videos, total, query } = useQueryVideoPage({
 // ✅ 表格内部调用 mutation
 const deleteMutation = useDeleteVideo()
 const confirm = useConfirm()
+
+// 文件名 Popover
+const filenamePopoverRef = ref<InstanceType<typeof Popover>>()
 
 // 分页处理
 const onPageChange = (event: any) => {
