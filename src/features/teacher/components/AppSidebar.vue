@@ -40,12 +40,13 @@
     <!-- 底部用户信息 -->
     <UserInfo @logout="handleLogout" />
 
-    <!-- 拖拽手柄（仅桌面端） -->
+    <!-- 拖拽手柄（桌面端和平板） -->
     <div
-      v-if="isDesktop"
-      class="sidebar-resize-handle absolute right-0 top-0 bottom-0 w-1 cursor-col-resize bg-transparent hover:bg-emerald-500 transition-colors"
+      v-if="!isMobile"
+      class="sidebar-resize-handle absolute right-0 top-0 bottom-0 w-1 -mr-1 cursor-col-resize bg-slate-200 hover:bg-emerald-500 transition-colors z-10"
       :class="{ 'bg-emerald-500': isResizing }"
       @mousedown="startResize"
+      title="拖动调整侧边栏宽度"
     />
   </div>
 
@@ -141,8 +142,6 @@ const breakpoints = useBreakpoints({
 })
 
 const isMobile = breakpoints.smaller('md')  // < 768px
-const isTablet = breakpoints.between('md', 'lg')  // 768px - 1024px
-const isDesktop = breakpoints.greater('lg')  // > 1024px
 
 // ==================== 桌面端：可调节宽度 ====================
 const MIN_WIDTH = 200
@@ -152,9 +151,9 @@ const DEFAULT_WIDTH = 256
 const sidebarWidth = ref(DEFAULT_WIDTH)
 const isResizing = ref(false)
 
-// 从 localStorage 恢复宽度（仅桌面端）
+// 从 localStorage 恢复宽度（桌面端和平板）
 onMounted(() => {
-  if (isDesktop.value) {
+  if (!isMobile.value) {
     const saved = localStorage.getItem('sidebar-width')
     if (saved) {
       const width = parseInt(saved, 10)
@@ -165,16 +164,16 @@ onMounted(() => {
   }
 })
 
-// 持久化宽度（仅桌面端）
+// 持久化宽度（桌面端和平板）
 watch(sidebarWidth, (newWidth) => {
-  if (isDesktop.value) {
+  if (!isMobile.value) {
     localStorage.setItem('sidebar-width', String(newWidth))
   }
 })
 
 // 拖拽逻辑
 function startResize(_e: MouseEvent) {
-  if (!isDesktop.value) return  // 移动端/平板禁用拖拽
+  if (isMobile.value) return  // 移动端禁用拖拽
   isResizing.value = true
   document.addEventListener('mousemove', handleResize)
   document.addEventListener('mouseup', stopResize)
@@ -229,10 +228,10 @@ const handleLogoutAndCloseDrawer = () => {
 
 // ==================== 计算样式 ====================
 const sidebarStyle = computed(() => {
-  if (isTablet.value) {
-    return { width: '200px' }  // 平板：固定宽度
+  if (isMobile.value) {
+    return {}  // 移动端：不适用（抽屉模式）
   } else {
-    return { width: `${sidebarWidth.value}px` }  // 桌面：可调节宽度
+    return { width: `${sidebarWidth.value}px` }  // 桌面/平板：可调节宽度
   }
 })
 
