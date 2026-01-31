@@ -3,15 +3,20 @@
     <!-- 筛选 -->
     <Card class="mb-4">
       <template #content>
-        <Select
-          v-model="selectedCourseId"
-          :options="courseOptions"
-          option-label="label"
-          option-value="value"
-          placeholder="筛选课程"
-          class="w-full"
-          show-clear
-        />
+        <div class="flex flex-wrap gap-4 items-center">
+          <!-- 课程筛选 -->
+          <div class="flex-1 min-w-50">
+            <Select
+              v-model="selectedCourseId"
+              :options="courseOptions"
+              option-label="label"
+              option-value="value"
+              placeholder="筛选课程"
+              class="w-full"
+              show-clear
+            />
+          </div>
+        </div>
       </template>
     </Card>
 

@@ -1,5 +1,5 @@
 <template>
-  <InputText v-model="fileName" placeholder="输入文件名搜索" class="w-full md:w-64" />
+  <InputText v-model="fileName" placeholder="输入文件名搜索" class="w-full" />
 </template>
 
 <script setup lang="ts">

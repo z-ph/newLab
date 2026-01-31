@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-wrap gap-4 items-center">
     <!-- 题目类型筛选 -->
-    <div class="flex-1 min-w-[200px]">
+    <div class="flex-1 min-w-50">
       <Select
         v-model="localType"
         :options="TOPIC_TYPE_OPTIONS"
@@ -14,7 +14,7 @@
     </div>
 
     <!-- 关键词搜索 -->
-    <div class="flex-1 min-w-[200px]">
+    <div class="flex-1 min-w-50">
       <InputText
         v-model="localKeyword"
         placeholder="搜索题目内容"
@@ -23,7 +23,7 @@
     </div>
 
     <!-- 难度标签筛选 -->
-    <div class="flex-1 min-w-[200px]">
+    <div class="flex-1 min-w-50">
       <MultiSelect
         v-model="localDifficultyTagIds"
         :options="difficultyTagOptions"
@@ -36,7 +36,7 @@
     </div>
 
     <!-- 学科标签筛选 -->
-    <div class="flex-1 min-w-[200px]">
+    <div class="flex-1 min-w-50">
       <MultiSelect
         v-model="localSubjectTagIds"
         :options="subjectTagOptions"
