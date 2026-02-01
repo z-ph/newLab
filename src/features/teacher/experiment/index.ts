@@ -12,6 +12,7 @@ export { default as ProcedureList } from './procedure/components/ProcedureList.v
 export { default as ProcedureVideoForm } from './procedure/components/procedure-forms/ProcedureVideoForm.vue'
 export { default as ProcedureDataCollectionForm } from './procedure/components/procedure-forms/ProcedureDataCollectionForm.vue'
 export { default as ProcedureTopicForm } from './procedure/components/procedure-forms/ProcedureTopicForm.vue'
+export { default as ProcedureTimeConfig } from './procedure/components/procedure-forms/ProcedureTimeConfig.vue'
 
 // Hooks
 export {
@@ -88,6 +89,8 @@ export {
   PROCEDURE_TYPE_OPTIONS,
   DATA_COLLECTION_TYPE_OPTIONS,
   DEFAULT_VALUES,
+  TIME_LIMITS,
+  TIME_UNITS,
   FORM_PLACEHOLDERS,
   FORM_HINTS,
   BUTTON_LABELS,
@@ -109,5 +112,7 @@ export {
   formatDateTime,
   parseJson,
   parseArray,
+  ProcedureTimeCalculator,
+  TimedQuizKeyGenerator,
 } from './procedure/utils'
 
