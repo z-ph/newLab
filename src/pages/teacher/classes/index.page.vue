@@ -5,7 +5,10 @@
       <template #header>
         <div class="flex items-center justify-between">
           <h1 class="text-xl font-bold text-slate-900">班级管理</h1>
-          <Button label="新建班级" icon="pi pi-plus" @click="openCreateDialog" />
+          <div class="flex gap-2">
+            <Button label="批量导入" icon="pi pi-upload" outlined severity="secondary" @click="openImportDialog" />
+            <Button label="新建班级" icon="pi pi-plus" @click="openCreateDialog" />
+          </div>
         </div>
       </template>
     </ClassTable>
@@ -59,6 +62,9 @@
       v-model="showStudentDialog"
       :class-code="selectedClassCode"
     />
+
+    <!-- Excel批量导入对话框 -->
+    <ClassImportDialog ref="importDialogRef" @success="handleImportSuccess" />
   </div>
 </template>
 
@@ -70,6 +76,7 @@ import {
   useUpdateClass,
   ClassTable,
   StudentListDialog,
+  ClassImportDialog,
 } from '@/features/teacher/class'
 import type { GetApiBodyParamsType } from '@/core/utils/typeUtils'
 import type { postApiTeacherClass, Class } from '@/core/api/generated'
@@ -149,5 +156,17 @@ const selectedClassCode = ref('')
 const openStudentDialog = (classItem: Class) => {
   selectedClassCode.value = classItem.classCode || ''
   showStudentDialog.value = true
+}
+
+// ==================== Excel批量导入相关 ====================
+const importDialogRef = ref<InstanceType<typeof ClassImportDialog>>()
+
+const openImportDialog = () => {
+  importDialogRef.value?.open()
+}
+
+const handleImportSuccess = () => {
+  // 导入成功后刷新班级列表
+  // 这里可以添加额外的逻辑，比如显示成功消息
 }
 </script>
