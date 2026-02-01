@@ -12,7 +12,7 @@
       </div>
     </div>
     <Button
-      v-show="choiceList.length < 8"
+      v-show="choiceList.length < MAX_CHOICES_COUNT"
       label="添加选项"
       type="button"
       size="small"
@@ -27,6 +27,8 @@
 <script setup lang="ts">
 import InputText from 'primevue/inputtext'
 import Button from 'primevue/button'
+import { getChoiceLabel } from '@/features/teacher/topic/utils/formatters'
+import { MAX_CHOICES_COUNT } from '@/features/teacher/topic/constants'
 
 interface Props {
   choiceList: string[]
@@ -39,9 +41,4 @@ interface Emits {
 }
 
 defineEmits<Emits>()
-
-// 获取选项标签
-function getChoiceLabel(index: number): string {
-  return String.fromCharCode(65 + index) // A, B, C, ...
-}
 </script>

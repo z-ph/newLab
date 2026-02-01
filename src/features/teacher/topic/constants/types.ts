@@ -57,8 +57,19 @@ export const TOPIC_TYPE_SEVERITY_MAP: Record<number, "success" | "info" | "warn"
 
 /**
  * 选项标签 ASCII 码起始值（A = 65）
+ * 用于生成 A, B, C... 选项标签
  */
 export const CHOICE_LABEL_START_CHAR_CODE = 65
+
+/**
+ * 默认选项数量
+ */
+export const DEFAULT_CHOICES_COUNT = 4
+
+/**
+ * 最大选项数量
+ */
+export const MAX_CHOICES_COUNT = 8
 
 /**
  * 获取题目类型名称

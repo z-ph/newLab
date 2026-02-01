@@ -64,3 +64,20 @@ export function formatCorrectAnswer(answer?: string, type?: number): string {
   // 单选题和多选题，显示选项字母
   return answer
 }
+
+/**
+ * 获取选项标签
+ *
+ * 根据索引生成选项标签（A, B, C...）
+ *
+ * @param index - 选项索引（从 0 开始）
+ * @returns 选项标签字符串
+ *
+ * @example
+ * getChoiceLabel(0) // "A"
+ * getChoiceLabel(1) // "B"
+ * getChoiceLabel(2) // "C"
+ */
+export function getChoiceLabel(index: number): string {
+  return String.fromCharCode(65 + index) // A, B, C, ...
+}
