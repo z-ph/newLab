@@ -28,6 +28,10 @@ export {
 } from './hooks/useMutateClassImport'
 
 export {
+  useDownloadExcelTemplate,
+} from './hooks/useQueryExcelTemplate'
+
+export {
   useCreateClassBatch,
 } from './hooks/useMutateClassBatch'
 

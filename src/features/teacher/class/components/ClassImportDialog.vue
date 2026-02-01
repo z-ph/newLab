@@ -89,8 +89,7 @@ import { ref, computed } from "vue"
 import { useToast } from "primevue/usetoast"
 import type { FileUploadSelectEvent } from "primevue/fileupload"
 import { useImportStudentsByExcel } from "../hooks/useMutateClassImport"
-import { getApiTestExcelTemplateUsers } from "@/core/api/generated"
-import client from "@/core/api/config"
+import { useDownloadExcelTemplate } from "../hooks/useQueryExcelTemplate"
 
 // 导入结果数据结构（基于后端 API 返回的 JSON 字符串内容）
 interface ImportResult {
@@ -134,8 +133,9 @@ const importMutation = useImportStudentsByExcel()
 const isImporting = computed(() => importMutation.isPending.value)
 const importResult = ref<ImportResult | null>(null)
 
-// 下载模板状态
-const downloadingTemplate = ref(false)
+// 下载模板
+const downloadTemplateMutation = useDownloadExcelTemplate()
+const downloadingTemplate = computed(() => downloadTemplateMutation.isPending.value)
 
 // 打开对话框
 function open() {
@@ -228,36 +228,8 @@ async function handleImport() {
 }
 
 // 下载模板
-async function downloadTemplate() {
-  downloadingTemplate.value = true
-  const response = await getApiTestExcelTemplateUsers({
-    client,
-    headers: {
-      Accept: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    },
-  })
-
-  // 类型守卫：检查响应数据是否为 Blob
-  const responseData = response.data
-  if (responseData instanceof Blob) {
-    const url = window.URL.createObjectURL(responseData)
-    const link = document.createElement("a")
-    link.href = url
-    link.download = "学生导入模板.xlsx"
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    window.URL.revokeObjectURL(url)
-
-    toast.add({
-      severity: "success",
-      summary: "下载成功",
-      detail: "模板文件已下载",
-      life: 3000,
-    })
-  }
-
-  downloadingTemplate.value = false
+function downloadTemplate() {
+  downloadTemplateMutation.mutate()
 }
 
 // 暴露方法
