@@ -97,7 +97,7 @@
     </div>
 
     <!-- 批改对话框 -->
-    <Dialog v-model:visible="showGradeDialog" header="批改" :style="{ width: '50vw' }" :modal="true">
+    <Dialog v-model:visible="showGradeDialog" header="批改" :modal="true">
       <div v-if="currentSubmission" class="space-y-4">
         <div>
           <label class="mb-2 block text-sm font-medium text-slate-700">

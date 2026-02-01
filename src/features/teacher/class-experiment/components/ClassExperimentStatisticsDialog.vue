@@ -1,5 +1,5 @@
 <template>
-  <Dialog :visible="visible" @update:visible="emit('update:visible', $event)" header="统计信息" :style="{ width: '80vw' }" :modal="true">
+  <Dialog :visible="visible" @update:visible="emit('update:visible', $event)" header="统计信息" :modal="true">
     <div class="p-4 text-center text-slate-600">
       <p>统计信息功能</p>
       <p class="text-sm mt-2">实验: {{ classExperiment?.experimentName }}</p>

@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-model:visible="visible" header="实验详情" :style="{ width: '80vw' }" :modal="true">
+  <Dialog v-model:visible="visible" header="实验详情" :modal="true">
     <div v-if="experiment">
       <!-- Tab 导航 -->
       <TabMenu v-model:activeIndex="activeTab" :model="tabItems" class="mb-4" />

@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-model:visible="visible" :header="isEdit ? '编辑题目' : '新增题目'" modal :style="{ width: '700px' }">
+  <Dialog v-model:visible="visible" :header="isEdit ? '编辑题目' : '新增题目'" modal>
     <form @submit.prevent="handleSubmit">
       <div class="space-y-4">
         <!-- 题目类型 -->

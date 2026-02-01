@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-model:visible="visible" :header="isEdit ? '编辑实验' : '新建实验'" :style="{ width: '50vw' }"
+  <Dialog v-model:visible="visible" :header="isEdit ? '编辑实验' : '新建实验'"
     :modal="true">
     <form @submit.prevent="handleSubmit">
       <div class="mb-4 flex flex-col gap-3">

@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-model:visible="visible" header="添加班级实验配置" :style="{ width: '60vw' }" :modal="true">
+  <Dialog v-model:visible="visible" header="添加班级实验配置" :modal="true">
     <form @submit.prevent="handleSubmit">
       <div class="flex flex-col gap-4">
         <!-- 课程选择 -->
