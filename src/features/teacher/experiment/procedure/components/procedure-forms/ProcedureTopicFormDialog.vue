@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-model:visible="visible" header="添加题库答题步骤" :style="{ width: '60vw' }" :modal="true">
+  <Dialog v-model:visible="visible" header="添加题库答题步骤" :modal="true">
     <form @submit.prevent="handleSubmit">
       <div class="mb-4 flex flex-col gap-3">
         <!-- 步骤描述 -->
