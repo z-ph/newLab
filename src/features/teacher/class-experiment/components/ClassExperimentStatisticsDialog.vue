@@ -1,5 +1,5 @@
 <template>
-  <Dialog :visible="visible" @update:visible="emit('update:visible', $event)" header="统计信息" :modal="true" :style="{ maxWidth: '100vw' }">
+  <Dialog v-model:visible="visible" header="统计信息" :modal="true" :style="{ maxWidth: '100vw' }">
     <div class="p-4 text-center text-slate-600">
       <p>统计信息功能</p>
       <p class="text-sm mt-2">实验: {{ classExperiment?.experimentName }}</p>
@@ -13,10 +13,7 @@ import type { ExperimentInfo } from '@/core/api/generated'
 
 defineProps<{
   classExperiment: ExperimentInfo | null
-  visible?: boolean
 }>()
 
-const emit = defineEmits<{
-  'update:visible': [value: boolean]
-}>()
+const visible = defineModel<boolean>()
 </script>

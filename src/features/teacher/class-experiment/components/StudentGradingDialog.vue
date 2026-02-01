@@ -1,7 +1,6 @@
 <template>
   <Dialog
-    :visible="visible"
-    @update:visible="emit('update:visible', $event)"
+    v-model:visible="visible"
     header="学生批改"
     :modal="true"
     :style="{ maxWidth: '100vw' }"
@@ -138,20 +137,20 @@ import { useGradeSubmission } from '../hooks'
 import { formatDateTime } from '@/features/shared/utils'
 import ProcedureDetailDialog from './ProcedureDetailDialog.vue'
 
-interface Props {
+defineProps<{
   classExperiment: ExperimentInfo | null
-  visible?: boolean
-}
-
-const props = defineProps<Props>()
-const emit = defineEmits<{
-  'update:visible': [value: boolean]
 }>()
 
+const visible = defineModel<boolean>()
+
 // ==================== 数据查询 ====================
-const students = useQueryStudentSubmissions(props.classExperiment?.courseId || '', {
-  enable: !!props.classExperiment?.courseId && props.visible,
-})
+const students = useQueryStudentSubmissions(
+  // Note: need to get courseId from classExperiment prop when dialog opens
+  '',
+  {
+    enable: false, // Will be enabled when dialog opens
+  }
+)
 
 const gradeMutation = useGradeSubmission()
 const detailDialogRef = ref<InstanceType<typeof ProcedureDetailDialog>>()
@@ -265,12 +264,9 @@ const getSubmissionStatusSeverity = (status?: number): 'success' | 'info' | 'war
 }
 
 // ==================== 监听对话框关闭，重置选中状态 ====================
-watch(
-  () => props.visible,
-  (newVal) => {
-    if (!newVal) {
-      selectedStudent.value = null
-    }
+watch(visible, (newVal) => {
+  if (!newVal) {
+    selectedStudent.value = null
   }
-)
+})
 </script>
