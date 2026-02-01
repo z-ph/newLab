@@ -1137,6 +1137,76 @@ config.ts 中创建的 client 包含了关键的 axios 拦截器：
 3. **统一 ref**：使用 ref 而不是 reactive，保持一致性
 4. **页面简化**：页面组件只保留事件处理逻辑，不定义状态
 
+**Hook onSuccess 中的数据校验规范（CRITICAL）**
+
+**原则：数据解析、校验、转换必须在 hook 的 onSuccess/onSettled 中处理，组件只接收最终结果**
+
+- ✅ **在 hook 的 onSuccess 中处理数据**：解析、校验、类型守卫、toast 提示
+- ❌ **禁止在组件中解析 API 响应**：不要在组件中写 JSON.parse 或数据校验
+- ❌ **禁止在组件中手动调用 toast**：成功提示应该在 hook 的 onSuccess 中
+
+**错误示例**：
+```vue
+<!-- ❌ 错误：组件中解析数据 -->
+<script setup lang="ts">
+const response = await importMutation.mutateAsync(file)
+const parsed = JSON.parse(response.data)  // ❌ 数据解析在组件中
+if (parsed.successCount) {
+  toast.add({ severity: 'success', detail: `成功 ${parsed.successCount} 条` })  // ❌ toast 在组件中
+}
+</script>
+```
+
+**正确示例**：
+```typescript
+// ✅ 正确：hook 中处理所有逻辑
+export function useImportStudentsByExcel() {
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const response = await postApiTestExcelImportUsers({
+        body: { file },
+        client,
+      })
+      return response.data
+    },
+    onSuccess: (data) => {
+      // ✅ 数据解析、校验在 hook 的 onSuccess 中
+      const result = parseImportResponse(data)
+
+      // ✅ toast 提示在 hook 中
+      if (result.message) {
+        toast.success(result.message)
+      }
+
+      return result  // 返回处理后的结果
+    },
+  })
+}
+```
+
+**组件使用**：
+```vue
+<!-- ✅ 正确：组件只调用 hook -->
+<script setup lang="ts">
+const importMutation = useImportStudentsByExcel()
+
+async function handleImport() {
+  await importMutation.mutateAsync(file)
+  // hook 的 onSuccess 已经处理了所有逻辑
+  // 组件只需要处理 UI 相关逻辑
+  emit('success')
+  close()
+}
+</script>
+```
+
+**理由**：
+- **职责分离**：Hook 处理业务逻辑，组件只负责 UI 交互
+- **代码复用**：数据解析逻辑可以在多个组件中复用
+- **类型安全**：Hook 中使用类型守卫，组件不需要关心数据格式
+- **易于测试**：Hook 可以独立测试数据解析逻辑
+- **一致性**：所有 API 调用的数据处理都在 hook 中
+
 ### 错误处理规范（CRITICAL）
 
 **禁止使用 try-catch 包裹 mutation 调用处理错误**
