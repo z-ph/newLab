@@ -107,7 +107,8 @@
 import { ref, computed, watch, watchEffect } from 'vue'
 import type { ExperimentInfo } from '@/core/api/generated'
 import type { ProcedureSubmissionResponse } from '@/core/api/generated'
-import { useQueryStudentSubmissions } from '../hooks'
+import { useQueryStudentSubmissions, useStudentList } from '../hooks'
+import type { StudentSummary } from '../hooks'
 import { formatDateTime } from '@/features/shared/utils'
 import { getSubmissionStatusText, getSubmissionStatusSeverity } from '../utils'
 import {
@@ -126,15 +127,6 @@ import {
 } from '../constants'
 import ProcedureDetailDialog from './ProcedureDetailDialog.vue'
 import GradeDialog from './GradeDialog.vue'
-
-// ==================== 类型定义 ====================
-// 学生信息（从提交记录聚合，基于 API 类型派生）
-type StudentInfo = Pick<
-  ProcedureSubmissionResponse,
-  'studentUsername' | 'studentName'
-> & {
-  submissionCount: number
-}
 
 // ==================== 对话框状态 ====================
 const visible = ref(false)
@@ -157,37 +149,12 @@ const gradeDialogRef = ref<InstanceType<typeof GradeDialog>>()
 const detailDialogRef = ref<InstanceType<typeof ProcedureDetailDialog>>()
 
 // ==================== 学生列表（从提交记录中提取） ====================
-const studentsList = computed<StudentInfo[]>(() => {
-  const submissions = students.data.value || []
-  const studentMap = new Map<string, StudentInfo>()
-
-  submissions.forEach((submission) => {
-    const username = submission.studentUsername || ''
-    const name = submission.studentName || username
-
-    if (username) {
-      const existing = studentMap.get(username)
-      if (existing) {
-        existing.submissionCount++
-      } else {
-        studentMap.set(username, {
-          studentUsername: username,
-          studentName: name,
-          submissionCount: 1,
-        })
-      }
-    }
-  })
-
-  return Array.from(studentMap.values()).sort((a, b) =>
-    (a.studentName || '').localeCompare(b.studentName || '')
-  )
-})
+const studentsList = useStudentList(students.data)
 
 // ==================== 选中的学生 ====================
-const selectedStudent = ref<StudentInfo>()
+const selectedStudent = ref<StudentSummary>()
 
-const selectStudent = (student: StudentInfo) => {
+const selectStudent = (student: StudentSummary) => {
   selectedStudent.value = student
 }
 

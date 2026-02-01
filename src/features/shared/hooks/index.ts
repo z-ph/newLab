@@ -6,3 +6,6 @@ export {
   useVideoDownload,
   useVideoPlay,
 } from './useVideoDownload'
+
+export { useGroupByAggregate } from './useGroupByAggregate'
+export type { GroupByAggregateOptions } from './useGroupByAggregate'
