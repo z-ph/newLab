@@ -57,3 +57,11 @@ export function parseArray(str: string): string[] | undefined {
   if (!str.trim()) return undefined
   return str.split(',').map(s => s.trim()).filter(Boolean)
 }
+
+// 导出时间计算工具类
+export { ProcedureTimeCalculator } from './timeCalculator'
+export type { ProcedureTimeConfig, ProcedureTimeWindow } from './timeCalculator'
+
+// 导出限时答题密钥生成器
+export { TimedQuizKeyGenerator } from './quizKeyGenerator'
+export type { QuizKeyComponents } from './quizKeyGenerator'

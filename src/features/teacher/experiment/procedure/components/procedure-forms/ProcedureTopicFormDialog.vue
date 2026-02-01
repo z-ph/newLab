@@ -32,6 +32,12 @@
           </div>
         </div>
 
+        <!-- 时间配置 -->
+        <ProcedureTimeConfig
+          v-model:offset-minutes="formData.offsetMinutes"
+          v-model:duration-minutes="formData.durationMinutes"
+        />
+
         <!-- 题库配置 -->
         <ProcedureTopicForm
           v-model:is-random="formData.isRandom"
@@ -57,6 +63,7 @@ import { PROCEDURE_TYPE, DEFAULT_VALUES } from '@/features/teacher/experiment/pr
 import { parseArray } from '@/features/teacher/experiment/procedure/utils'
 import type { BaseProcedureFields } from '@/features/teacher/experiment/procedure/types'
 import ProcedureTopicForm from './ProcedureTopicForm.vue'
+import ProcedureTimeConfig from './ProcedureTimeConfig.vue'
 
 interface Props {
   experimentId: number
@@ -80,6 +87,8 @@ const formData = ref<
   remark: '',
   proportion: DEFAULT_VALUES.PROPORTION,
   isSkip: false,
+  offsetMinutes: DEFAULT_VALUES.OFFSET_MINUTES,
+  durationMinutes: DEFAULT_VALUES.DURATION_MINUTES,
   isRandom: false,
   topicNumber: null,
   topicTags: [],
@@ -92,6 +101,8 @@ const resetForm = () => {
     remark: '',
     proportion: DEFAULT_VALUES.PROPORTION,
     isSkip: false,
+    offsetMinutes: DEFAULT_VALUES.OFFSET_MINUTES,
+    durationMinutes: DEFAULT_VALUES.DURATION_MINUTES,
     isRandom: false,
     topicNumber: null,
     topicTags: [],
@@ -111,6 +122,8 @@ const handleSubmit = async () => {
     remark: formData.value.remark,
     proportion: formData.value.proportion,
     isSkip: formData.value.isSkip,
+    offsetMinutes: formData.value.offsetMinutes,
+    durationMinutes: formData.value.durationMinutes,
   }
 
   if (formData.value.isRandom) {

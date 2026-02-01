@@ -74,6 +74,42 @@ export const DEFAULT_VALUES = {
   PROPORTION: 10,
   MIN_PROPORTION: 0,
   MAX_PROPORTION: 100,
+  /** 步骤开始时间偏移量(分钟) */
+  OFFSET_MINUTES: 0,
+  /** 步骤持续时间(分钟) */
+  DURATION_MINUTES: 60,
+  /** 限时答题时间限制(分钟) */
+  QUIZ_TIME_LIMIT: 30,
+} as const
+
+/**
+ * 时间配置范围限制
+ */
+export const TIME_LIMITS = {
+  /** 最小偏移量(分钟) */
+  MIN_OFFSET_MINUTES: 0,
+  /** 最大偏移量(分钟) - 7天 */
+  MAX_OFFSET_MINUTES: 10080,
+  /** 最小持续时间(分钟) */
+  MIN_DURATION_MINUTES: 1,
+  /** 最大持续时间(分钟) - 30天 */
+  MAX_DURATION_MINUTES: 43200,
+  /** 最小答题时间限制(分钟) */
+  MIN_QUIZ_TIME_LIMIT: 1,
+  /** 最大答题时间限制(分钟) - 24小时 */
+  MAX_QUIZ_TIME_LIMIT: 1440,
+} as const
+
+/**
+ * 时间单位常量
+ */
+export const TIME_UNITS = {
+  /** 分钟转毫秒 */
+  MINUTE_TO_MS: 60000,
+  /** 小时转分钟 */
+  HOUR_TO_MINUTES: 60,
+  /** 天转分钟 */
+  DAY_TO_MINUTES: 1440,
 } as const
 
 /**

@@ -4,87 +4,108 @@
     <Card
       v-for="(step, index) in procedureSteps"
       :key="step.id"
-      :class="{ 'opacity-50': !isStepUnlocked(index) }"
+      :class="{ 'opacity-50': !isStepUnlocked(step, index) }"
     >
       <template #title>
-        <div class="flex items-center gap-2">
-          <div
-            class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium"
-            :class="getStepClass(step, index)"
-          >
-            {{ index + 1 }}
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <div
+              class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium"
+              :class="getStepClass(step, index)"
+            >
+              {{ index + 1 }}
+            </div>
+            <span class="text-sm">{{ step.procedureName || `步骤 ${index + 1}` }}</span>
           </div>
-          <span class="text-sm">{{ step.procedureName || `步骤 ${index + 1}` }}</span>
+          <!-- 时间状态 -->
+          <Tag
+            v-if="stepTimeValidation(step)"
+            :value="stepTimeValidation(step)?.statusText"
+            :severity="getStepTimeSeverity(step)"
+            class="text-xs"
+          />
         </div>
       </template>
 
       <template #content>
-        <!-- 视频步骤 -->
-        <div v-if="step.stepType === 1">
-          <div class="space-y-3">
-            <div v-if="step.videoUrl" class="aspect-video bg-black rounded-lg overflow-hidden">
-              <video
-                :src="step.videoUrl"
-                controls
-                class="w-full h-full"
-                @ended="handleVideoComplete(step.id)"
+        <!-- 步骤未在时间窗口内 -->
+        <div v-if="!isStepAvailable(step)" class="py-8 text-center">
+          <i class="pi pi-clock text-4xl text-gray-300 mb-3" />
+          <p class="text-sm text-gray-600 mb-2">{{ getTimeUnavailableMessage(step) }}</p>
+          <p class="text-xs text-gray-400">
+            {{ getTimeWindowText(step) }}
+          </p>
+        </div>
+
+        <!-- 步骤在时间窗口内 -->
+        <div v-else>
+          <!-- 视频步骤 -->
+          <div v-if="step.stepType === 1">
+            <div class="space-y-3">
+              <div v-if="step.videoUrl" class="aspect-video bg-black rounded-lg overflow-hidden">
+                <video
+                  :src="step.videoUrl"
+                  controls
+                  class="w-full h-full"
+                  @ended="handleVideoComplete(step.id)"
+                />
+              </div>
+              <Button
+                label="标记已观看"
+                outlined
+                class="w-full"
+                :disabled="step.isCompleted"
+                @click="handleMarkVideoViewed(step.id)"
               />
             </div>
-            <Button
-              label="标记已观看"
-              outlined
-              class="w-full"
-              :disabled="step.isCompleted"
-              @click="handleMarkVideoViewed(step.id)"
-            />
           </div>
-        </div>
 
-        <!-- 题目步骤 -->
-        <div v-else-if="step.stepType === 2">
-          <div class="space-y-3">
-            <div class="bg-gray-50 p-3 rounded">
-              <p class="text-sm text-gray-700">{{ step.topicContent || '题目内容' }}</p>
+          <!-- 题目步骤 -->
+          <div v-else-if="step.stepType === 2">
+            <div class="space-y-3">
+              <div class="bg-gray-50 p-3 rounded">
+                <p class="text-sm text-gray-700">{{ step.topicContent || '题目内容' }}</p>
+              </div>
+              <Button
+                label="完成题目"
+                class="w-full"
+                :disabled="step.isCompleted"
+                @click="handleCompleteTopic(step)"
+              />
             </div>
-            <Button
-              label="完成题目"
-              class="w-full"
-              :disabled="step.isCompleted"
-              @click="handleCompleteTopic(step)"
-            />
           </div>
-        </div>
 
-        <!-- 数据采集步骤 -->
-        <div v-else-if="step.stepType === 3">
-          <div class="space-y-3">
-            <div class="text-sm text-gray-600">
-              {{ step.dataCollectionInstruction || '请按照实验要求完成数据采集' }}
+          <!-- 数据采集步骤 -->
+          <div v-else-if="step.stepType === 3">
+            <div class="space-y-3">
+              <div class="text-sm text-gray-600">
+                {{ step.dataCollectionInstruction || '请按照实验要求完成数据采集' }}
+              </div>
+              <Button
+                label="上传数据"
+                outlined
+                class="w-full"
+                :disabled="step.isCompleted"
+                @click="handleUploadData(step)"
+              />
             </div>
-            <Button
-              label="上传数据"
-              outlined
-              class="w-full"
-              :disabled="step.isCompleted"
-              @click="handleUploadData(step)"
-            />
           </div>
-        </div>
 
-        <!-- 其他类型 -->
-        <div v-else>
-          <p class="text-sm text-gray-500">其他类型的步骤</p>
-        </div>
+          <!-- 其他类型 -->
+          <div v-else>
+            <p class="text-sm text-gray-500">其他类型的步骤</p>
+          </div>
 
-        <!-- 步骤状态 -->
-        <div class="mt-3 pt-3 border-t border-gray-100">
-          <div class="flex items-center justify-between">
-            <span class="text-xs text-gray-500">状态</span>
-            <Tag
-              :value="getStepStatusText(step)"
-              :severity="getStepStatusSeverity(step)"
-              class="text-xs"
-            />
+          <!-- 步骤状态 -->
+          <div class="mt-3 pt-3 border-t border-gray-100">
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-gray-500">完成状态</span>
+              <Tag
+                :value="getStepStatusText(step)"
+                :severity="getStepStatusSeverity(step)"
+                class="text-xs"
+              />
+            </div>
           </div>
         </div>
       </template>
@@ -102,21 +123,38 @@
 import { ref } from 'vue'
 import { toast } from '@/core/utils/toast'
 
+interface ProcedureStep {
+  id: number
+  stepType: number
+  procedureName?: string
+  videoUrl?: string
+  topicContent?: string
+  dataCollectionInstruction?: string
+  isCompleted: boolean
+  // 时间配置字段
+  offsetMinutes?: number
+  durationMinutes?: number
+}
+
 interface Props {
   courseId: string
   experimentId: string
+  // 基准时间（班级实验开始时间）
+  baseTime?: Date | string
 }
 
 const props = defineProps<Props>()
 
 // 模拟实验步骤数据（实际应从API获取）
-const procedureSteps = ref([
+const procedureSteps = ref<ProcedureStep[]>([
   {
     id: 1,
     stepType: 1, // 视频
     procedureName: '观看实验视频',
     videoUrl: '',
     isCompleted: false,
+    offsetMinutes: 0,
+    durationMinutes: 60,
   },
   {
     id: 2,
@@ -124,6 +162,8 @@ const procedureSteps = ref([
     procedureName: '完成实验题目',
     topicContent: '请回答实验相关问题',
     isCompleted: false,
+    offsetMinutes: 60,
+    durationMinutes: 90,
   },
   {
     id: 3,
@@ -131,32 +171,133 @@ const procedureSteps = ref([
     procedureName: '提交实验数据',
     dataCollectionInstruction: '请拍摄实验现象并记录数据',
     isCompleted: false,
+    offsetMinutes: 150,
+    durationMinutes: 120,
   },
 ])
 
-function isStepUnlocked(index: number): boolean {
+/**
+ * 获取步骤时间校验状态
+ */
+function stepTimeValidation(step: ProcedureStep) {
+  if (step.offsetMinutes === undefined || step.durationMinutes === undefined) {
+    return null
+  }
+
+  const baseTime = props.baseTime ? new Date(props.baseTime) : new Date()
+
+  // 这里可以使用 useProcedureTimeValidation hook
+  // 为简化演示，直接计算状态
+  const now = new Date()
+  const startTime = new Date(baseTime.getTime() + step.offsetMinutes * 60000)
+  const endTime = new Date(startTime.getTime() + step.durationMinutes * 60000)
+
+  const isNotStarted = now < startTime
+  const isEnded = now > endTime
+  const isAvailable = !isNotStarted && !isEnded
+
+  const remainingMinutes = isAvailable
+    ? Math.floor((endTime.getTime() - now.getTime()) / 60000)
+    : 0
+
+  const minutesUntilStart = isNotStarted
+    ? Math.ceil((startTime.getTime() - now.getTime()) / 60000)
+    : 0
+
+  return {
+    isAvailable,
+    isNotStarted,
+    isEnded,
+    remainingMinutes,
+    minutesUntilStart,
+    startTime,
+    endTime,
+    statusText: isAvailable
+      ? `进行中，剩余 ${remainingMinutes} 分钟`
+      : isNotStarted
+        ? `${minutesUntilStart} 分钟后开始`
+        : '已结束',
+  }
+}
+
+/**
+ * 判断步骤是否在可用时间窗口内
+ */
+function isStepAvailable(step: ProcedureStep): boolean {
+  const validation = stepTimeValidation(step)
+  if (!validation) return true // 没有时间配置则默认可用
+  return validation.isAvailable
+}
+
+/**
+ * 判断步骤是否解锁（前序步骤完成）
+ */
+function isStepUnlocked(_step: ProcedureStep, index: number): boolean {
   if (index === 0) return true
   const prevStep = procedureSteps.value[index - 1]
   return prevStep ? prevStep.isCompleted : false
 }
 
-function getStepClass(step: any, index: number): string {
-  if (!isStepUnlocked(index)) return 'bg-gray-200 text-gray-400'
+/**
+ * 获取步骤样式类
+ */
+function getStepClass(step: ProcedureStep, index: number): string {
+  if (!isStepUnlocked(step, index)) return 'bg-gray-200 text-gray-400'
+  if (!isStepAvailable(step)) return 'bg-yellow-100 text-yellow-600'
   if (step.isCompleted) return 'bg-green-100 text-green-600'
   return 'bg-blue-100 text-blue-600'
 }
 
-function getStepStatusText(step: any): string {
+/**
+ * 获取步骤时间状态严重性
+ */
+function getStepTimeSeverity(step: ProcedureStep): 'success' | 'info' | 'warning' | 'danger' {
+  const validation = stepTimeValidation(step)
+  if (!validation) return 'info'
+  if (validation.isEnded) return 'danger'
+  if (validation.isNotStarted) return 'info'
+  if (validation.remainingMinutes < 10) return 'warning'
+  return 'success'
+}
+
+/**
+ * 获取时间不可用提示消息
+ */
+function getTimeUnavailableMessage(step: ProcedureStep): string {
+  const validation = stepTimeValidation(step)
+  if (!validation) return '步骤不可用'
+  if (validation.isNotStarted) return '步骤尚未开始'
+  if (validation.isEnded) return '步骤已结束'
+  return '步骤不可用'
+}
+
+/**
+ * 获取时间窗口文本
+ */
+function getTimeWindowText(step: ProcedureStep): string {
+  const validation = stepTimeValidation(step)
+  if (!validation) return ''
+
+  const formatTime = (date: Date) => {
+    const hours = String(date.getHours()).padStart(2, '0')
+    const minutes = String(date.getMinutes()).padStart(2, '0')
+    return `${hours}:${minutes}`
+  }
+
+  return `${formatTime(validation.startTime)} - ${formatTime(validation.endTime)}`
+}
+
+function getStepStatusText(step: ProcedureStep): string {
   if (step.isCompleted) return '已完成'
   const index = procedureSteps.value.indexOf(step)
-  if (isStepUnlocked(index)) return '进行中'
+  if (isStepUnlocked(step, index) && isStepAvailable(step)) return '进行中'
   return '未解锁'
 }
 
-function getStepStatusSeverity(step: any): 'success' | 'info' | 'warning' | 'danger' {
+function getStepStatusSeverity(step: ProcedureStep): 'success' | 'info' | 'warning' | 'danger' {
   if (step.isCompleted) return 'success'
   const index = procedureSteps.value.indexOf(step)
-  if (isStepUnlocked(index)) return 'warning'
+  if (isStepUnlocked(step, index) && isStepAvailable(step)) return 'warning'
   return 'info'
 }
 
@@ -166,7 +307,6 @@ function handleVideoComplete(procedureId: number) {
 }
 
 async function handleMarkVideoViewed(procedureId: number) {
-  // 模拟标记完成
   const step = procedureSteps.value.find((s) => s.id === procedureId)
   if (step) {
     step.isCompleted = true
@@ -174,14 +314,12 @@ async function handleMarkVideoViewed(procedureId: number) {
   toast.success('已标记为已观看')
 }
 
-function handleCompleteTopic(step: any) {
-  // TODO: 打开题目答题界面
+function handleCompleteTopic(step: ProcedureStep) {
   console.log('完成题目', step)
   toast.info('题目功能开发中...')
 }
 
-function handleUploadData(step: any) {
-  // TODO: 打开数据上传界面
+function handleUploadData(step: ProcedureStep) {
   console.log('上传数据', step)
   toast.info('数据上传功能开发中...')
 }

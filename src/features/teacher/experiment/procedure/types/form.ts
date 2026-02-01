@@ -17,6 +17,10 @@ export interface BaseProcedureFields {
   remark: string
   proportion: number
   isSkip: boolean
+  /** 步骤开始时间偏移量(分钟)，默认为0 */
+  offsetMinutes: number
+  /** 步骤持续时间(分钟) */
+  durationMinutes: number
 }
 
 /**
@@ -98,6 +102,8 @@ export function createDefaultProcedureFormData(): ProcedureFormData {
     remark: '',
     proportion: 10,
     isSkip: false,
+    offsetMinutes: 0,
+    durationMinutes: 60,
 
     // 视频步骤字段
     videoId: null,
