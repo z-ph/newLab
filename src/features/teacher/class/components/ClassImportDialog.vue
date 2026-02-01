@@ -100,6 +100,20 @@ interface ImportResult {
   message?: string
 }
 
+// 类型守卫：验证对象是否为 ImportResult
+function isImportResult(data: unknown): data is ImportResult {
+  if (typeof data !== "object" || data === null) {
+    return false
+  }
+  const obj = data as Record<string, unknown>
+  return (
+    (obj.successCount === undefined || typeof obj.successCount === "number") &&
+    (obj.failCount === undefined || typeof obj.failCount === "number") &&
+    (obj.totalCount === undefined || typeof obj.totalCount === "number") &&
+    (obj.message === undefined || typeof obj.message === "string")
+  )
+}
+
 interface Emits {
   (e: "success"): void
 }
@@ -181,85 +195,69 @@ async function handleImport() {
     return
   }
 
-  try {
-    const response = await importMutation.mutateAsync(selectedFile.value)
+  const response = await importMutation.mutateAsync(selectedFile.value)
 
-    // 解析后端返回的 JSON 字符串
-    if (response?.data) {
-      try {
-        importResult.value = JSON.parse(response.data) as ImportResult
-      } catch {
-        // 如果解析失败，直接显示字符串
-        importResult.value = { message: response.data }
-      }
+  // 解析后端返回的 JSON 字符串
+  if (response?.data) {
+    const parsed = JSON.parse(response.data)
+    // 使用类型守卫验证解析后的数据
+    if (isImportResult(parsed)) {
+      importResult.value = parsed
     } else {
-      importResult.value = null
+      // 如果数据格式不符合预期，显示原始消息
+      importResult.value = { message: String(response.data) }
     }
-
-    toast.add({
-      severity: "success",
-      summary: "导入完成",
-      detail: "学生数据导入成功",
-      life: 3000,
-    })
-
-    // 通知父组件刷新列表
-    emit("success")
-
-    // 延迟关闭对话框，让用户看到结果
-    setTimeout(() => {
-      close()
-    }, 2000)
-  } catch (error) {
-    // 错误已在拦截器中处理
-    console.error("导入失败:", error)
+  } else {
+    importResult.value = null
   }
+
+  toast.add({
+    severity: "success",
+    summary: "导入完成",
+    detail: "学生数据导入成功",
+    life: 3000,
+  })
+
+  // 通知父组件刷新列表
+  emit("success")
+
+  // 延迟关闭对话框，让用户看到结果
+  setTimeout(() => {
+    close()
+  }, 2000)
 }
 
 // 下载模板
 async function downloadTemplate() {
   downloadingTemplate.value = true
-  try {
-    // 使用自定义的 responseType 选项下载文件
-    const response = await getApiTestExcelTemplateUsers({
-      client,
-      headers: {
-        Accept: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      },
-    })
+  const response = await getApiTestExcelTemplateUsers({
+    client,
+    headers: {
+      Accept: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    },
+  })
 
-    // 类型守卫：检查响应数据是否为 Blob
-    const responseData = response.data
-    if (responseData instanceof Blob) {
-      const url = window.URL.createObjectURL(responseData)
-      const link = document.createElement("a")
-      link.href = url
-      link.download = "学生导入模板.xlsx"
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      window.URL.revokeObjectURL(url)
+  // 类型守卫：检查响应数据是否为 Blob
+  const responseData = response.data
+  if (responseData instanceof Blob) {
+    const url = window.URL.createObjectURL(responseData)
+    const link = document.createElement("a")
+    link.href = url
+    link.download = "学生导入模板.xlsx"
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
 
-      toast.add({
-        severity: "success",
-        summary: "下载成功",
-        detail: "模板文件已下载",
-        life: 3000,
-      })
-    } else {
-      throw new Error("响应数据格式错误，期望 Blob 类型")
-    }
-  } catch (error) {
-    console.error("下载模板失败:", error)
     toast.add({
-      severity: "error",
-      summary: "下载失败",
-      detail: "模板文件下载失败，请稍后重试",
+      severity: "success",
+      summary: "下载成功",
+      detail: "模板文件已下载",
       life: 3000,
     })
-  } finally {
-    downloadingTemplate.value = false
   }
+
+  downloadingTemplate.value = false
 }
 
 // 暴露方法
