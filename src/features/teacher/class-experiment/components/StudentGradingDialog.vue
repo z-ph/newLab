@@ -1,10 +1,5 @@
 <template>
-  <Dialog
-    v-model:visible="visible"
-    header="学生批改"
-    :modal="true"
-    :style="{ maxWidth: '100vw' }"
-  >
+  <Dialog v-model:visible="visible" header="学生批改" :modal="true" :style="{ maxWidth: '100vw' }">
     <div v-if="classExperiment" class="flex h-full gap-4">
       <!-- 左侧：学生列表 -->
       <div class="w-1/3 overflow-y-auto border-r border-slate-200 pr-4">
@@ -17,26 +12,18 @@
           <p>{{ NO_SUBMISSION_MESSAGE }}</p>
         </div>
         <div v-else class="space-y-2">
-          <div
-            v-for="student in studentsList"
-            :key="student.studentUsername"
-            :class="[
-              'cursor-pointer rounded-lg border p-3 transition-colors',
-              selectedStudent?.studentUsername === student.studentUsername
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50',
-            ]"
-            @click="selectStudent(student)"
-          >
+          <div v-for="student in studentsList" :key="student.studentUsername" :class="[
+            'cursor-pointer rounded-lg border p-3 transition-colors',
+            selectedStudent?.studentUsername === student.studentUsername
+              ? 'border-blue-500 bg-blue-50'
+              : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50',
+          ]" @click="selectStudent(student)">
             <div class="flex items-center justify-between">
               <div>
                 <p class="font-medium text-slate-900">{{ student.studentName }}</p>
                 <p class="text-sm text-slate-600">{{ student.studentUsername }}</p>
               </div>
-              <Badge
-                :value="student.submissionCount"
-                :severity="student.submissionCount > 0 ? 'info' : 'secondary'"
-              />
+              <Badge :value="student.submissionCount" :severity="student.submissionCount > 0 ? 'info' : 'secondary'" />
             </div>
           </div>
         </div>
@@ -56,19 +43,13 @@
           <p>{{ NO_STUDENT_SUBMISSION_MESSAGE }}</p>
         </div>
         <div v-else class="space-y-4">
-          <Card
-            v-for="submission in selectedStudentSubmissions"
-            :key="submission.id"
-            class="cursor-pointer transition-shadow hover:shadow-md"
-            @click="viewSubmissionDetail(submission)"
-          >
+          <Card v-for="submission in selectedStudentSubmissions" :key="submission.id"
+            class="cursor-pointer transition-shadow hover:shadow-md" @click="viewSubmissionDetail(submission)">
             <template #title>
               <div class="flex items-center justify-between">
                 <span>{{ submission.submissionType || DEFAULT_SUBMISSION_TITLE }}</span>
-                <Tag
-                  :value="getSubmissionStatusText(submission.submissionStatus)"
-                  :severity="getSubmissionStatusSeverity(submission.submissionStatus)"
-                />
+                <Tag :value="getSubmissionStatusText(submission.submissionStatus)"
+                  :severity="getSubmissionStatusSeverity(submission.submissionStatus)" />
               </div>
             </template>
             <template #subtitle>
@@ -77,7 +58,8 @@
               </div>
             </template>
             <template #content>
-              <div v-if="submission.submissionStatus === SUBMISSION_STATUS.GRADED" class="flex items-center justify-between">
+              <div v-if="submission.submissionStatus === SUBMISSION_STATUS.GRADED"
+                class="flex items-center justify-between">
                 <div>
                   <p class="text-sm text-slate-600">{{ SCORE_DISPLAY }}: {{ submission.score }}</p>
                   <p v-if="submission.teacherComment" class="mt-1 text-sm text-slate-600">
@@ -104,7 +86,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, watchEffect } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { ExperimentInfo } from '@/core/api/generated'
 import type { ProcedureSubmissionResponse } from '@/core/api/generated'
 import { useQueryStudentSubmissions, useStudentList } from '../hooks'
@@ -141,9 +123,6 @@ defineExpose({ open })
 
 // ==================== 数据查询 ====================
 const courseId = computed(() => classExperiment.value?.courseId)
-watchEffect(()=>{
-  console.log('course',courseId.value)
-})
 const students = useQueryStudentSubmissions(courseId)
 const gradeDialogRef = ref<InstanceType<typeof GradeDialog>>()
 const detailDialogRef = ref<InstanceType<typeof ProcedureDetailDialog>>()
