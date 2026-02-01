@@ -2,6 +2,7 @@ import { getApiTestExcelTemplateUsers } from "@/core/api/generated"
 import { useMutation } from "@tanstack/vue-query"
 import client from "@/core/api/config"
 import { toast } from "@/core/utils/toast"
+import { downloadFile } from "@/core/utils/file"
 
 /**
  * 下载 Excel 导入模板
@@ -22,15 +23,7 @@ export function useDownloadExcelTemplate() {
       return response.data
     },
     onSuccess: (blob) => {
-      const url = window.URL.createObjectURL(blob)
-      const link = document.createElement("a")
-      link.href = url
-      link.download = "学生导入模板.xlsx"
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      window.URL.revokeObjectURL(url)
-
+      downloadFile(blob, "学生导入模板.xlsx")
       toast.success("模板文件已下载")
     },
   })
