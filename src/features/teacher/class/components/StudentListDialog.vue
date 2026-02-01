@@ -117,7 +117,7 @@ const {
   total,
   isLoading,
   query,
-} = useQueryStudentList(internalClassCode.value, { current: 1, size: 10 })
+} = useQueryStudentList(internalClassCode, { current: 1, size: 10 })
 
 // ==================== 添加学生相关 ====================
 const showAddDialog = ref(false)

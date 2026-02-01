@@ -40,7 +40,7 @@ export function useQueryStudentList(
       records: response.data?.data?.records || [],
       total: response.data?.data?.total || 0,
     }),
-    enabled:computed(()=>Boolean(classCode))
+    enabled:computed(()=>Boolean(toValue(classCode)))
   })
 
   return {
