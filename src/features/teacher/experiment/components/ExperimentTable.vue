@@ -50,6 +50,7 @@ interface Props {
 interface Emits {
   (e: 'edit', experiment: ExperimentResponse): void
   (e: 'manage', experiment: ExperimentResponse): void
+  (e: 'refresh'): void
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -81,7 +82,7 @@ const handleDelete = (experiment: ExperimentResponse) => {
       await deleteMutation.mutateAsync({
         path: { experimentId },
       })
-      emit('manage', experiment) // 通知页面刷新
+      emit('refresh') // 刷新列表
     },
   })
 }

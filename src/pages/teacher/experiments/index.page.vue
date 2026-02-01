@@ -27,6 +27,7 @@
       :is-deleting="deleteMutation.isPending.value"
       @edit="openEdit"
       @manage="openDetail"
+      @refresh="query.refetch()"
     >
       <template #header>
         <div class="flex items-center justify-between">
