@@ -52,8 +52,22 @@
       <!-- 导入结果 -->
       <div v-if="importResult" class="rounded-lg border p-4">
         <h3 class="mb-3 font-semibold text-slate-900">导入结果</h3>
-        <div class="rounded bg-slate-50 p-3 text-sm text-slate-700">
-          {{ importResult }}
+        <div class="space-y-2 text-sm">
+          <div v-if="importResult.successCount !== undefined" class="flex items-center gap-2">
+            <i class="pi pi-check-circle text-emerald-600" />
+            <span class="text-slate-700">成功导入: <strong>{{ importResult.successCount }}</strong> 名学生</span>
+          </div>
+          <div v-if="importResult.failCount !== undefined" class="flex items-center gap-2">
+            <i class="pi pi-times-circle text-red-600" />
+            <span class="text-slate-700">导入失败: <strong>{{ importResult.failCount }}</strong> 条</span>
+          </div>
+          <div v-if="importResult.totalCount !== undefined" class="flex items-center gap-2">
+            <i class="pi pi-info-circle text-blue-600" />
+            <span class="text-slate-700">总计: <strong>{{ importResult.totalCount }}</strong> 条</span>
+          </div>
+          <div v-if="importResult.message" class="mt-2 rounded bg-slate-50 p-2 text-slate-600">
+            {{ importResult.message }}
+          </div>
         </div>
       </div>
     </div>
@@ -72,11 +86,19 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue"
-import type { FileUploadSelectEvent } from "primevue/fileupload"
 import { useToast } from "primevue/usetoast"
+import type { FileUploadSelectEvent } from "primevue/fileupload"
 import { useImportStudentsByExcel } from "../hooks/useMutateClassImport"
 import { getApiTestExcelTemplateUsers } from "@/core/api/generated"
 import client from "@/core/api/config"
+
+// 导入结果数据结构（基于后端 API 返回的 JSON 字符串内容）
+interface ImportResult {
+  successCount?: number
+  failCount?: number
+  totalCount?: number
+  message?: string
+}
 
 interface Emits {
   (e: "success"): void
@@ -96,7 +118,7 @@ const errorMessage = ref("")
 // 导入状态
 const importMutation = useImportStudentsByExcel()
 const isImporting = computed(() => importMutation.isPending.value)
-const importResult = ref<string | null>(null)
+const importResult = ref<ImportResult | null>(null)
 
 // 下载模板状态
 const downloadingTemplate = ref(false)
@@ -161,7 +183,18 @@ async function handleImport() {
 
   try {
     const response = await importMutation.mutateAsync(selectedFile.value)
-    importResult.value = response?.data ?? null
+
+    // 解析后端返回的 JSON 字符串
+    if (response?.data) {
+      try {
+        importResult.value = JSON.parse(response.data) as ImportResult
+      } catch {
+        // 如果解析失败，直接显示字符串
+        importResult.value = { message: response.data }
+      }
+    } else {
+      importResult.value = null
+    }
 
     toast.add({
       severity: "success",
