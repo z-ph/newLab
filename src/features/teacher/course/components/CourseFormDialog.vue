@@ -23,71 +23,68 @@
 
       <div class="flex justify-end gap-2">
         <Button label="取消" outlined @click="handleClose" />
-        <Button
-          :label="isEdit ? '保存' : '创建'"
-          type="submit"
-          :loading="loading"
-        />
+        <Button :label="isEdit ? '保存' : '创建'" type="submit" :loading="isSubmitting" />
       </div>
     </form>
   </Dialog>
 </template>
 
 <script setup lang="ts">
-import { reactive, watch } from 'vue'
+import { reactive, ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
+import { useCreateCourse, useUpdateCourse } from '@/features/teacher/course/hooks'
 import type { CreateCourseRequest } from '@/core/api/generated'
 
 // ==================== 类型定义 ====================
-// 使用 API 类型派生，所有字段都是可选的
-type CourseFormData = Partial<CreateCourseRequest>
-
-interface Props {
-  isEdit?: boolean
-  initialData?: CourseFormData
-  loading?: boolean
+type CourseFormData = Partial<CreateCourseRequest> & {
+  id?: number
+  courseId?: string
 }
 
-interface Emits {
-  (e: 'submit', data: CourseFormData): void
-}
-
-// ==================== Props & Emits ====================
-const props = withDefaults(defineProps<Props>(), {
-  isEdit: false,
-  loading: false,
-})
-
-const emit = defineEmits<Emits>()
-const visible = defineModel<boolean>()
-
-// ==================== Toast ====================
+// ==================== 状态封装在组件内部 ====================
+const visible = ref(false)
+const isEdit = ref(false)
+const isSubmitting = ref(false)
 const toast = useToast()
 
-// ==================== 响应式数据 ====================
-const formData = reactive({
+// 表单数据
+const formData = reactive<CourseFormData>({
   courseName: '',
-}) satisfies CourseFormData
+})
 
-// ==================== 监听初始数据 ====================
-watch(
-  () => props.initialData,
-  (newData) => {
-    if (newData) {
-      formData.courseName = newData.courseName || ''
-    }
-  },
-  { immediate: true },
-)
+// Hooks
+const createMutation = useCreateCourse()
+const updateMutation = useUpdateCourse()
 
-// ==================== 事件处理 ====================
-const handleClose = () => {
+// ==================== 打开对话框 ====================
+interface OpenOptions {
+  id?: number
+  courseId?: string
+  courseName?: string
+}
+
+function open(options: OpenOptions = {}) {
+  isEdit.value = !!options.id
+  formData.id = options.id
+  formData.courseId = options.courseId
+  formData.courseName = options.courseName || ''
+  visible.value = true
+}
+
+// ==================== 关闭对话框 ====================
+function close() {
+  visible.value = false
+}
+
+// ==================== 关闭/重置 ====================
+function handleClose() {
   visible.value = false
   // 重置表单
   formData.courseName = ''
 }
 
-const handleSubmit = () => {
+// ==================== 提交表单 ====================
+async function handleSubmit() {
   if (!formData.courseName?.trim()) {
     toast.add({
       severity: 'warn',
@@ -98,6 +95,56 @@ const handleSubmit = () => {
     return
   }
 
-  emit('submit', { ...formData })
+  isSubmitting.value = true
+
+  try {
+    if (isEdit.value) {
+      // 编辑模式
+      if (!formData.id) {
+        toast.add({
+          severity: 'error',
+          summary: '错误',
+          detail: '缺少课程ID',
+          life: 3000,
+        })
+        return
+      }
+
+      await updateMutation.mutateAsync({
+        path: { id: formData.id },
+        body: {
+          courseName: formData.courseName,
+        },
+      })
+
+      toast.add({
+        severity: 'success',
+        summary: '成功',
+        detail: '课程更新成功',
+        life: 3000,
+      })
+    } else {
+      // 创建模式
+      await createMutation.mutateAsync({
+        body: {
+          courseName: formData.courseName,
+        },
+      })
+
+      toast.add({
+        severity: 'success',
+        summary: '成功',
+        detail: '课程创建成功',
+        life: 3000,
+      })
+    }
+
+    visible.value = false
+  } finally {
+    isSubmitting.value = false
+  }
 }
+
+// ==================== 暴露方法 ====================
+defineExpose({ open, close })
 </script>
