@@ -1,4 +1,4 @@
-import { type MaybeRefOrGetter, toValue, computed } from 'vue'
+import { type Ref, toValue, computed } from 'vue'
 import { getApiStudentGrades, getApiStudentGradesByGradeId } from '@/core/api/generated'
 import client from '@/core/api/config'
 import { useQuery } from '@tanstack/vue-query'
@@ -25,7 +25,7 @@ export function useQueryGrades() {
 /**
  * 查询成绩详情
  */
-export function useQueryGradeDetail(gradeId: MaybeRefOrGetter<number>) {
+export function useQueryGradeDetail(gradeId: Ref<number>) {
   const query = useQuery({
     queryKey: computed(() => ['student-grade-detail', toValue(gradeId)]),
     queryFn: () =>

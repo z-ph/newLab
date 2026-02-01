@@ -1,4 +1,4 @@
-import { type MaybeRefOrGetter, toValue, computed, ref } from 'vue'
+import { type Ref, toValue, computed, ref } from 'vue'
 import { postApiTeacherClassByClassCodeStudents } from '@/core/api/generated'
 import { useQuery } from '@tanstack/vue-query'
 import client from '@/core/api/config'
@@ -11,7 +11,7 @@ import client from '@/core/api/config'
  * @returns 学生列表查询结果
  */
 export function useQueryStudentList(
-  classCode: MaybeRefOrGetter<string>,
+  classCode: Ref<string>,
   initial: { current?: number; size?: number },
 ) {
   const current = ref(initial.current || 1)

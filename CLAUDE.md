@@ -1256,7 +1256,7 @@ config.ts 中创建的 client 包含了关键的 axios 拦截器：
 **useQuery 的 queryKey 必须使用响应式数据（CRITICAL）**
 
 - ✅ **queryKey 必须包含 ref/computed**：这样当参数变化时，查询会自动重新执行
-- ✅ **使用 MaybeRefOrGetter 类型**：接受 ref、computed 或普通值
+- ✅ **使用 Ref 类型**：接受 ref、computed 或普通值
 - ✅ **使用 toValue() 解包**：在 queryFn 中使用 `toValue()` 解包参数
 - ✅ **enabled 使用 computed**：条件判断应该使用 computed
 - ❌ **禁止直接使用普通值**：不要在 queryKey 中直接使用字符串或数字
@@ -1280,12 +1280,12 @@ export function useQueryClassStudents(classCode: string, options?: Partial<Query
 
 **正确示例**：
 ```typescript
-// ✅ 正确：使用 MaybeRefOrGetter 和 toValue
-import { type MaybeRefOrGetter, toValue } from 'vue'
+// ✅ 正确：使用 Ref 和 toValue
+import { type Ref, toValue } from 'vue'
 
 export function useQueryClassStudents(
-  classCode: MaybeRefOrGetter<string>,  // ✅ 接受 ref/computed/普通值
-  options?: { enable?: MaybeRefOrGetter<boolean> }
+  classCode: Ref<string>,  // ✅ 接受 ref/computed/普通值
+  options?: { enable?: Ref<boolean> }
 ) {
   return useQuery({
     queryKey: ['class-students', classCode] as const,  // ✅ queryKey 包含响应式数据
@@ -1313,8 +1313,79 @@ classCode.value = 'CS102'  // ✅ 触发重新查询
 **为什么必须使用响应式数据**：
 1. **自动重新查询**：当 ref/computed 的值变化时，Vue Query 会自动重新执行查询
 2. **缓存机制**：queryKey 是缓存的关键，响应式数据变化会导致新的 cache key
-3. **类型安全**：MaybeRefOrGetter 提供完整的类型支持
+3. **类型安全**：Ref 提供完整的类型支持
 4. **灵活性**：可以接受 ref、computed 或普通值，调用更方便
+
+**调用 Hook 时传递 ref 的规范（CRITICAL）**
+
+**核心原则：直接传递 ref，不要使用 `.value` 解包**
+
+- ✅ **直接传递 ref**：调用 Hook 时直接传递 ref 变量
+- ✅ **Hook 参数使用 Ref**：Hook 参数设计为接受 `Ref<T>` 类型
+- ✅ **Hook 内部使用 toValue()**：在 queryFn 中使用 `toValue()` 解包参数
+- ❌ **禁止使用 `.value`**：不要在调用 Hook 时使用 `.value` 解包
+- ❌ **禁止使用 computed 包裹**：不需要用 computed 包装 ref（如果 Hook 已支持 Ref）
+
+**错误示例**：
+```typescript
+// ❌ 错误：使用 .value 解包，失去响应式
+const internalClassCode = ref('CS101')
+const {
+  current,
+  size,
+  students,
+  total,
+  isLoading,
+  query,
+} = useQueryStudentList(internalClassCode.value, { current: 1, size: 10 })
+// internalClassCode.value 会解包成普通字符串值，后续值变化不会触发重新查询
+```
+
+**正确示例**：
+```typescript
+// ✅ 正确：直接传递 ref，保持响应式
+const internalClassCode = ref('CS101')
+const {
+  current,
+  size,
+  students,
+  total,
+  isLoading,
+  query,
+} = useQueryStudentList(internalClassCode, { current: 1, size: 10 })
+// 当 internalClassCode.value 变化时，查询会自动重新执行
+```
+
+**Hook 设计示例**：
+```typescript
+// ✅ Hook 参数使用 Ref
+import { type Ref, toValue } from 'vue'
+
+export function useQueryStudentList(
+  classCode: Ref<string>,
+  options?: { enable?: Ref<boolean> }
+) {
+  return useQuery({
+    queryKey: computed(() => ['students', toValue(classCode)]),  // ✅ queryKey 使用 computed，类型正确
+    queryFn: () =>
+      postApiTeacherClassByClassCodeStudents({
+        path: { classCode: toValue(classCode) },
+        client,
+      }),
+    select: (res) => res.data?.data,
+    enabled: computed(() => toValue(options?.enable) && !!toValue(classCode)),
+  })
+}
+```
+
+**为什么不能使用 `.value`**：
+1. **失去响应式**：`.value` 会将 ref 解包为普通值，Vue Query 无法追踪变化
+2. **不会触发重新查询**：当 ref 的值变化时，queryKey 不会变化，导致查询不会重新执行
+3. **一次性取值**：`.value` 只取当前时刻的值，后续变化无法感知
+
+**不需要 computed 的情况**：
+- ✅ 如果 Hook 参数已经设计为 `Ref`，直接传 ref 即可
+- ❌ 不需要 `computed(() => internalClassCode.value)` 这样多此一举
 
 **Hook 必须封装页面级状态（CRITICAL）**
 

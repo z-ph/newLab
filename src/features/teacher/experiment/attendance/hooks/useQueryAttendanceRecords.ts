@@ -2,15 +2,15 @@
  * 查询签到记录 Hook
  */
 
-import { type MaybeRefOrGetter, toValue, computed } from 'vue'
+import { type Ref, toValue, computed } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import { getApiTeacherAttendanceRecords } from '@/core/api/generated'
 import client from '@/core/api/config'
 
 interface UseQueryAttendanceRecordsParams {
-  courseId: MaybeRefOrGetter<string>
-  experimentId: MaybeRefOrGetter<string>
-  enable?: MaybeRefOrGetter<boolean>
+  courseId: Ref<string>
+  experimentId: Ref<string>
+  enable?: Ref<boolean>
 }
 
 export function useQueryAttendanceRecords({

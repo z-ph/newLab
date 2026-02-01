@@ -1,11 +1,11 @@
-import { type MaybeRefOrGetter, toValue, computed } from "vue";
+import { type Ref, toValue, computed } from "vue";
 import { getApiTeacherExperimentsCourseByCourseId } from "@/core/api/generated";
 import { useQuery } from "@tanstack/vue-query";
 import client from "@/core/api/config";
 
 export function useQueryExperimentByCourse(
-  courseId: MaybeRefOrGetter<string>,
-  options?: { enable?: MaybeRefOrGetter<boolean> },
+  courseId: Ref<string>,
+  options?: { enable?: Ref<boolean> },
 ) {
   return useQuery({
     queryKey: computed(() => ["experiments", "course", toValue(courseId)]),

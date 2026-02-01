@@ -1,4 +1,4 @@
-import { type MaybeRefOrGetter, toValue, computed } from 'vue'
+import { type Ref, toValue, computed } from 'vue'
 import { getApiStudentProcedureSubmissionsCourseByCourseId } from '@/core/api/generated'
 import client from '@/core/api/config'
 import { useQuery } from '@tanstack/vue-query'
@@ -14,7 +14,7 @@ export interface ExperimentInfo {
 /**
  * 查询课程的实验列表
  */
-export function useQueryCourseExperiments(courseId: MaybeRefOrGetter<string>) {
+export function useQueryCourseExperiments(courseId: Ref<string>) {
   const query = useQuery({
     queryKey: computed(() => ['student-course-experiments', toValue(courseId)]),
     queryFn: () =>

@@ -12,7 +12,7 @@ import {
   getApiTeacherStudentsByStudentUsernameProceduresTimedQuizByProcedureIdCompleted,
   getApiTeacherStudentsByStudentUsernameProceduresTimedQuizByProcedureIdUncompleted,
 } from '@/core/api/generated'
-import { type MaybeRefOrGetter, toValue, computed } from 'vue'
+import { type Ref, toValue, computed } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import client from '@/core/api/config'
 
@@ -23,13 +23,13 @@ export type ProcedureStatus = 'completed' | 'uncompleted'
  * 查询学生步骤详情（支持所有步骤类型）
  */
 export function useQueryStudentProcedureDetail(
-  studentUsername: MaybeRefOrGetter<string>,
-  procedureId: MaybeRefOrGetter<number>,
-  courseId: MaybeRefOrGetter<string>,
-  experimentId: MaybeRefOrGetter<number>,
+  studentUsername: Ref<string>,
+  procedureId: Ref<number>,
+  courseId: Ref<string>,
+  experimentId: Ref<number>,
   procedureType: ProcedureType,
   status: ProcedureStatus,
-  options?: { enable?: MaybeRefOrGetter<boolean> }
+  options?: { enable?: Ref<boolean> }
 ) {
   return useQuery({
     queryKey: computed(() => ['student-procedure-detail', toValue(studentUsername), toValue(procedureId), procedureType, status]),

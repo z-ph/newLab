@@ -2,7 +2,7 @@ import {
   getApiTeacherProcedureSubmissionsCourseByCourseId,
   getApiTeacherProcedureSubmissionsBySubmissionId,
 } from "@/core/api/generated";
-import { type MaybeRefOrGetter, toValue, computed } from "vue";
+import { type Ref, toValue, computed } from "vue";
 import { useQuery } from "@tanstack/vue-query";
 import client from "@/core/api/config";
 
@@ -10,8 +10,8 @@ import client from "@/core/api/config";
  * 查询课程的步骤提交列表
  */
 export function useQuerySubmissionsByCourse(
-  courseId: MaybeRefOrGetter<string>,
-  options?: { enable?: MaybeRefOrGetter<boolean> },
+  courseId: Ref<string>,
+  options?: { enable?: Ref<boolean> },
 ) {
   return useQuery({
     queryKey: computed(() => ["submissions", "course", toValue(courseId)]),
@@ -29,8 +29,8 @@ export function useQuerySubmissionsByCourse(
  * 查询单个提交详情
  */
 export function useQuerySubmissionById(
-  submissionId: MaybeRefOrGetter<number>,
-  options?: { enable?: MaybeRefOrGetter<boolean> },
+  submissionId: Ref<number>,
+  options?: { enable?: Ref<boolean> },
 ) {
   return useQuery({
     queryKey: computed(() => ["submission", toValue(submissionId)]),

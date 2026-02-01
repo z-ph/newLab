@@ -1,6 +1,6 @@
 import { postApiTeacherCoursesQuery, getApiTeacherCoursesById } from "@/core/api/generated";
 import type { GetApiParamsTypeBase } from "@/core/utils/typeUtils";
-import { type MaybeRefOrGetter, toValue, computed, ref, type ComputedRef } from "vue";
+import { type Ref, toValue, computed, ref, type ComputedRef } from "vue";
 import { useQuery } from "@tanstack/vue-query";
 import client from "@/core/api/config";
 
@@ -66,8 +66,8 @@ export function useQueryCoursePage(initial: {
  * 根据课程ID查询课程详情
  */
 export function useQueryCourseById(
-  courseId: MaybeRefOrGetter<number>,
-  options?: { enable?: MaybeRefOrGetter<boolean> },
+  courseId: Ref<number>,
+  options?: { enable?: Ref<boolean> },
 ) {
   return useQuery({
     queryKey: computed(() => ["courses", toValue(courseId)]),

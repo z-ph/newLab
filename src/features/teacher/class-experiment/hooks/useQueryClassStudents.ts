@@ -2,7 +2,7 @@
  * 班级学生查询 Hooks
  */
 
-import { type MaybeRefOrGetter, toValue, computed } from "vue";
+import { type Ref, toValue, computed } from "vue";
 import { postApiTeacherClassByClassCodeStudents } from "@/core/api/generated";
 import { useQuery } from "@tanstack/vue-query";
 import client from "@/core/api/config";
@@ -11,8 +11,8 @@ import client from "@/core/api/config";
  * 查询班级学生列表
  */
 export function useQueryClassStudents(
-  classCode: MaybeRefOrGetter<string>,
-  options?: { enable?: MaybeRefOrGetter<boolean> },
+  classCode: Ref<string>,
+  options?: { enable?: Ref<boolean> },
 ) {
   return useQuery({
     queryKey: computed(() => ["class-students", toValue(classCode)]),
