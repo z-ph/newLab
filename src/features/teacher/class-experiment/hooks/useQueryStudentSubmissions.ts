@@ -11,14 +11,14 @@ import client from '@/core/api/config'
  * 查询课程下所有学生的步骤提交
  */
 export function useQueryStudentSubmissions(
-  courseId: Ref<string>,
+  courseId: Ref<string|undefined>,
   options?: { enable?: Ref<boolean> }
 ) {
   return useQuery({
     queryKey: computed(() => ['student-submissions', toValue(courseId)]),
     queryFn: () =>
       getApiTeacherProcedureSubmissionsCourseByCourseId({
-        path: { courseId: toValue(courseId) },
+        path: { courseId: toValue(courseId)! },
         client,
       }),
     select: (res) => res.data?.data || [],
