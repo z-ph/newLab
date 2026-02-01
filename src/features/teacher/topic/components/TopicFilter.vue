@@ -71,27 +71,24 @@ import { useQueryTags } from "@/features/teacher/topic/hooks"
 // ✅ 从 API 类型派生
 type TopicFilters = Pick<TopicQueryRequest, 'type' | 'keyword' | 'difficultyTagIds' | 'subjectTagIds'>
 
-interface Props {
-  modelValue: TopicFilters
-}
-
-const props = defineProps<Props>()
-
 interface Emits {
-  (e: 'update:modelValue', value: TopicFilters): void
   (e: 'search'): void
 }
 
 const emit = defineEmits<Emits>()
+const filters = defineModel<TopicFilters>({
+  required: true,
+  default: () => ({}),
+})
 
 // ✅ 查询标签列表
 const { data: tags } = useQueryTags()
 
 // 本地状态
-const localType = ref<number | undefined>(props.modelValue.type)
-const localKeyword = ref<string | undefined>(props.modelValue.keyword)
-const localDifficultyTagIds = ref<number[] | undefined>(props.modelValue.difficultyTagIds)
-const localSubjectTagIds = ref<number[] | undefined>(props.modelValue.subjectTagIds)
+const localType = ref<number | undefined>(filters.value.type)
+const localKeyword = ref<string | undefined>(filters.value.keyword)
+const localDifficultyTagIds = ref<number[] | undefined>(filters.value.difficultyTagIds)
+const localSubjectTagIds = ref<number[] | undefined>(filters.value.subjectTagIds)
 
 // 标签选项（按类型分组）
 const difficultyTagOptions = computed(() => {
@@ -106,12 +103,12 @@ const subjectTagOptions = computed(() => {
 
 // 查询按钮
 const handleSearch = () => {
-  emit("update:modelValue", {
+  filters.value = {
     type: localType.value,
     keyword: localKeyword.value || undefined,
     difficultyTagIds: localDifficultyTagIds.value?.length ? localDifficultyTagIds.value : undefined,
     subjectTagIds: localSubjectTagIds.value?.length ? localSubjectTagIds.value : undefined,
-  })
+  }
   emit("search")
 }
 
@@ -121,12 +118,12 @@ const handleReset = () => {
   localKeyword.value = undefined
   localDifficultyTagIds.value = undefined
   localSubjectTagIds.value = undefined
-  emit("update:modelValue", {})
+  filters.value = {}
   emit("search")
 }
 
 // 同步外部变化
-watch(() => props.modelValue, (newVal) => {
+watch(filters, (newVal) => {
   localType.value = newVal.type
   localKeyword.value = newVal.keyword
   localDifficultyTagIds.value = newVal.difficultyTagIds

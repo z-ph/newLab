@@ -590,12 +590,16 @@ const activeTab = ref('tab1')
 
 ### Vue 组件规范（CRITICAL）
 
-**使用 `defineModel()` 实现双向绑定**
+**使用 `defineModel()` 实现双向绑定（CRITICAL）**
+
+**核心原则**：组件的双向绑定状态必须使用 `defineModel()`，禁止使用 `props + emit` 模式
 
 - ✅ **使用 `defineModel()`**：无需手动定义 props 和 emits
 - ❌ **禁止重复定义**：使用 `defineModel()` 时不要定义相应的 prop 和 emit
+- ❌ **禁止使用 computed + emit**：不要用 computed 包装 props 来实现双向绑定
 
-**示例**：
+**标准用法**：
+
 ```typescript
 // ✅ 正确：使用 defineModel()
 const visible = defineModel<boolean>()
@@ -604,14 +608,141 @@ visible.value = false
 
 // ❌ 错误：不要这样写
 interface Props {
-  visible: boolean
+  modelValue: boolean
 }
 interface Emits {
-  (e: 'update:visible', value: boolean): void
+  (e: 'update:modelValue', value: boolean): void
 }
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
-emit('update:visible', false)
+const visible = computed({
+  get: () => props.modelValue,
+  set: (value) => emit('update:modelValue', value),
+})
+visible.value = false  // ❌ 通过 computed 修改
+```
+
+**多个双向绑定值**：
+
+当组件需要多个双向绑定值时，使用命名参数：
+
+```typescript
+// ✅ 正确：使用命名的 defineModel
+const correctAnswer = defineModel<string>('modelValue', { required: true })
+const selectedChoices = defineModel<string[]>('selectedChoices', { default: () => [] })
+
+// ❌ 错误：不要这样写
+interface Props {
+  modelValue: string
+  selectedChoices: string[]
+}
+interface Emits {
+  (e: 'update:modelValue', value: string): void
+  (e: 'update:selectedChoices', value: string[]): void
+}
+const props = defineProps<Props>()
+const emit = defineEmits<Emits>()
+```
+
+**对象类型的双向绑定**：
+
+```typescript
+// ✅ 正确：对象类型使用 defineModel
+type VideoFilters = Pick<VideoQueryRequest, 'originalFileName'>
+const filters = defineModel<VideoFilters>({
+  required: true,
+  default: () => ({ originalFileName: undefined }),
+})
+
+// 使用
+filters.value.originalFileName = 'new value'
+
+// ❌ 错误：不要用 props + computed
+interface Props {
+  modelValue: VideoFilters
+}
+interface Emits {
+  (e: 'update:modelValue', value: VideoFilters): void
+}
+const props = defineProps<Props>()
+const emit = defineEmits<Emits>()
+const filters = computed({
+  get: () => props.modelValue,
+  set: (val) => emit('update:modelValue', val),
+})
+```
+
+**适用场景**：
+
+- ✅ **表单输入组件**：Input、Select、Checkbox 等
+- ✅ **筛选器组件**：Filter、Search 等
+- ✅ **可配置的 UI 组件**：需要外部控制状态的组件
+- ✅ **组件库封装**：对第三方组件进行二次封装
+
+**不适用场景**：
+
+- ❌ **对话框状态管理**：对话框的显示/隐藏应该封装在组件内部，使用 `defineExpose` 暴露方法
+- ❌ **需要复杂联动**：双向绑定值的修改需要触发多个副作用
+- ❌ **状态需要验证**：修改前需要复杂验证的场景
+
+**旧代码迁移检查清单**：
+
+当你发现组件包含以下代码时，应该迁移到 `defineModel()`：
+
+1. ❌ 包含 `interface Props` 和 `interface Emits`
+2. ❌ Props 中有 `modelValue` 或其他 `xxxValue` 字段
+3. ❌ Emits 中有 `update:modelValue` 或 `update:xxxValue`
+4. ❌ 使用 `computed` 包装 props 来实现双向绑定
+
+**迁移步骤**：
+
+```typescript
+// ❌ 旧代码
+interface Props {
+  modelValue: boolean
+  classCode: string
+}
+interface Emits {
+  (e: 'update:modelValue', value: boolean): void
+  (e: 'refresh'): void
+}
+const props = defineProps<Props>()
+const emit = defineEmits<Emits>()
+const visible = computed({
+  get: () => props.modelValue,
+  set: (value) => emit('update:modelValue', value),
+})
+
+// ✅ 新代码
+interface Props {
+  classCode: string
+}
+interface Emits {
+  (e: 'refresh'): void
+}
+const props = defineProps<Props>()
+const emit = defineEmits<Emits>()
+const visible = defineModel<boolean>()
+```
+
+**项目执行情况**：
+
+以下组件已迁移到 `defineModel()` 规范：
+
+1. ✅ `src/features/teacher/class/components/StudentListDialog.vue`
+2. ✅ `src/features/teacher/course/components/CourseFormDialog.vue`
+3. ✅ `src/features/teacher/video/components/VideoFilter.vue`
+4. ✅ `src/features/teacher/topic/components/TopicFilter.vue`
+5. ✅ `src/features/teacher/topic/components/TopicAnswerInput.vue`
+
+**检查命令**：
+
+```bash
+# 检查项目中所有使用 update:modelValue 的组件
+grep -r "update:modelValue" --include="*.vue" src/
+
+# 检查项目中所有使用 Props + Emits 模式的组件
+grep -r "interface Props" --include="*.vue" src/ | grep -v "defineModel"
 ```
 
 **对话框状态管理规范（CRITICAL）**

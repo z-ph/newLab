@@ -34,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, watch } from 'vue'
+import { reactive, watch } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import type { CreateCourseRequest } from '@/core/api/generated'
 
@@ -43,14 +43,12 @@ import type { CreateCourseRequest } from '@/core/api/generated'
 type CourseFormData = Partial<CreateCourseRequest>
 
 interface Props {
-  modelValue: boolean
   isEdit?: boolean
   initialData?: CourseFormData
   loading?: boolean
 }
 
 interface Emits {
-  (e: 'update:modelValue', value: boolean): void
   (e: 'submit', data: CourseFormData): void
 }
 
@@ -61,16 +59,12 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<Emits>()
+const visible = defineModel<boolean>()
 
 // ==================== Toast ====================
 const toast = useToast()
 
 // ==================== 响应式数据 ====================
-const visible = computed({
-  get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value),
-})
-
 const formData = reactive({
   courseName: '',
 }) satisfies CourseFormData
@@ -88,7 +82,7 @@ watch(
 
 // ==================== 事件处理 ====================
 const handleClose = () => {
-  emit('update:modelValue', false)
+  visible.value = false
   // 重置表单
   formData.courseName = ''
 }

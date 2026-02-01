@@ -74,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
 import { postApiTeacherClassByClassCodeStudents } from '@/core/api/generated'
@@ -83,28 +83,22 @@ import type { StudentClassRelation } from '@/core/api/generated'
 
 // ==================== Props & Emits ====================
 interface Props {
-  modelValue: boolean
   classCode: string
 }
 
 interface Emits {
-  (e: 'update:modelValue', value: boolean): void
   (e: 'refresh'): void
 }
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
+const visible = defineModel<boolean>()
 
 // ==================== Toast & Confirm ====================
 const toast = useToast()
 const confirm = useConfirm()
 
 // ==================== 响应式数据 ====================
-const visible = computed({
-  get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value),
-})
-
 const students = ref<StudentClassRelation[]>([])
 const loading = ref(false)
 const total = ref(0)
@@ -139,7 +133,7 @@ const fetchStudents = async () => {
 }
 
 watch(
-  () => props.modelValue,
+  visible,
   (newVal) => {
     if (newVal) {
       fetchStudents()

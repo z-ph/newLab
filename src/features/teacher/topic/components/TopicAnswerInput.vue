@@ -61,7 +61,6 @@ import { TOPIC_TYPE, CHOICE_LABEL_START_CHAR_CODE } from '@/features/teacher/top
 interface Props {
   type: number
   choiceList: string[]
-  modelValue: string
   selectedChoices?: string[]
 }
 
@@ -69,28 +68,19 @@ const props = withDefaults(defineProps<Props>(), {
   selectedChoices: () => [],
 })
 
-interface Emits {
-  (e: 'update:modelValue', value: string): void
-  (e: 'update:selectedChoices', value: string[]): void
-}
-
-const emit = defineEmits<Emits>()
-
-const correctAnswer = computed({
-  get: () => props.modelValue,
-  set: (val) => emit('update:modelValue', val),
-})
+const correctAnswer = defineModel<string>('modelValue', { required: true })
+const selectedChoices = defineModel<string[]>('selectedChoices', { default: () => [] })
 
 // 单选选中的值
 const singleChoiceValue = computed({
-  get: () => props.modelValue,
-  set: (val) => emit('update:modelValue', val),
+  get: () => correctAnswer.value,
+  set: (val) => { correctAnswer.value = val },
 })
 
 // 多选选中的值
 const multiChoiceValue = computed({
-  get: () => props.selectedChoices,
-  set: (val) => emit('update:selectedChoices', val),
+  get: () => selectedChoices.value,
+  set: (val) => { selectedChoices.value = val },
 })
 
 // 有效选项列表（非空）
