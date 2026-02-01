@@ -3,7 +3,6 @@
  */
 
 export { default as BindClassExperimentDialog } from './BindClassExperimentDialog.vue'
-export { default as ClassExperimentManagement } from './ClassExperimentManagement.vue'
 
 // 从其他路径导入的组件
 export { default as AttendanceManagementDialog } from './AttendanceManagementDialog.vue'

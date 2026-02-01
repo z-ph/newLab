@@ -9,9 +9,6 @@ export { default as ClassExperimentStatisticsDialog } from './components/ClassEx
 export { default as ExperimentStatistics } from './components/ExperimentStatistics.vue'
 export { default as StudentGradingDialog } from './components/StudentGradingDialog.vue'
 export { default as BindClassExperimentDialog } from './components/BindClassExperimentDialog.vue'
-export { default as ClassExperimentManagement } from './components/ClassExperimentManagement.vue'
 
 // Hooks
 export { useQueryClassExperiments } from './hooks'
-
-
