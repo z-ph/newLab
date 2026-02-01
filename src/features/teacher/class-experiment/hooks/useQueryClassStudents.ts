@@ -2,23 +2,26 @@
  * 班级学生查询 Hooks
  */
 
-import { postApiTeacherClassByClassCodeStudents } from '@/core/api/generated'
-import type { QueryOptions } from '@/features/shared/types/UseQueryOptions'
-import { useQuery } from '@tanstack/vue-query'
-import client from '@/core/api/config'
+import { type MaybeRefOrGetter, toValue, computed } from "vue";
+import { postApiTeacherClassByClassCodeStudents } from "@/core/api/generated";
+import { useQuery } from "@tanstack/vue-query";
+import client from "@/core/api/config";
 
 /**
  * 查询班级学生列表
  */
-export function useQueryClassStudents(classCode: string, options?: Partial<QueryOptions>) {
+export function useQueryClassStudents(
+  classCode: MaybeRefOrGetter<string>,
+  options?: { enable?: MaybeRefOrGetter<boolean> },
+) {
   return useQuery({
-    queryKey: options?.queryKey || ['class-students', classCode],
+    queryKey: computed(() => ["class-students", toValue(classCode)]),
     queryFn: () =>
       postApiTeacherClassByClassCodeStudents({
-        path: { classCode },
+        path: { classCode: toValue(classCode) },
         client,
       }),
     select: (res) => res.data?.data,
-    enabled: options?.enable && !!classCode,
-  })
+    enabled: () => toValue(options?.enable) && !!toValue(classCode),
+  });
 }

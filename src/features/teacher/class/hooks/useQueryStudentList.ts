@@ -1,6 +1,6 @@
+import { type MaybeRefOrGetter, toValue, computed, ref } from 'vue'
 import { postApiTeacherClassByClassCodeStudents } from '@/core/api/generated'
 import { useQuery } from '@tanstack/vue-query'
-import { computed, ref } from 'vue'
 import client from '@/core/api/config'
 
 /**
@@ -11,7 +11,7 @@ import client from '@/core/api/config'
  * @returns 学生列表查询结果
  */
 export function useQueryStudentList(
-  classCode: string,
+  classCode: MaybeRefOrGetter<string>,
   initial: { current?: number; size?: number },
 ) {
   const current = ref(initial.current || 1)
@@ -21,14 +21,14 @@ export function useQueryStudentList(
   const query = useQuery({
     queryKey: computed(() => [
       'student-list',
-      classCode,
+      toValue(classCode),
       current.value,
       size.value,
       searchKeyword.value,
     ]),
     queryFn: () =>
       postApiTeacherClassByClassCodeStudents({
-        path: { classCode },
+        path: { classCode: toValue(classCode) },
         body: {
           current: current.value,
           size: size.value,
@@ -40,6 +40,7 @@ export function useQueryStudentList(
       records: response.data?.data?.records || [],
       total: response.data?.data?.total || 0,
     }),
+    enabled:computed(()=>Boolean(classCode))
   })
 
   return {

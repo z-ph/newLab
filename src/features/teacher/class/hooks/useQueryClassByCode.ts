@@ -1,3 +1,4 @@
+import { type MaybeRefOrGetter, toValue } from "vue";
 import { getApiTeacherClassCodeByClassCode } from "@/core/api/generated";
 import type { QueryOptions } from "@/features/shared/types/UseQueryOptions";
 import { useQuery } from "@tanstack/vue-query";
@@ -5,7 +6,7 @@ import { computed } from "vue";
 import client from "@/core/api/config";
 
 export default function useQueryClassByCodeBase(
-  classCode: string,
+  classCode: MaybeRefOrGetter<string>,
   options: QueryOptions,
 ) {
   return useQuery({
@@ -13,7 +14,7 @@ export default function useQueryClassByCodeBase(
     queryFn: () =>
       getApiTeacherClassCodeByClassCode({
         path: {
-          classCode,
+          classCode: toValue(classCode),
         },
         client,
       }),
@@ -21,9 +22,9 @@ export default function useQueryClassByCodeBase(
   });
 }
 
-export function useQueryClassByCode(classCode: string) {
+export function useQueryClassByCode(classCode: MaybeRefOrGetter<string>) {
   const query = useQueryClassByCodeBase(classCode, {
-    queryKey: computed(() => ["class-by-code", classCode]),
+    queryKey: computed(() => ["class-by-code", toValue(classCode)]),
   });
   return { query };
 }

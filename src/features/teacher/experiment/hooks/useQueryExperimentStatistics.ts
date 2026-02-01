@@ -1,29 +1,27 @@
+import { type MaybeRefOrGetter, toValue, computed } from "vue";
 import { getApiTeacherStudentsClassesByClassCodeExperimentsByExperimentIdStatistics } from "@/core/api/generated";
-import type { QueryOptions } from "@/features/shared/types/UseQueryOptions";
-import type { Ref } from "vue";
 import { useQuery } from "@tanstack/vue-query";
-import { unref } from "vue";
 import client from "@/core/api/config";
 
 /**
  * 查询班级实验统计信息
  */
 export function useQueryExperimentStatistics(
-  classCode: string | Ref<string>,
-  experimentId: number | Ref<number>,
-  options?: Partial<QueryOptions>,
+  classCode: MaybeRefOrGetter<string>,
+  experimentId: MaybeRefOrGetter<number>,
+  options?: { enable?: MaybeRefOrGetter<boolean> },
 ) {
   return useQuery({
-    queryKey: options?.queryKey || ["experiment-statistics", classCode, experimentId],
+    queryKey: computed(() => ["experiment-statistics", toValue(classCode), toValue(experimentId)]),
     queryFn: () =>
       getApiTeacherStudentsClassesByClassCodeExperimentsByExperimentIdStatistics({
         path: {
-          classCode: unref(classCode),
-          experimentId: unref(experimentId),
+          classCode: toValue(classCode),
+          experimentId: toValue(experimentId),
         },
         client,
       }),
     select: (res) => res.data?.data,
-    enabled: options?.enable,
+    enabled: computed(() => toValue(options?.enable)),
   });
 }

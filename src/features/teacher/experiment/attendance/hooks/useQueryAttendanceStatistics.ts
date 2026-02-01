@@ -2,15 +2,15 @@
  * 查询签到统计 Hook
  */
 
+import { type MaybeRefOrGetter, toValue, computed } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import { getApiTeacherAttendanceCount } from '@/core/api/generated'
 import client from '@/core/api/config'
-import type { Ref } from 'vue'
 
 interface UseQueryAttendanceStatisticsParams {
-  courseId: Ref<string>
-  experimentId: Ref<string>
-  enable?: Ref<boolean>
+  courseId: MaybeRefOrGetter<string>
+  experimentId: MaybeRefOrGetter<string>
+  enable?: MaybeRefOrGetter<boolean>
 }
 
 export function useQueryAttendanceStatistics({
@@ -19,18 +19,18 @@ export function useQueryAttendanceStatistics({
   enable,
 }: UseQueryAttendanceStatisticsParams) {
   return useQuery({
-    queryKey: ['teacher', 'attendance', 'statistics', courseId, experimentId] as const,
+    queryKey: computed(() => ['teacher', 'attendance', 'statistics', toValue(courseId), toValue(experimentId)]),
     queryFn: async () => {
       return getApiTeacherAttendanceCount({
         query: {
-          courseId: courseId.value,
-          experimentId: experimentId.value,
+          courseId: toValue(courseId),
+          experimentId: toValue(experimentId),
         },
         client,
       })
     },
     select: (response) => response.data?.data,
-    enabled: enable,
+    enabled: computed(() => toValue(enable)),
   })
 }
 

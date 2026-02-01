@@ -2,28 +2,26 @@ import {
   getApiTeacherProcedureSubmissionsCourseByCourseId,
   getApiTeacherProcedureSubmissionsBySubmissionId,
 } from "@/core/api/generated";
-import type { QueryOptions } from "@/features/shared/types/UseQueryOptions";
-import type { Ref } from "vue";
+import { type MaybeRefOrGetter, toValue, computed } from "vue";
 import { useQuery } from "@tanstack/vue-query";
-import { unref } from "vue";
 import client from "@/core/api/config";
 
 /**
  * 查询课程的步骤提交列表
  */
 export function useQuerySubmissionsByCourse(
-  courseId: string | Ref<string>,
-  options?: Partial<QueryOptions>,
+  courseId: MaybeRefOrGetter<string>,
+  options?: { enable?: MaybeRefOrGetter<boolean> },
 ) {
   return useQuery({
-    queryKey: options?.queryKey || ["submissions", "course", courseId],
+    queryKey: computed(() => ["submissions", "course", toValue(courseId)]),
     queryFn: () =>
       getApiTeacherProcedureSubmissionsCourseByCourseId({
-        path: { courseId: unref(courseId) },
+        path: { courseId: toValue(courseId) },
         client,
       }),
     select: (res) => res.data?.data,
-    enabled: options?.enable,
+    enabled: computed(() => toValue(options?.enable)),
   });
 }
 
@@ -31,17 +29,17 @@ export function useQuerySubmissionsByCourse(
  * 查询单个提交详情
  */
 export function useQuerySubmissionById(
-  submissionId: number | Ref<number>,
-  options?: Partial<QueryOptions>,
+  submissionId: MaybeRefOrGetter<number>,
+  options?: { enable?: MaybeRefOrGetter<boolean> },
 ) {
   return useQuery({
-    queryKey: options?.queryKey || ["submission", submissionId],
+    queryKey: computed(() => ["submission", toValue(submissionId)]),
     queryFn: () =>
       getApiTeacherProcedureSubmissionsBySubmissionId({
-        path: { submissionId: unref(submissionId) },
+        path: { submissionId: toValue(submissionId) },
         client,
       }),
     select: (res) => res.data?.data,
-    enabled: options?.enable,
+    enabled: computed(() => toValue(options?.enable)),
   });
 }

@@ -1,26 +1,24 @@
+import { type MaybeRefOrGetter, toValue, computed } from "vue";
 import { getApiTeacherProceduresByProcedureId, getApiTeacherProceduresExperimentByExperimentId } from "@/core/api/generated";
-import type { QueryOptions } from "@/features/shared/types/UseQueryOptions";
-import type { Ref } from "vue";
 import { useQuery } from "@tanstack/vue-query";
-import { unref } from "vue";
 import client from "@/core/api/config";
 
 /**
  * 查询指定实验的所有步骤
  */
 export function useQueryProceduresByExperiment(
-  experimentId: number | Ref<number>,
-  options?: Partial<QueryOptions>,
+  experimentId: MaybeRefOrGetter<number>,
+  options?: { enable?: MaybeRefOrGetter<boolean> },
 ) {
   return useQuery({
-    queryKey: options?.queryKey || ["procedures", "experiment", experimentId],
+    queryKey: computed(() => ["procedures", "experiment", toValue(experimentId)]),
     queryFn: () =>
       getApiTeacherProceduresExperimentByExperimentId({
-        path: { experimentId: unref(experimentId) },
+        path: { experimentId: toValue(experimentId) },
         client,
       }),
     select: (res) => res.data?.data,
-    enabled: options?.enable,
+    enabled: computed(() => toValue(options?.enable)),
   });
 }
 
@@ -28,17 +26,17 @@ export function useQueryProceduresByExperiment(
  * 查询单个步骤详情
  */
 export function useQueryProcedureById(
-  procedureId: number | Ref<number>,
-  options?: Partial<QueryOptions>,
+  procedureId: MaybeRefOrGetter<number>,
+  options?: { enable?: MaybeRefOrGetter<boolean> },
 ) {
   return useQuery({
-    queryKey: options?.queryKey || ["procedure", procedureId],
+    queryKey: computed(() => ["procedure", toValue(procedureId)]),
     queryFn: () =>
       getApiTeacherProceduresByProcedureId({
-        path: { procedureId: unref(procedureId) },
+        path: { procedureId: toValue(procedureId) },
         client,
       }),
     select: (res) => res.data?.data,
-    enabled: options?.enable,
+    enabled: computed(() => toValue(options?.enable)),
   });
 }

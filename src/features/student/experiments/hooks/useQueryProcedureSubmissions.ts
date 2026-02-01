@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import {
   getApiStudentProcedureSubmissions,
   getApiStudentProcedureSubmissionsUncompleted,
@@ -45,7 +45,7 @@ export function useQueryUncompletedProcedures(params?: {
   }
 
   return useQuery({
-    queryKey: ['student-uncompleted-procedures', params],
+    queryKey: computed(() => ['student-uncompleted-procedures', params.courseId, params.experimentId, params.procedureId]),
     queryFn: () =>
       getApiStudentProcedureSubmissionsUncompleted({
         query: {

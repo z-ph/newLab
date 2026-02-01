@@ -1,7 +1,7 @@
 import { postApiTeacherTopicsQuery, getApiTeacherTopicsByTopicId, getApiTeacherTopicsStatistics } from "@/core/api/generated"
 import client from "@/core/api/config"
 import { useQuery } from "@tanstack/vue-query"
-import { computed, ref, type Ref } from "vue"
+import { type MaybeRefOrGetter, toValue, computed, ref } from "vue"
 
 /**
  * 分页查询题目列表
@@ -80,16 +80,16 @@ export function useQueryTopicPage(initial: {
 /**
  * 根据 ID 查询单个题目
  */
-export function useQueryTopicById(topicId: Ref<number>) {
+export function useQueryTopicById(topicId: MaybeRefOrGetter<number>) {
   return useQuery({
-    queryKey: computed(() => ["topic", topicId.value]),
+    queryKey: computed(() => ["topic", toValue(topicId)]),
     queryFn: () =>
       getApiTeacherTopicsByTopicId({
-        path: { topicId: topicId.value },
+        path: { topicId: toValue(topicId) },
         client,
       }),
     select: (response) => response.data?.data,
-    enabled: computed(() => !!topicId.value),
+    enabled: computed(() => !!toValue(topicId)),
   })
 }
 

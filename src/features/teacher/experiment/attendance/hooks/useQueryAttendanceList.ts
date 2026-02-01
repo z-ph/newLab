@@ -2,15 +2,15 @@
  * 查询签到列表 Hook
  */
 
+import { type MaybeRefOrGetter, toValue, computed } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import { getApiTeacherAttendanceList } from '@/core/api/generated'
 import client from '@/core/api/config'
-import type { Ref } from 'vue'
 
 interface UseQueryAttendanceListParams {
-  classCode: Ref<string>
-  experimentId: Ref<string>
-  enable?: Ref<boolean>
+  classCode: MaybeRefOrGetter<string>
+  experimentId: MaybeRefOrGetter<string>
+  enable?: MaybeRefOrGetter<boolean>
 }
 
 export function useQueryAttendanceList({
@@ -19,18 +19,18 @@ export function useQueryAttendanceList({
   enable,
 }: UseQueryAttendanceListParams) {
   return useQuery({
-    queryKey: ['teacher', 'attendance', 'list', classCode, experimentId] as const,
+    queryKey: computed(() => ['teacher', 'attendance', 'list', toValue(classCode), toValue(experimentId)]),
     queryFn: async () => {
       return getApiTeacherAttendanceList({
         query: {
-          classId: Number(classCode.value), // 将 classCode 转换为 number
-          experimentId: experimentId.value,
+          classId: Number(toValue(classCode)), // 将 classCode 转换为 number
+          experimentId: toValue(experimentId),
         },
         client,
       })
     },
     select: (response) => response.data?.data,
-    enabled: enable ?? true,
+    enabled: computed(() => toValue(enable) ?? true),
   })
 }
 

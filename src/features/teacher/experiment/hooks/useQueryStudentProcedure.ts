@@ -1,33 +1,31 @@
+import { type MaybeRefOrGetter, toValue, computed } from "vue";
 import { getApiTeacherStudentsByStudentUsernameExperimentsByExperimentIdProcedures } from "@/core/api/generated";
-import type { QueryOptions } from "@/features/shared/types/UseQueryOptions";
-import type { Ref } from "vue";
 import { useQuery } from "@tanstack/vue-query";
-import { unref } from "vue";
 import client from "@/core/api/config";
 
 /**
  * 查询学生的实验步骤完成情况
  */
 export function useQueryStudentProcedures(
-  studentUsername: string | Ref<string>,
-  experimentId: number | Ref<number>,
-  classCode: string | Ref<string>,
-  options?: Partial<QueryOptions>,
+  studentUsername: MaybeRefOrGetter<string>,
+  experimentId: MaybeRefOrGetter<number>,
+  classCode: MaybeRefOrGetter<string>,
+  options?: { enable?: MaybeRefOrGetter<boolean> },
 ) {
   return useQuery({
-    queryKey: options?.queryKey || ["student-procedures", studentUsername, experimentId, classCode],
+    queryKey: computed(() => ["student-procedures", toValue(studentUsername), toValue(experimentId), toValue(classCode)]),
     queryFn: () =>
       getApiTeacherStudentsByStudentUsernameExperimentsByExperimentIdProcedures({
         path: {
-          studentUsername: unref(studentUsername),
-          experimentId: unref(experimentId),
+          studentUsername: toValue(studentUsername),
+          experimentId: toValue(experimentId),
         },
         query: {
-          classCode: unref(classCode),
+          classCode: toValue(classCode),
         },
         client,
       }),
     select: (res) => res.data?.data,
-    enabled: options?.enable,
+    enabled: computed(() => toValue(options?.enable)),
   });
 }

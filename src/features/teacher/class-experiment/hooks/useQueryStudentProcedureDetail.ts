@@ -12,7 +12,7 @@ import {
   getApiTeacherStudentsByStudentUsernameProceduresTimedQuizByProcedureIdCompleted,
   getApiTeacherStudentsByStudentUsernameProceduresTimedQuizByProcedureIdUncompleted,
 } from '@/core/api/generated'
-import type { QueryOptions } from '@/features/shared/types/UseQueryOptions'
+import { type MaybeRefOrGetter, toValue, computed } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import client from '@/core/api/config'
 
@@ -23,16 +23,16 @@ export type ProcedureStatus = 'completed' | 'uncompleted'
  * 查询学生步骤详情（支持所有步骤类型）
  */
 export function useQueryStudentProcedureDetail(
-  studentUsername: string,
-  procedureId: number,
-  courseId: string,
-  experimentId: number,
+  studentUsername: MaybeRefOrGetter<string>,
+  procedureId: MaybeRefOrGetter<number>,
+  courseId: MaybeRefOrGetter<string>,
+  experimentId: MaybeRefOrGetter<number>,
   procedureType: ProcedureType,
   status: ProcedureStatus,
-  options?: Partial<QueryOptions>
+  options?: { enable?: MaybeRefOrGetter<boolean> }
 ) {
   return useQuery({
-    queryKey: options?.queryKey || ['student-procedure-detail', studentUsername, procedureId, procedureType, status],
+    queryKey: computed(() => ['student-procedure-detail', toValue(studentUsername), toValue(procedureId), procedureType, status]),
     queryFn: () => {
       // 根据步骤类型和状态调用不同的API
       const apiMap = {
@@ -52,12 +52,12 @@ export function useQueryStudentProcedureDetail(
       }
 
       return apiFn({
-        path: { studentUsername, procedureId },
-        query: { courseId, experimentId },
+        path: { studentUsername: toValue(studentUsername), procedureId: toValue(procedureId) },
+        query: { courseId: toValue(courseId), experimentId: toValue(experimentId) },
         client,
       })
     },
     select: (res) => res.data?.data,
-    enabled: options?.enable && !!studentUsername && !!procedureId && !!courseId && !!experimentId,
+    enabled: computed(() => toValue(options?.enable) && !!toValue(studentUsername) && !!toValue(procedureId) && !!toValue(courseId) && !!toValue(experimentId)),
   })
 }

@@ -1253,6 +1253,69 @@ config.ts 中创建的 client 包含了关键的 axios 拦截器：
 }
 ```
 
+**useQuery 的 queryKey 必须使用响应式数据（CRITICAL）**
+
+- ✅ **queryKey 必须包含 ref/computed**：这样当参数变化时，查询会自动重新执行
+- ✅ **使用 MaybeRefOrGetter 类型**：接受 ref、computed 或普通值
+- ✅ **使用 toValue() 解包**：在 queryFn 中使用 `toValue()` 解包参数
+- ✅ **enabled 使用 computed**：条件判断应该使用 computed
+- ❌ **禁止直接使用普通值**：不要在 queryKey 中直接使用字符串或数字
+
+**错误示例**：
+```typescript
+// ❌ 错误：queryKey 没有使用响应式数据
+export function useQueryClassStudents(classCode: string, options?: Partial<QueryOptions>) {
+  return useQuery({
+    queryKey: options?.queryKey || ['class-students', classCode],  // ❌ classCode 是普通值
+    queryFn: () =>
+      postApiTeacherClassByClassCodeStudents({
+        path: { classCode },  // ❌ 直接使用普通值
+        client,
+      }),
+    select: (res) => res.data?.data,
+    enabled: options?.enable && !!classCode,  // ❌ 条件判断不是响应式
+  })
+}
+```
+
+**正确示例**：
+```typescript
+// ✅ 正确：使用 MaybeRefOrGetter 和 toValue
+import { type MaybeRefOrGetter, toValue } from 'vue'
+
+export function useQueryClassStudents(
+  classCode: MaybeRefOrGetter<string>,  // ✅ 接受 ref/computed/普通值
+  options?: { enable?: MaybeRefOrGetter<boolean> }
+) {
+  return useQuery({
+    queryKey: ['class-students', classCode] as const,  // ✅ queryKey 包含响应式数据
+    queryFn: () =>
+      postApiTeacherClassByClassCodeStudents({
+        path: { classCode: toValue(classCode) },  // ✅ 使用 toValue() 解包
+        client,
+      }),
+    select: (res) => res.data?.data,
+    enabled: computed(() => toValue(options?.enable) && !!toValue(classCode)),  // ✅ 使用 computed
+  })
+}
+```
+
+**使用示例**：
+```typescript
+// ✅ 组件中使用
+const classCode = ref('CS101')
+const { data, isLoading } = useQueryClassStudents(classCode)
+
+// 当 classCode 变化时，查询会自动重新执行
+classCode.value = 'CS102'  // ✅ 触发重新查询
+```
+
+**为什么必须使用响应式数据**：
+1. **自动重新查询**：当 ref/computed 的值变化时，Vue Query 会自动重新执行查询
+2. **缓存机制**：queryKey 是缓存的关键，响应式数据变化会导致新的 cache key
+3. **类型安全**：MaybeRefOrGetter 提供完整的类型支持
+4. **灵活性**：可以接受 ref、computed 或普通值，调用更方便
+
 **Hook 必须封装页面级状态（CRITICAL）**
 
 **原则：筛选条件、分页参数等页面级响应式状态必须定义在 hook 内部，通过 return 暴露给页面组件使用**

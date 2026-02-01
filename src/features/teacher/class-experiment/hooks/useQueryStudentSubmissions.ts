@@ -2,8 +2,8 @@
  * 学生步骤提交查询 Hooks
  */
 
+import { type MaybeRefOrGetter, toValue, computed } from 'vue'
 import { getApiTeacherProcedureSubmissionsCourseByCourseId } from '@/core/api/generated'
-import type { QueryOptions } from '@/features/shared/types/UseQueryOptions'
 import { useQuery } from '@tanstack/vue-query'
 import client from '@/core/api/config'
 
@@ -11,17 +11,17 @@ import client from '@/core/api/config'
  * 查询课程下所有学生的步骤提交
  */
 export function useQueryStudentSubmissions(
-  courseId: string,
-  options?: Partial<QueryOptions>
+  courseId: MaybeRefOrGetter<string>,
+  options?: { enable?: MaybeRefOrGetter<boolean> }
 ) {
   return useQuery({
-    queryKey: options?.queryKey || ['student-submissions', courseId],
+    queryKey: computed(() => ['student-submissions', toValue(courseId)]),
     queryFn: () =>
       getApiTeacherProcedureSubmissionsCourseByCourseId({
-        path: { courseId },
+        path: { courseId: toValue(courseId) },
         client,
       }),
     select: (res) => res.data?.data || [],
-    enabled: options?.enable && !!courseId,
+    enabled: computed(() => toValue(options?.enable) && !!toValue(courseId)),
   })
 }

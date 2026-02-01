@@ -1,8 +1,7 @@
 import { postApiTeacherCoursesQuery, getApiTeacherCoursesById } from "@/core/api/generated";
 import type { GetApiParamsTypeBase } from "@/core/utils/typeUtils";
-import type { QueryOptions } from "@/features/shared/types/UseQueryOptions";
+import { type MaybeRefOrGetter, toValue, computed, ref, type ComputedRef } from "vue";
 import { useQuery } from "@tanstack/vue-query";
-import { computed, ref, type Ref } from "vue";
 import client from "@/core/api/config";
 
 /**
@@ -10,7 +9,7 @@ import client from "@/core/api/config";
  */
 export default function useQueryCourseBase(
   queryParams: GetApiParamsTypeBase<typeof postApiTeacherCoursesQuery, "body">,
-  options: QueryOptions,
+  options: { queryKey: ComputedRef<readonly unknown[]> },
 ) {
   return useQuery({
     queryKey: options.queryKey,
@@ -32,7 +31,7 @@ export function useQueryCourseAll() {
       pageable:false
     },
     {
-      queryKey: ["courses-all"],
+      queryKey: computed(() => ["courses-all"]),
     },
   );
   return { query };
@@ -67,17 +66,17 @@ export function useQueryCoursePage(initial: {
  * 根据课程ID查询课程详情
  */
 export function useQueryCourseById(
-  courseId: number | Ref<number>,
-  options?: Partial<QueryOptions>,
+  courseId: MaybeRefOrGetter<number>,
+  options?: { enable?: MaybeRefOrGetter<boolean> },
 ) {
   return useQuery({
-    queryKey: options?.queryKey || ["courses", courseId],
+    queryKey: computed(() => ["courses", toValue(courseId)]),
     queryFn: () =>
       getApiTeacherCoursesById({
-        path: { id: typeof courseId === 'number' ? courseId : courseId.value },
+        path: { id: toValue(courseId) },
         client,
       }),
     select: (res) => res.data?.data,
-    enabled: options?.enable,
+    enabled: computed(() => toValue(options?.enable)),
   });
 }

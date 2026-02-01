@@ -1,22 +1,20 @@
+import { type MaybeRefOrGetter, toValue, computed } from "vue";
 import { getApiTeacherExperimentsByExperimentId } from "@/core/api/generated";
-import type { QueryOptions } from "@/features/shared/types/UseQueryOptions";
-import type { Ref } from "vue";
 import { useQuery } from "@tanstack/vue-query";
-import { unref } from "vue";
 import client from "@/core/api/config";
 
 export function useQueryExperimentById(
-  experimentId: number | Ref<number>,
-  options?: Partial<QueryOptions>,
+  experimentId: MaybeRefOrGetter<number>,
+  options?: { enable?: MaybeRefOrGetter<boolean> },
 ) {
   return useQuery({
-    queryKey: options?.queryKey || ["experiment", experimentId],
+    queryKey: computed(() => ["experiment", toValue(experimentId)]),
     queryFn: () =>
       getApiTeacherExperimentsByExperimentId({
-        path: { experimentId: unref(experimentId) },
+        path: { experimentId: toValue(experimentId) },
         client,
       }),
     select: (res) => res.data?.data,
-    enabled: options?.enable,
+    enabled: computed(() => toValue(options?.enable)),
   });
 }
