@@ -1,7 +1,7 @@
 <template>
   <Dialog
     v-model:visible="visible"
-    :header="`班级学生 - ${classCode}`"
+    :header="`班级学生 - ${internalClassCode}`"
     :modal="true"
     :style="{ maxWidth: '100vw' }"
   >
@@ -79,21 +79,30 @@ import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
 import { useBindStudents, useUnbindStudents } from '@/features/teacher/class/hooks/useMutateClassStudents'
 import { useQueryStudentList } from '@/features/teacher/class/hooks/useQueryStudentList'
-import { formatDateTime } from '@/features/shared/utils'
 import type { StudentClassRelation } from '@/core/api/generated'
+import { formatDateTime } from '@/features/shared/utils'
 
 // ==================== Props & Emits ====================
-interface Props {
-  classCode: string
-}
-
 interface Emits {
   (e: 'refresh'): void
 }
 
-const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 const visible = defineModel<boolean>()
+
+// 保存内部状态
+const internalClassCode = ref('')
+
+function open(options: { classCode: string }) {
+  internalClassCode.value = options.classCode
+  visible.value = true
+}
+
+function close() {
+  visible.value = false
+}
+
+defineExpose({ open, close })
 
 // ==================== Toast & Confirm ====================
 const toast = useToast()
@@ -108,7 +117,7 @@ const {
   total,
   isLoading,
   query,
-} = useQueryStudentList(props.classCode, { current: 1, size: 10 })
+} = useQueryStudentList(internalClassCode.value, { current: 1, size: 10 })
 
 // ==================== 添加学生相关 ====================
 const showAddDialog = ref(false)
@@ -168,9 +177,9 @@ const handleAddStudents = async () => {
 
   adding.value = true
   await bindMutation.mutateAsync({
-    path: { classCode: props.classCode },
+    path: { classCode: internalClassCode.value },
     body: {
-      classCode: props.classCode,
+      classCode: internalClassCode.value,
       studentUsernames: usernames,
     },
   })
@@ -204,7 +213,7 @@ const confirmRemove = (student: StudentClassRelation) => {
 
 const handleRemove = async (student: StudentClassRelation) => {
   await unbindMutation.mutateAsync({
-    path: { classCode: props.classCode },
+    path: { classCode: internalClassCode.value },
     body: [student.studentUsername!], // ✅ 移除 as any，API 类型定义为 Array<string>
   })
 
