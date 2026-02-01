@@ -12,7 +12,7 @@
         <h3 class="mb-4 text-lg font-semibold text-slate-900">学生列表</h3>
         <div v-if="students.isLoading" class="text-center text-slate-500">
           <ProgressSpinner style="width: 50px; height: 50px" strokeWidth="4" />
-          <p class="mt-2">加载���...</p>
+          <p class="mt-2">加载...</p>
         </div>
         <div v-else-if="studentsList.length === 0" class="text-center text-slate-500">
           <p>暂无学生提交</p>

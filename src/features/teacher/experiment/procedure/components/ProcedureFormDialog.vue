@@ -21,7 +21,7 @@
       :experiment-id="experimentId"
     />
 
-    <!-- 步骤类型选择对���框 -->
+    <!-- 步骤类型选择对框 -->
     <Dialog
       v-else
       v-model:visible="typeSelectVisible"

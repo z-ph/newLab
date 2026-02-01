@@ -44,7 +44,7 @@ const settingsMenuRef = ref<InstanceType<typeof SettingsMenu>>()
 /**
  * 获取当前页面的标题
  *
- * 使用路由名称进行��型安全的匹配，而不是路径字符串比较
+ * 使用路由名称进行型安全的匹配，而不是路径字符串比较
  * route.name 是从 RouteNamedMap 派生的类型安全值
  */
 const pageTitle = computed(() => {

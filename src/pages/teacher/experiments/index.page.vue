@@ -43,7 +43,7 @@
     <ExperimentFormDialog v-model:visible="showEditDialog" :experiment="editingExperiment"
       @success="handleEditSuccess" />
 
-    <!-- 实验详情对���框 -->
+    <!-- 实验详情对框 -->
     <ExperimentDetailDialog v-model:visible="showDetailDialog" :experiment="selectedExperiment" />
 
   </div>

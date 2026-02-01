@@ -7,7 +7,7 @@
       </div>
     </header>
 
-    <!-- ��内容区域 -->
+    <!-- 内容区域 -->
     <main class="px-4 py-4">
       <slot />
     </main>
