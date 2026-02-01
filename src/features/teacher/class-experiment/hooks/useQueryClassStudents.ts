@@ -2,7 +2,7 @@
  * 班级学生查询 Hooks
  */
 
-import { type Ref, toValue, computed } from "vue";
+import { type Ref, unref, computed } from "vue";
 import { postApiTeacherClassByClassCodeStudents } from "@/core/api/generated";
 import { useQuery } from "@tanstack/vue-query";
 import client from "@/core/api/config";
@@ -15,13 +15,13 @@ export function useQueryClassStudents(
   options?: { enable?: Ref<boolean> },
 ) {
   return useQuery({
-    queryKey: computed(() => ["class-students", toValue(classCode)]),
+    queryKey: computed(() => ["class-students", unref(classCode)]),
     queryFn: () =>
       postApiTeacherClassByClassCodeStudents({
-        path: { classCode: toValue(classCode) },
+        path: { classCode: unref(classCode) },
         client,
       }),
     select: (res) => res.data?.data,
-    enabled: () => toValue(options?.enable) && !!toValue(classCode),
+    enabled: () => unref(options?.enable) && !!unref(classCode),
   });
 }

@@ -104,7 +104,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, watchEffect } from 'vue'
 import type { ExperimentInfo } from '@/core/api/generated'
 import type { ProcedureSubmissionResponse } from '@/core/api/generated'
 import { useQueryStudentSubmissions } from '../hooks'
@@ -149,6 +149,9 @@ defineExpose({ open })
 
 // ==================== 数据查询 ====================
 const courseId = computed(() => classExperiment.value?.courseId)
+watchEffect(()=>{
+  console.log('course',courseId.value)
+})
 const students = useQueryStudentSubmissions(courseId)
 const gradeDialogRef = ref<InstanceType<typeof GradeDialog>>()
 const detailDialogRef = ref<InstanceType<typeof ProcedureDetailDialog>>()

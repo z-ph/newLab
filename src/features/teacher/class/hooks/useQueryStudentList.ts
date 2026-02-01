@@ -1,4 +1,4 @@
-import { type Ref, toValue, computed, ref } from 'vue'
+import { type Ref, unref, computed, ref } from 'vue'
 import { postApiTeacherClassByClassCodeStudents } from '@/core/api/generated'
 import { useQuery } from '@tanstack/vue-query'
 import client from '@/core/api/config'
@@ -21,14 +21,14 @@ export function useQueryStudentList(
   const query = useQuery({
     queryKey: computed(() => [
       'student-list',
-      toValue(classCode),
+      unref(classCode),
       current.value,
       size.value,
       searchKeyword.value,
     ]),
     queryFn: () =>
       postApiTeacherClassByClassCodeStudents({
-        path: { classCode: toValue(classCode) },
+        path: { classCode: unref(classCode) },
         body: {
           current: current.value,
           size: size.value,
@@ -40,7 +40,7 @@ export function useQueryStudentList(
       records: response.data?.data?.records || [],
       total: response.data?.data?.total || 0,
     }),
-    enabled:computed(()=>Boolean(toValue(classCode)))
+    enabled:computed(()=>Boolean(unref(classCode)))
   })
 
   return {

@@ -1,4 +1,4 @@
-import { type Ref, toValue, computed } from "vue";
+import { type Ref, unref, computed } from "vue";
 import { getApiTeacherProceduresByProcedureId, getApiTeacherProceduresExperimentByExperimentId } from "@/core/api/generated";
 import { useQuery } from "@tanstack/vue-query";
 import client from "@/core/api/config";
@@ -10,10 +10,10 @@ export function useQueryProceduresByExperiment(
   experimentId: Ref<number>,
 ) {
   return useQuery({
-    queryKey: computed(() => ["procedures", "experiment", toValue(experimentId)]),
+    queryKey: computed(() => ["procedures", "experiment", unref(experimentId)]),
     queryFn: () =>
       getApiTeacherProceduresExperimentByExperimentId({
-        path: { experimentId: toValue(experimentId) },
+        path: { experimentId: unref(experimentId) },
         client,
       }),
     select: (res) => res.data?.data,
@@ -28,13 +28,13 @@ export function useQueryProcedureById(
   options?: { enable?: Ref<boolean> },
 ) {
   return useQuery({
-    queryKey: computed(() => ["procedure", toValue(procedureId)]),
+    queryKey: computed(() => ["procedure", unref(procedureId)]),
     queryFn: () =>
       getApiTeacherProceduresByProcedureId({
-        path: { procedureId: toValue(procedureId) },
+        path: { procedureId: unref(procedureId) },
         client,
       }),
     select: (res) => res.data?.data,
-    enabled: computed(() => toValue(options?.enable)),
+    enabled: computed(() => unref(options?.enable)),
   });
 }

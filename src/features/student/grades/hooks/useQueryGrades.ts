@@ -1,4 +1,4 @@
-import { type Ref, toValue, computed } from 'vue'
+import { type Ref, unref, computed } from 'vue'
 import { getApiStudentGrades, getApiStudentGradesByGradeId } from '@/core/api/generated'
 import client from '@/core/api/config'
 import { useQuery } from '@tanstack/vue-query'
@@ -27,14 +27,14 @@ export function useQueryGrades() {
  */
 export function useQueryGradeDetail(gradeId: Ref<number>) {
   const query = useQuery({
-    queryKey: computed(() => ['student-grade-detail', toValue(gradeId)]),
+    queryKey: computed(() => ['student-grade-detail', unref(gradeId)]),
     queryFn: () =>
       getApiStudentGradesByGradeId({
-        path: { gradeId: toValue(gradeId) },
+        path: { gradeId: unref(gradeId) },
         client,
       }),
     select: (response) => response.data?.data,
-    enabled: computed(() => !!toValue(gradeId)),
+    enabled: computed(() => !!unref(gradeId)),
   })
 
   return {

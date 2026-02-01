@@ -12,7 +12,7 @@ import {
   getApiTeacherStudentsByStudentUsernameProceduresTimedQuizByProcedureIdCompleted,
   getApiTeacherStudentsByStudentUsernameProceduresTimedQuizByProcedureIdUncompleted,
 } from '@/core/api/generated'
-import { type Ref, toValue, computed } from 'vue'
+import { type Ref, unref, computed } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import client from '@/core/api/config'
 
@@ -32,7 +32,7 @@ export function useQueryStudentProcedureDetail(
   options?: { enable?: Ref<boolean> }
 ) {
   return useQuery({
-    queryKey: computed(() => ['student-procedure-detail', toValue(studentUsername), toValue(procedureId), procedureType, status]),
+    queryKey: computed(() => ['student-procedure-detail', unref(studentUsername), unref(procedureId), procedureType, status]),
     queryFn: () => {
       // 根据步骤类型和状态调用不同的API
       const apiMap = {
@@ -52,12 +52,12 @@ export function useQueryStudentProcedureDetail(
       }
 
       return apiFn({
-        path: { studentUsername: toValue(studentUsername), procedureId: toValue(procedureId) },
-        query: { courseId: toValue(courseId), experimentId: toValue(experimentId) },
+        path: { studentUsername: unref(studentUsername), procedureId: unref(procedureId) },
+        query: { courseId: unref(courseId), experimentId: unref(experimentId) },
         client,
       })
     },
     select: (res) => res.data?.data,
-    enabled: computed(() => toValue(options?.enable) && !!toValue(studentUsername) && !!toValue(procedureId) && !!toValue(courseId) && !!toValue(experimentId)),
+    enabled: computed(() => unref(options?.enable) && !!unref(studentUsername) && !!unref(procedureId) && !!unref(courseId) && !!unref(experimentId)),
   })
 }

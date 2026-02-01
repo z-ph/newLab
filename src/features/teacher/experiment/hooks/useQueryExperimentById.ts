@@ -1,4 +1,4 @@
-import { type Ref, toValue, computed } from "vue";
+import { type Ref, unref, computed } from "vue";
 import { getApiTeacherExperimentsByExperimentId } from "@/core/api/generated";
 import { useQuery } from "@tanstack/vue-query";
 import client from "@/core/api/config";
@@ -8,13 +8,13 @@ export function useQueryExperimentById(
   options?: { enable?: Ref<boolean> },
 ) {
   return useQuery({
-    queryKey: computed(() => ["experiment", toValue(experimentId)]),
+    queryKey: computed(() => ["experiment", unref(experimentId)]),
     queryFn: () =>
       getApiTeacherExperimentsByExperimentId({
-        path: { experimentId: toValue(experimentId) },
+        path: { experimentId: unref(experimentId) },
         client,
       }),
     select: (res) => res.data?.data,
-    enabled: computed(() => toValue(options?.enable)),
+    enabled: computed(() => unref(options?.enable)),
   });
 }

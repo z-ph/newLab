@@ -2,7 +2,7 @@
  * 查询单个提交详情的 Hook
  */
 
-import { type Ref, toValue, computed } from 'vue'
+import { type Ref, unref, computed } from 'vue'
 import { getApiTeacherProcedureSubmissionsBySubmissionId } from '@/core/api/generated'
 import { useQuery } from '@tanstack/vue-query'
 import client from '@/core/api/config'
@@ -15,13 +15,13 @@ export function useQuerySubmissionDetail(
   options?: { enable?: Ref<boolean> }
 ) {
   return useQuery({
-    queryKey: computed(() => ['submission-detail', toValue(submissionId)]),
+    queryKey: computed(() => ['submission-detail', unref(submissionId)]),
     queryFn: () =>
       getApiTeacherProcedureSubmissionsBySubmissionId({
-        path: { submissionId: toValue(submissionId) },
+        path: { submissionId: unref(submissionId) },
         client,
       }),
     select: (res) => res.data?.data,
-    enabled: computed(() => toValue(options?.enable) && !!toValue(submissionId)),
+    enabled: computed(() => unref(options?.enable) && !!unref(submissionId)),
   })
 }

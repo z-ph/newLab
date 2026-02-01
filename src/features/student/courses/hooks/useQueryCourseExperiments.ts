@@ -1,4 +1,4 @@
-import { type Ref, toValue, computed } from 'vue'
+import { type Ref, unref, computed } from 'vue'
 import { getApiStudentProcedureSubmissionsCourseByCourseId } from '@/core/api/generated'
 import client from '@/core/api/config'
 import { useQuery } from '@tanstack/vue-query'
@@ -16,10 +16,10 @@ export interface ExperimentInfo {
  */
 export function useQueryCourseExperiments(courseId: Ref<string>) {
   const query = useQuery({
-    queryKey: computed(() => ['student-course-experiments', toValue(courseId)]),
+    queryKey: computed(() => ['student-course-experiments', unref(courseId)]),
     queryFn: () =>
       getApiStudentProcedureSubmissionsCourseByCourseId({
-        path: { courseId: toValue(courseId) },
+        path: { courseId: unref(courseId) },
         client,
       }),
     select: (response) => {
@@ -47,7 +47,7 @@ export function useQueryCourseExperiments(courseId: Ref<string>) {
 
       return experiments
     },
-    enabled: computed(() => !!toValue(courseId)),
+    enabled: computed(() => !!unref(courseId)),
   })
 
   return {

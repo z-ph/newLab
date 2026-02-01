@@ -2,7 +2,7 @@
  * 查询签到列表 Hook
  */
 
-import { type Ref, toValue, computed } from 'vue'
+import { type Ref, unref, computed } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import { getApiTeacherAttendanceList } from '@/core/api/generated'
 import client from '@/core/api/config'
@@ -19,18 +19,18 @@ export function useQueryAttendanceList({
   enable,
 }: UseQueryAttendanceListParams) {
   return useQuery({
-    queryKey: computed(() => ['teacher', 'attendance', 'list', toValue(classCode), toValue(experimentId)]),
+    queryKey: computed(() => ['teacher', 'attendance', 'list', unref(classCode), unref(experimentId)]),
     queryFn: async () => {
       return getApiTeacherAttendanceList({
         query: {
-          classId: Number(toValue(classCode)), // 将 classCode 转换为 number
-          experimentId: toValue(experimentId),
+          classId: Number(unref(classCode)), // 将 classCode 转换为 number
+          experimentId: unref(experimentId),
         },
         client,
       })
     },
     select: (response) => response.data?.data,
-    enabled: computed(() => toValue(enable) ?? true),
+    enabled: computed(() => unref(enable) ?? true),
   })
 }
 

@@ -1257,7 +1257,7 @@ config.ts 中创建的 client 包含了关键的 axios 拦截器：
 
 - ✅ **queryKey 必须包含 ref/computed**：这样当参数变化时，查询会自动重新执行
 - ✅ **使用 Ref 类型**：接受 ref、computed 或普通值
-- ✅ **使用 toValue() 解包**：在 queryFn 中使用 `toValue()` 解包参数
+- ✅ **使用 unref() 解包**：在 queryFn 中使用 `unref()` 解包参数
 - ✅ **enabled 使用 computed**：条件判断应该使用 computed
 - ❌ **禁止直接使用普通值**：不要在 queryKey 中直接使用字符串或数字
 
@@ -1280,8 +1280,8 @@ export function useQueryClassStudents(classCode: string, options?: Partial<Query
 
 **正确示例**：
 ```typescript
-// ✅ 正确：使用 Ref 和 toValue
-import { type Ref, toValue } from 'vue'
+// ✅ 正确：使用 Ref 和 unref
+import { type Ref, unref } from 'vue'
 
 export function useQueryClassStudents(
   classCode: Ref<string>,  // ✅ 接受 ref/computed/普通值
@@ -1291,11 +1291,11 @@ export function useQueryClassStudents(
     queryKey: ['class-students', classCode] as const,  // ✅ queryKey 包含响应式数据
     queryFn: () =>
       postApiTeacherClassByClassCodeStudents({
-        path: { classCode: toValue(classCode) },  // ✅ 使用 toValue() 解包
+        path: { classCode: unref(classCode) },  // ✅ 使用 unref() 解包
         client,
       }),
     select: (res) => res.data?.data,
-    enabled: computed(() => toValue(options?.enable) && !!toValue(classCode)),  // ✅ 使用 computed
+    enabled: computed(() => unref(options?.enable) && !!unref(classCode)),  // ✅ 使用 computed
   })
 }
 ```
@@ -1322,7 +1322,7 @@ classCode.value = 'CS102'  // ✅ 触发重新查询
 
 - ✅ **直接传递 ref**：调用 Hook 时直接传递 ref 变量
 - ✅ **Hook 参数使用 Ref**：Hook 参数设计为接受 `Ref<T>` 类型
-- ✅ **Hook 内部使用 toValue()**：在 queryFn 中使用 `toValue()` 解包参数
+- ✅ **Hook 内部使用 unref()**：在 queryFn 中使用 `unref()` 解包参数
 - ❌ **禁止使用 `.value`**：不要在调用 Hook 时使用 `.value` 解包
 - ❌ **禁止使用 computed 包裹**：不需要用 computed 包装 ref（如果 Hook 已支持 Ref）
 
@@ -1359,21 +1359,21 @@ const {
 **Hook 设计示例**：
 ```typescript
 // ✅ Hook 参数使用 Ref
-import { type Ref, toValue } from 'vue'
+import { type Ref, unref } from 'vue'
 
 export function useQueryStudentList(
   classCode: Ref<string>,
   options?: { enable?: Ref<boolean> }
 ) {
   return useQuery({
-    queryKey: computed(() => ['students', toValue(classCode)]),  // ✅ queryKey 使用 computed，类型正确
+    queryKey: computed(() => ['students', unref(classCode)]),  // ✅ queryKey 使用 computed，类型正确
     queryFn: () =>
       postApiTeacherClassByClassCodeStudents({
-        path: { classCode: toValue(classCode) },
+        path: { classCode: unref(classCode) },
         client,
       }),
     select: (res) => res.data?.data,
-    enabled: computed(() => toValue(options?.enable) && !!toValue(classCode)),
+    enabled: computed(() => unref(options?.enable) && !!unref(classCode)),
   })
 }
 ```

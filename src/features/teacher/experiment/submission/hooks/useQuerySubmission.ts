@@ -2,7 +2,7 @@ import {
   getApiTeacherProcedureSubmissionsCourseByCourseId,
   getApiTeacherProcedureSubmissionsBySubmissionId,
 } from "@/core/api/generated";
-import { type Ref, toValue, computed } from "vue";
+import { type Ref, unref, computed } from "vue";
 import { useQuery } from "@tanstack/vue-query";
 import client from "@/core/api/config";
 
@@ -14,14 +14,14 @@ export function useQuerySubmissionsByCourse(
   options?: { enable?: Ref<boolean> },
 ) {
   return useQuery({
-    queryKey: computed(() => ["submissions", "course", toValue(courseId)]),
+    queryKey: computed(() => ["submissions", "course", unref(courseId)]),
     queryFn: () =>
       getApiTeacherProcedureSubmissionsCourseByCourseId({
-        path: { courseId: toValue(courseId) },
+        path: { courseId: unref(courseId) },
         client,
       }),
     select: (res) => res.data?.data,
-    enabled: computed(() => toValue(options?.enable)),
+    enabled: computed(() => unref(options?.enable)),
   });
 }
 
@@ -33,13 +33,13 @@ export function useQuerySubmissionById(
   options?: { enable?: Ref<boolean> },
 ) {
   return useQuery({
-    queryKey: computed(() => ["submission", toValue(submissionId)]),
+    queryKey: computed(() => ["submission", unref(submissionId)]),
     queryFn: () =>
       getApiTeacherProcedureSubmissionsBySubmissionId({
-        path: { submissionId: toValue(submissionId) },
+        path: { submissionId: unref(submissionId) },
         client,
       }),
     select: (res) => res.data?.data,
-    enabled: computed(() => toValue(options?.enable)),
+    enabled: computed(() => unref(options?.enable)),
   });
 }

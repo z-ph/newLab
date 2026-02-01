@@ -1,4 +1,4 @@
-import { type Ref, toValue, computed } from "vue";
+import { type Ref, unref, computed } from "vue";
 import { getApiTeacherGradesCourseByCourseId } from "@/core/api/generated";
 import { useQuery } from "@tanstack/vue-query";
 import client from "@/core/api/config";
@@ -11,13 +11,13 @@ export function useQueryCourseGrades(
   options?: { enable?: Ref<boolean> },
 ) {
   return useQuery({
-    queryKey: computed(() => ["courses", "grades", toValue(courseId)]),
+    queryKey: computed(() => ["courses", "grades", unref(courseId)]),
     queryFn: () =>
       getApiTeacherGradesCourseByCourseId({
-        path: { courseId: toValue(courseId) },
+        path: { courseId: unref(courseId) },
         client,
       }),
     select: (res) => res.data?.data,
-    enabled: computed(() => toValue(options?.enable)),
+    enabled: computed(() => unref(options?.enable)),
   });
 }
