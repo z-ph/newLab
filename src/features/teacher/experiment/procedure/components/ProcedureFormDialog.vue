@@ -21,12 +21,11 @@
       :experiment-id="experimentId"
     />
 
-    <!-- 步骤类型选择对话框 -->
+    <!-- 步骤类型选择对���框 -->
     <Dialog
       v-else
       v-model:visible="typeSelectVisible"
       header="添加实验步骤"
-      :style="{ width: '50vw' }"
       :modal="true"
     >
       <div class="flex flex-col gap-3">

@@ -2,7 +2,6 @@
   <Dialog
     v-model:visible="visible"
     :header="`班级学生 - ${classCode}`"
-    :style="{ width: '70vw' }"
     :modal="true"
   >
     <div class="mb-4 flex items-center justify-between gap-4">
@@ -51,7 +50,6 @@
     <Dialog
       v-model:visible="showAddDialog"
       header="添加学生"
-      :style="{ width: '50vw' }"
       :modal="true"
     >
       <div class="mb-4">

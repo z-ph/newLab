@@ -3,7 +3,6 @@
     :visible="visible"
     @update:visible="emit('update:visible', $event)"
     header="学生批改"
-    :style="{ width: '90vw', height: '80vh' }"
     :modal="true"
   >
     <div v-if="classExperiment" class="flex h-full gap-4">

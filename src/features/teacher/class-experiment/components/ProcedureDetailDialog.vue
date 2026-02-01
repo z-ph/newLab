@@ -2,7 +2,6 @@
   <Dialog
     v-model:visible="visible"
     header="提交详情"
-    :style="{ width: '70vw' }"
     :modal="true"
   >
     <div v-if="isLoading" class="text-center py-8">

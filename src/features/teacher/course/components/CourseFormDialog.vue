@@ -2,7 +2,6 @@
   <Dialog
     v-model:visible="visible"
     :header="isEdit ? '编辑课程' : '新建课程'"
-    :style="{ width: '50vw' }"
     :modal="true"
     @update:visible="handleClose"
   >
