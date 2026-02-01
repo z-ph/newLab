@@ -1,6 +1,6 @@
 <template>
   <MobileLayout title="签到管理">
-    <Tabs v-model:value="activeTab" class="mobile-tabs">
+    <Tabs v-model:value="activeTab" pt:tabList:class="justify-center" pt:tab:class="flex-1">
       <TabList>
         <Tab value="records">签到记录</Tab>
         <Tab value="stats">签到统计</Tab>
@@ -25,13 +25,3 @@ import AttendanceStats from '@/features/student/attendance/components/Attendance
 
 const activeTab = ref('records')
 </script>
-
-<style scoped>
-.mobile-tabs :deep(.p-tablist) {
-  justify-content: center;
-}
-
-.mobile-tabs :deep(.p-tab) {
-  flex: 1;
-}
-</style>

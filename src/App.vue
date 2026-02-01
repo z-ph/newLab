@@ -8,10 +8,3 @@
   <!-- 全局 ConfirmDialog 组件 -->
   <ConfirmDialog />
 </template>
-
-<style>
-#app {
-  width: 100%;
-  height: 100vh;
-}
-</style>

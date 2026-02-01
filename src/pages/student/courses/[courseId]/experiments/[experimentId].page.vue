@@ -1,6 +1,6 @@
 <template>
   <MobileLayout :title="experimentName">
-    <Tabs v-model:value="activeTab" class="mobile-tabs">
+    <Tabs v-model:value="activeTab" pt:tabList:class="justify-center" pt:tab:class="flex-1">
       <TabList>
         <Tab value="overview">概览</Tab>
         <Tab value="attendance">签到</Tab>
@@ -46,13 +46,3 @@ const experimentName = experimentId || '实验详情'
 
 const activeTab = ref('overview')
 </script>
-
-<style scoped>
-.mobile-tabs :deep(.p-tablist) {
-  justify-content: center;
-}
-
-.mobile-tabs :deep(.p-tab) {
-  flex: 1;
-}
-</style>

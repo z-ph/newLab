@@ -41,7 +41,7 @@
     <!-- 拖拽手柄（桌面端和平板） -->
     <div
       v-if="!isMobile"
-      class="sidebar-resize-handle absolute right-0 top-0 bottom-0 w-1 -mr-1 cursor-col-resize bg-slate-200 hover:bg-emerald-500 transition-colors z-10"
+      class="absolute right-0 top-0 bottom-0 w-1 -mr-1 cursor-col-resize bg-slate-200 hover:bg-emerald-500 transition-colors z-10 select-none"
       :class="{ 'bg-emerald-500': isResizing }"
       @mousedown="startResize"
       title="拖动调整侧边栏宽度"
@@ -238,10 +238,3 @@ defineExpose({
   closeDrawer,
 })
 </script>
-
-<style scoped>
-/* 防止拖拽时选中文字 */
-.sidebar-resize-handle {
-  user-select: none;
-}
-</style>
