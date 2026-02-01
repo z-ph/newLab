@@ -145,7 +145,7 @@ const classOptions = computed(() => {
   }))
 })
 
-const selectedClassCode = ref<string | null>(null)
+const selectedClassCode = ref<string>()
 const selectedClassExperimentId = ref<number>(0)
 
 // 查询签到列表（需要 classCode 和 experimentId）

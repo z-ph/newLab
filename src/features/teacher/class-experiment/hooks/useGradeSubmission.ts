@@ -3,15 +3,15 @@
  */
 
 import { postApiTeacherProcedureSubmissionsBySubmissionIdGrade } from '@/core/api/generated'
+import type { GradeProcedureRequest } from '@/core/api/generated'
 import { useMutation } from '@tanstack/vue-query'
 import client from '@/core/api/config'
 import { toast } from '@/core/utils/toast'
 
-export interface GradeSubmissionRequest {
+// 批改请求类型（基于 API 类型派生）
+export type GradeSubmissionRequest = {
   submissionId: number
-  score: number
-  teacherComment: string
-}
+} & GradeProcedureRequest
 
 /**
  * 批改学生步骤提交

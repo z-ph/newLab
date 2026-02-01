@@ -38,7 +38,7 @@
     </ExperimentTable>
 
     <!-- 创建/编辑实验对话框 -->
-    <ExperimentFormDialog v-model:visible="showCreateDialog" :experiment="null" @success="handleCreateSuccess" />
+    <ExperimentFormDialog v-model:visible="showCreateDialog" @success="handleCreateSuccess" />
 
     <ExperimentFormDialog v-model:visible="showEditDialog" :experiment="editingExperiment"
       @success="handleEditSuccess" />
@@ -75,7 +75,7 @@ const courseOptions = computed(() => {
 })
 
 // 选中的课程ID
-const selectedCourseId = ref<string | null>(null)
+const selectedCourseId = ref<string>()
 
 // 课程信息缓存
 const courseMap = new Map<string | undefined, { courseName: string; teacherUsername: string }>()
@@ -111,8 +111,8 @@ const experiments = computed(() => {
 const showCreateDialog = ref(false)
 const showEditDialog = ref(false)
 const showDetailDialog = ref(false)
-const editingExperiment = ref<ExperimentResponse | null>(null)
-const selectedExperiment = ref<ExperimentResponse | null>(null)
+const editingExperiment = ref<ExperimentResponse>()
+const selectedExperiment = ref<ExperimentResponse>()
 
 // 删除实验 mutation（用于 loading 状态）
 const deleteMutation = useDeleteExperiment()
@@ -138,7 +138,7 @@ const handleCreateSuccess = () => {
 
 const handleEditSuccess = () => {
   showEditDialog.value = false
-  editingExperiment.value = null
+  editingExperiment.value = undefined
   query.refetch()
 }
 </script>

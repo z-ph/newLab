@@ -1,10 +1,5 @@
 <template>
-  <Dialog
-    v-model:visible="visible"
-    header="提交详情"
-    :modal="true"
-    :style="{ maxWidth: '100vw' }"
-  >
+  <Dialog v-model:visible="visible" header="提交详情" :modal="true" :style="{ maxWidth: '100vw' }">
     <div v-if="isLoading" class="text-center py-8">
       <ProgressSpinner style="width: 50px; height: 50px" strokeWidth="4" />
       <p class="mt-2">加载中...</p>
@@ -65,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useQuerySubmissionDetail } from '../hooks'
 import { formatDateTime } from '@/features/shared/utils'
 
@@ -79,8 +74,8 @@ function open(id: number) {
 }
 
 // ==================== 查询提交详情 ====================
-const { data: detail, isLoading, refetch } = useQuerySubmissionDetail(submissionId.value, {
-  enable: visible.value && !!submissionId.value,
+const { data: detail, isLoading, refetch } = useQuerySubmissionDetail(submissionId, {
+  enable: computed(() => (visible.value && !!submissionId.value))
 })
 
 // ==================== 监听对话框打开，重新获取数据 ====================

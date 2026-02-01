@@ -9,12 +9,21 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import AttendanceManagement from './AttendanceManagement.vue'
 import type { ExperimentInfo } from '@/core/api/generated'
 
-defineProps<{
-  classExperiment: ExperimentInfo | null
-}>()
+const visible = ref(false)
+const classExperiment = ref<ExperimentInfo>()
 
-const visible = defineModel<boolean>()
+interface OpenOptions {
+  classExperiment: ExperimentInfo
+}
+
+function open(options: OpenOptions) {
+  classExperiment.value = options.classExperiment
+  visible.value = true
+}
+
+defineExpose({ open })
 </script>

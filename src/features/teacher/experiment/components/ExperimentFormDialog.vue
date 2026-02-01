@@ -47,7 +47,7 @@ import { useQueryCourseAll } from '@/features/teacher/course/hooks/useQueryCours
 import type { ExperimentResponse } from '@/core/api/generated'
 
 interface Props {
-  experiment: ExperimentResponse | null
+  experiment?: ExperimentResponse
 }
 
 interface Emits {
@@ -79,13 +79,13 @@ const courseOptions = computed(() => {
   }))
 })
 
-const selectedCourseId = ref<string | null>(null)
+const selectedCourseId = ref<string>()
 
 const formData = ref({
   courseId: '',
   experimentName: '',
   percentage: 10,
-  endTime: null as Date | null,
+  endTime: undefined as Date | undefined,
 })
 
 const resetForm = () => {
@@ -93,9 +93,9 @@ const resetForm = () => {
     courseId: '',
     experimentName: '',
     percentage: 10,
-    endTime: null,
+    endTime: undefined,
   }
-  selectedCourseId.value = null
+  selectedCourseId.value = undefined
 }
 
 watch(() => props.experiment, (newExperiment) => {
@@ -104,9 +104,9 @@ watch(() => props.experiment, (newExperiment) => {
       courseId: newExperiment.courseId || '',
       experimentName: newExperiment.experimentName || '',
       percentage: newExperiment.percentage || 10,
-      endTime: newExperiment.endTime ? new Date(newExperiment.endTime) : null,
+      endTime: newExperiment.endTime ? new Date(newExperiment.endTime) : undefined,
     }
-    selectedCourseId.value = newExperiment.courseId || null
+    selectedCourseId.value = newExperiment.courseId || undefined
   } else {
     resetForm()
   }

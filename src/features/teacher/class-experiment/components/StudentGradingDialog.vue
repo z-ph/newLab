@@ -11,18 +11,18 @@
         <h3 class="mb-4 text-lg font-semibold text-slate-900">学生列表</h3>
         <div v-if="students.isLoading" class="text-center text-slate-500">
           <ProgressSpinner style="width: 50px; height: 50px" strokeWidth="4" />
-          <p class="mt-2">加载...</p>
+          <p class="mt-2">{{ LOADING_MESSAGE }}</p>
         </div>
         <div v-else-if="studentsList.length === 0" class="text-center text-slate-500">
-          <p>暂无学生提交</p>
+          <p>{{ NO_SUBMISSION_MESSAGE }}</p>
         </div>
         <div v-else class="space-y-2">
           <div
             v-for="student in studentsList"
-            :key="student.username"
+            :key="student.studentUsername"
             :class="[
               'cursor-pointer rounded-lg border p-3 transition-colors',
-              selectedStudent?.username === student.username
+              selectedStudent?.studentUsername === student.studentUsername
                 ? 'border-blue-500 bg-blue-50'
                 : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50',
             ]"
@@ -30,8 +30,8 @@
           >
             <div class="flex items-center justify-between">
               <div>
-                <p class="font-medium text-slate-900">{{ student.name }}</p>
-                <p class="text-sm text-slate-600">{{ student.username }}</p>
+                <p class="font-medium text-slate-900">{{ student.studentName }}</p>
+                <p class="text-sm text-slate-600">{{ student.studentUsername }}</p>
               </div>
               <Badge
                 :value="student.submissionCount"
@@ -46,14 +46,14 @@
       <div class="w-2/3 overflow-y-auto pl-4">
         <h3 class="mb-4 text-lg font-semibold text-slate-900">步骤提交</h3>
         <div v-if="!selectedStudent" class="text-center text-slate-500">
-          <p>请选择学生查看提交记录</p>
+          <p>{{ NO_STUDENT_SELECTED_MESSAGE }}</p>
         </div>
         <div v-else-if="students.isLoading" class="text-center text-slate-500">
           <ProgressSpinner style="width: 50px; height: 50px" strokeWidth="4" />
-          <p class="mt-2">加载中...</p>
+          <p class="mt-2">{{ LOADING_STUDENT_MESSAGE }}</p>
         </div>
         <div v-else-if="selectedStudentSubmissions.length === 0" class="text-center text-slate-500">
-          <p>该学生暂无提交记录</p>
+          <p>{{ NO_STUDENT_SUBMISSION_MESSAGE }}</p>
         </div>
         <div v-else class="space-y-4">
           <Card
@@ -64,7 +64,7 @@
           >
             <template #title>
               <div class="flex items-center justify-between">
-                <span>{{ submission.submissionType || '提交记录' }}</span>
+                <span>{{ submission.submissionType || DEFAULT_SUBMISSION_TITLE }}</span>
                 <Tag
                   :value="getSubmissionStatusText(submission.submissionStatus)"
                   :severity="getSubmissionStatusSeverity(submission.submissionStatus)"
@@ -73,21 +73,21 @@
             </template>
             <template #subtitle>
               <div class="text-sm text-slate-600">
-                <p>提交时间: {{ formatDateTime(submission.submissionTime) }}</p>
+                <p>{{ SUBMIT_TIME_LABEL }}: {{ formatDateTime(submission.submissionTime) }}</p>
               </div>
             </template>
             <template #content>
-              <div v-if="submission.submissionStatus === 2" class="flex items-center justify-between">
+              <div v-if="submission.submissionStatus === SUBMISSION_STATUS.GRADED" class="flex items-center justify-between">
                 <div>
-                  <p class="text-sm text-slate-600">得分: {{ submission.score }}</p>
+                  <p class="text-sm text-slate-600">{{ SCORE_DISPLAY }}: {{ submission.score }}</p>
                   <p v-if="submission.teacherComment" class="mt-1 text-sm text-slate-600">
-                    评语: {{ submission.teacherComment }}
+                    {{ COMMENT_DISPLAY }}: {{ submission.teacherComment }}
                   </p>
                 </div>
-                <Button label="重新批改" outlined size="small" @click.stop="openGradeDialog(submission)" />
+                <Button :label="REGRADE_BUTTON" outlined size="small" @click.stop="openGradeDialog(submission)" />
               </div>
               <div v-else class="flex justify-end">
-                <Button label="批改" outlined size="small" @click.stop="openGradeDialog(submission)" />
+                <Button :label="GRADE_BUTTON" outlined size="small" @click.stop="openGradeDialog(submission)" />
               </div>
             </template>
           </Card>
@@ -96,32 +96,7 @@
     </div>
 
     <!-- 批改对话框 -->
-    <Dialog v-model:visible="showGradeDialog" header="批改" :modal="true" :style="{ maxWidth: '100vw' }">
-      <div v-if="currentSubmission" class="space-y-4">
-        <div>
-          <label class="mb-2 block text-sm font-medium text-slate-700">
-            提交类型
-          </label>
-          <InputText :model-value="currentSubmission.submissionType || '未知'" disabled fluid />
-        </div>
-        <div>
-          <label class="mb-2 block text-sm font-medium text-slate-700">
-            得分 <span class="text-red-500">*</span>
-          </label>
-          <InputNumber v-model="gradeForm.score" :min="0" :max="100" fluid />
-        </div>
-        <div>
-          <label class="mb-2 block text-sm font-medium text-slate-700">
-            评语
-          </label>
-          <Textarea v-model="gradeForm.teacherComment" rows="4" fluid />
-        </div>
-      </div>
-      <template #footer>
-        <Button label="取消" outlined @click="showGradeDialog = false" />
-        <Button label="保存" :loading="gradeMutation.isPending.value" @click="handleGrade" />
-      </template>
-    </Dialog>
+    <GradeDialog ref="gradeDialogRef" @success="students.refetch" />
 
     <!-- 步骤详情对话框 -->
     <ProcedureDetailDialog ref="detailDialogRef" />
@@ -129,39 +104,56 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { ExperimentInfo } from '@/core/api/generated'
 import type { ProcedureSubmissionResponse } from '@/core/api/generated'
 import { useQueryStudentSubmissions } from '../hooks'
-import { useGradeSubmission } from '../hooks'
 import { formatDateTime } from '@/features/shared/utils'
+import { getSubmissionStatusText, getSubmissionStatusSeverity } from '../utils'
+import {
+  SUBMISSION_STATUS,
+  LOADING_MESSAGE,
+  NO_SUBMISSION_MESSAGE,
+  NO_STUDENT_SELECTED_MESSAGE,
+  LOADING_STUDENT_MESSAGE,
+  NO_STUDENT_SUBMISSION_MESSAGE,
+  DEFAULT_SUBMISSION_TITLE,
+  SUBMIT_TIME_LABEL,
+  SCORE_DISPLAY,
+  COMMENT_DISPLAY,
+  REGRADE_BUTTON,
+  GRADE_BUTTON,
+} from '../constants'
 import ProcedureDetailDialog from './ProcedureDetailDialog.vue'
+import GradeDialog from './GradeDialog.vue'
 
-defineProps<{
-  classExperiment: ExperimentInfo | null
-}>()
-
-const visible = defineModel<boolean>()
-
-// ==================== 数据查询 ====================
-const students = useQueryStudentSubmissions(
-  // Note: need to get courseId from classExperiment prop when dialog opens
-  '',
-  {
-    enable: false, // Will be enabled when dialog opens
-  }
-)
-
-const gradeMutation = useGradeSubmission()
-const detailDialogRef = ref<InstanceType<typeof ProcedureDetailDialog>>()
-
-// ==================== 学生列表（从提交记录中提取） ====================
-interface StudentInfo {
-  username: string
-  name: string
+// ==================== 类型定义 ====================
+// 学生信息（从提交记录聚合，基于 API 类型派生）
+type StudentInfo = Pick<
+  ProcedureSubmissionResponse,
+  'studentUsername' | 'studentName'
+> & {
   submissionCount: number
 }
 
+// ==================== 对话框状态 ====================
+const visible = ref(false)
+const classExperiment = ref<ExperimentInfo>()
+
+function open(options: { classExperiment: ExperimentInfo }) {
+  classExperiment.value = options.classExperiment
+  visible.value = true
+}
+
+defineExpose({ open })
+
+// ==================== 数据查询 ====================
+const courseId = computed(() => classExperiment.value?.courseId)
+const students = useQueryStudentSubmissions(courseId)
+const gradeDialogRef = ref<InstanceType<typeof GradeDialog>>()
+const detailDialogRef = ref<InstanceType<typeof ProcedureDetailDialog>>()
+
+// ==================== 学生列表（从提交记录中提取） ====================
 const studentsList = computed<StudentInfo[]>(() => {
   const submissions = students.data.value || []
   const studentMap = new Map<string, StudentInfo>()
@@ -176,19 +168,21 @@ const studentsList = computed<StudentInfo[]>(() => {
         existing.submissionCount++
       } else {
         studentMap.set(username, {
-          username,
-          name,
+          studentUsername: username,
+          studentName: name,
           submissionCount: 1,
         })
       }
     }
   })
 
-  return Array.from(studentMap.values()).sort((a, b) => a.name.localeCompare(b.name))
+  return Array.from(studentMap.values()).sort((a, b) =>
+    (a.studentName || '').localeCompare(b.studentName || '')
+  )
 })
 
 // ==================== 选中的学生 ====================
-const selectedStudent = ref<StudentInfo | null>(null)
+const selectedStudent = ref<StudentInfo>()
 
 const selectStudent = (student: StudentInfo) => {
   selectedStudent.value = student
@@ -198,75 +192,23 @@ const selectStudent = (student: StudentInfo) => {
 const selectedStudentSubmissions = computed<ProcedureSubmissionResponse[]>(() => {
   if (!selectedStudent.value) return []
   const submissions = students.data.value || []
-  return submissions.filter((s) => s.studentUsername === selectedStudent.value?.username)
+  return submissions.filter((s) => s.studentUsername === selectedStudent.value?.studentUsername)
 })
 
-// ==================== 批改表单 ====================
-const showGradeDialog = ref(false)
-const currentSubmission = ref<ProcedureSubmissionResponse | null>(null)
-
-interface GradeForm {
-  score: number | null
-  teacherComment: string
-}
-
-const gradeForm = reactive<GradeForm>({
-  score: null,
-  teacherComment: '',
-})
-
+// ==================== 批改对话框 ====================
 const openGradeDialog = (submission: ProcedureSubmissionResponse) => {
-  currentSubmission.value = submission
-  gradeForm.score = submission.score || null
-  gradeForm.teacherComment = submission.teacherComment || ''
-  showGradeDialog.value = true
+  gradeDialogRef.value?.open(submission)
 }
-
-const handleGrade = async () => {
-  if (!currentSubmission.value || gradeForm.score === null) {
-    return
-  }
-
-  await gradeMutation.mutateAsync({
-    submissionId: currentSubmission.value.id!,
-    score: gradeForm.score,
-    teacherComment: gradeForm.teacherComment,
-  })
-
-  showGradeDialog.value = false
-  students.refetch()
-}
-
 
 // ==================== 查看详情 ====================
 const viewSubmissionDetail = (submission: ProcedureSubmissionResponse) => {
-  // 直接使用 submission.id 查询详情
   detailDialogRef.value?.open(submission.id!)
-}
-
-// ==================== 工具函数 ====================
-const getSubmissionStatusText = (status?: number): string => {
-  const statusMap: Record<number, string> = {
-    0: '草稿',
-    1: '已提交',
-    2: '已批改',
-  }
-  return statusMap[status || 0] || '未知'
-}
-
-const getSubmissionStatusSeverity = (status?: number): 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' => {
-  const severityMap: Record<number, 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast'> = {
-    0: 'secondary',
-    1: 'info',
-    2: 'success',
-  }
-  return severityMap[status || 0] || 'secondary'
 }
 
 // ==================== 监听对话框关闭，重置选中状态 ====================
 watch(visible, (newVal) => {
   if (!newVal) {
-    selectedStudent.value = null
+    selectedStudent.value = undefined
   }
 })
 </script>

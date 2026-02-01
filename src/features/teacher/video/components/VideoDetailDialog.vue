@@ -45,7 +45,7 @@ import { formatDateTime } from '@/features/shared/utils'
 
 // ✅ 状态封装在组件内部
 const visible = ref(false)
-const video = ref<VideoUploadResponse | null>(null)
+const video = ref<VideoUploadResponse>()
 
 // ✅ 打开对话框
 function open(data: VideoUploadResponse) {

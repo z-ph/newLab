@@ -81,7 +81,7 @@ const emit = defineEmits<Emits>()
 type ProcedureType = (typeof PROCEDURE_TYPE)[keyof typeof PROCEDURE_TYPE]
 
 // 步骤类型
-const procedureType = ref<ProcedureType | null>(null)
+const procedureType = ref<ProcedureType>()
 
 // 各个子对话框的 ref
 const videoDialogRef = ref<InstanceType<typeof ProcedureVideoFormDialog>>()
@@ -93,7 +93,7 @@ const typeSelectVisible = ref(false)
 
 // 打开对话框
 function open() {
-  procedureType.value = null
+  procedureType.value = undefined
   typeSelectVisible.value = true
 }
 
@@ -117,7 +117,7 @@ function handleSelectType(type: ProcedureType) {
 // 取消 - 关闭所有对话框
 function handleCancel() {
   typeSelectVisible.value = false
-  procedureType.value = null
+  procedureType.value = undefined
 }
 
 defineExpose({

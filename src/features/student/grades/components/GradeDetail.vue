@@ -94,6 +94,7 @@ import {
   getGradeSeverity,
   getGradeLevel,
 } from '../utils'
+import { computed } from 'vue';
 
 interface Props {
   gradeId: number
@@ -101,6 +102,6 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const { grade, query } = useQueryGradeDetail(props.gradeId)
+const { grade, query } = useQueryGradeDetail(computed(()=>props.gradeId))
 const isLoading = query.isLoading
 </script>

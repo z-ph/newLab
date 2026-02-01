@@ -80,7 +80,7 @@ const toast = useToast()
 const visible = ref(false)
 
 // 文件选择状态
-const selectedFile = ref<File | null>(null)
+const selectedFile = ref<File>()
 const selectedFileName = ref("")
 const errorMessage = ref("")
 
@@ -96,7 +96,7 @@ const downloadingTemplate = computed(() => downloadTemplateMutation.isPending.va
 function open() {
   visible.value = true
   // 重置状态
-  selectedFile.value = null
+  selectedFile.value = undefined
   selectedFileName.value = ""
   errorMessage.value = ""
 }
@@ -116,7 +116,7 @@ function onFileSelect(event: FileUploadSelectEvent) {
     const fileExtension = file.name.split(".").pop()?.toLowerCase()
     if (fileExtension !== "xlsx" && fileExtension !== "xls") {
       errorMessage.value = "请选择 .xlsx 或 .xls 格式的 Excel 文件"
-      selectedFile.value = null
+      selectedFile.value = undefined
       selectedFileName.value = ""
       return
     }
@@ -125,7 +125,7 @@ function onFileSelect(event: FileUploadSelectEvent) {
     const maxSize = 5 * 1024 * 1024
     if (file.size > maxSize) {
       errorMessage.value = "文件大小不能超过 5MB"
-      selectedFile.value = null
+      selectedFile.value = undefined
       selectedFileName.value = ""
       return
     }

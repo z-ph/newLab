@@ -50,7 +50,7 @@ import type { ExperimentResponse } from '@/core/api/generated'
 import ProcedureList from '@/features/teacher/experiment/procedure/components/ProcedureList.vue'
 
 interface Props {
-  experiment: ExperimentResponse | null
+  experiment?: ExperimentResponse
 }
 
 const props = defineProps<Props>()

@@ -80,14 +80,13 @@
     <BindClassExperimentDialog ref="bindDialogRef" @success="handleRefresh" />
 
     <!-- 签到管理对话框 -->
-    <AttendanceManagementDialog v-model:visible="showAttendanceDialog" :class-experiment="selectedClassExperiment" />
+    <AttendanceManagementDialog ref="attendanceDialogRef" />
 
     <!-- 学生批改对话框 -->
-    <StudentGradingDialog v-model:visible="showGradingDialog" :class-experiment="selectedClassExperiment" />
+    <StudentGradingDialog ref="gradingDialogRef" />
 
     <!-- 统计信息对话框 -->
-    <ClassExperimentStatisticsDialog v-model:visible="showStatisticsDialog"
-      :class-experiment="selectedClassExperiment" />
+    <ClassExperimentStatisticsDialog ref="statisticsDialogRef" />
   </div>
 </template>
 
@@ -111,17 +110,15 @@ type ClassExperimentDisplay = ExperimentInfo & {
 }
 
 // ==================== 状态 ====================
-const selectedCourseId = ref<string | null>(null)
-const selectedClassCode = ref<string | null>(null)
-const selectedExperimentId = ref<string | null>(null)
+const selectedCourseId = ref<string>()
+const selectedClassCode = ref<string>()
+const selectedExperimentId = ref<string>()
 const selectedClassExperiments = ref<ClassExperimentDisplay[]>([])
-const selectedClassExperiment = ref<ClassExperimentDisplay | null>(null)
-
-const showAttendanceDialog = ref(false)
-const showGradingDialog = ref(false)
-const showStatisticsDialog = ref(false)
 
 const bindDialogRef = ref<InstanceType<typeof BindClassExperimentDialog>>()
+const attendanceDialogRef = ref<InstanceType<typeof AttendanceManagementDialog>>()
+const gradingDialogRef = ref<InstanceType<typeof StudentGradingDialog>>()
+const statisticsDialogRef = ref<InstanceType<typeof ClassExperimentStatisticsDialog>>()
 const confirm = useConfirm()
 
 // ==================== 查询数据 ====================
@@ -223,17 +220,14 @@ const handleDelete = (classExperiment: ClassExperimentDisplay) => {
 }
 
 const openAttendanceManagement = (classExperiment: ClassExperimentDisplay) => {
-  selectedClassExperiment.value = classExperiment
-  showAttendanceDialog.value = true
+  attendanceDialogRef.value?.open({ classExperiment })
 }
 
 const openStudentGrading = (classExperiment: ClassExperimentDisplay) => {
-  selectedClassExperiment.value = classExperiment
-  showGradingDialog.value = true
+  gradingDialogRef.value?.open({ classExperiment })
 }
 
 const openStatistics = (classExperiment: ClassExperimentDisplay) => {
-  selectedClassExperiment.value = classExperiment
-  showStatisticsDialog.value = true
+  statisticsDialogRef.value?.open({ classExperiment })
 }
 </script>

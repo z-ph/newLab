@@ -95,7 +95,6 @@ const confirm = useConfirm()
 
 const proceduresQuery = useQueryProceduresByExperiment(
   computed(() => props.experimentId),
-  { enable: true },
 )
 
 const deleteMutation = useDeleteProcedure()

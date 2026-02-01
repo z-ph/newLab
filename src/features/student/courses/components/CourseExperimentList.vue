@@ -58,6 +58,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useQueryCourseExperiments } from '../hooks'
 import { getExperimentName } from '../utils'
 
@@ -72,7 +73,7 @@ interface Emits {
 const props = defineProps<Props>()
 defineEmits<Emits>()
 
-const { experiments, query } = useQueryCourseExperiments(props.courseId)
+const { experiments, query } = useQueryCourseExperiments(computed(()=>props.courseId))
 
 function getStatusText(submissions: any[]): string {
   if (!submissions || submissions.length === 0) return '未开始'
