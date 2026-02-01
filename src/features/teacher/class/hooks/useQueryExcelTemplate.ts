@@ -11,13 +11,23 @@ export function useDownloadExcelTemplate() {
     mutationFn: async () => {
       const response = await getApiTestExcelTemplateUsers({
         client,
-        responseType: "blob",  // 覆盖默认的 'json'，告诉 axios 返回二进制数据
+        responseType: "blob",
         headers: {
           Accept: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         },
       })
 
-      // response.data 现在应该是 Blob 类型
+      // 调试信息
+      console.log('=== Excel 模板下载响应 ===')
+      console.log('response.data:', response.data)
+      console.log('response.data 类型:', typeof response.data)
+      console.log('是否为 Blob:', response.data instanceof Blob)
+      console.log('Blob 大小:', response.data?.size)
+      console.log('Blob 类型:', response.data?.type)
+
+      if(!(response.data instanceof Blob)) {
+        throw new Error("返回数据不是有效的文件格式")
+      }
       return response.data
     },
     onSuccess: (blob) => {

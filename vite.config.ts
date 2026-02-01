@@ -61,6 +61,10 @@ export default defineConfig(({ mode }) => {
       }),
       createHeyApiPlugin(env.VITE_OPENAPI_URL),
     ],
+    // 开发环境下生成 sourcemap，便于调试
+    build: {
+      sourcemap: mode === 'development',
+    },
     server:{
       proxy:{
         '/api': {
