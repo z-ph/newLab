@@ -48,28 +48,6 @@
           {{ errorMessage }}
         </p>
       </div>
-
-      <!-- 导入结果 -->
-      <div v-if="importResult" class="rounded-lg border p-4">
-        <h3 class="mb-3 font-semibold text-slate-900">导入结果</h3>
-        <div class="space-y-2 text-sm">
-          <div v-if="importResult.successCount !== undefined" class="flex items-center gap-2">
-            <i class="pi pi-check-circle text-emerald-600" />
-            <span class="text-slate-700">成功导入: <strong>{{ importResult.successCount }}</strong> 名学生</span>
-          </div>
-          <div v-if="importResult.failCount !== undefined" class="flex items-center gap-2">
-            <i class="pi pi-times-circle text-red-600" />
-            <span class="text-slate-700">导入失败: <strong>{{ importResult.failCount }}</strong> 条</span>
-          </div>
-          <div v-if="importResult.totalCount !== undefined" class="flex items-center gap-2">
-            <i class="pi pi-info-circle text-blue-600" />
-            <span class="text-slate-700">总计: <strong>{{ importResult.totalCount }}</strong> 条</span>
-          </div>
-          <div v-if="importResult.message" class="mt-2 rounded bg-slate-50 p-2 text-slate-600">
-            {{ importResult.message }}
-          </div>
-        </div>
-      </div>
     </div>
 
     <template #footer>
@@ -91,28 +69,6 @@ import type { FileUploadSelectEvent } from "primevue/fileupload"
 import { useImportStudentsByExcel } from "../hooks/useMutateClassImport"
 import { useDownloadExcelTemplate } from "../hooks/useQueryExcelTemplate"
 
-// 导入结果数据结构（基于后端 API 返回的 JSON 字符串内容）
-interface ImportResult {
-  successCount?: number
-  failCount?: number
-  totalCount?: number
-  message?: string
-}
-
-// 类型守卫：验证对象是否为 ImportResult
-function isImportResult(data: unknown): data is ImportResult {
-  if (typeof data !== "object" || data === null) {
-    return false
-  }
-  const obj = data as Record<string, unknown>
-  return (
-    (obj.successCount === undefined || typeof obj.successCount === "number") &&
-    (obj.failCount === undefined || typeof obj.failCount === "number") &&
-    (obj.totalCount === undefined || typeof obj.totalCount === "number") &&
-    (obj.message === undefined || typeof obj.message === "string")
-  )
-}
-
 interface Emits {
   (e: "success"): void
 }
@@ -131,7 +87,6 @@ const errorMessage = ref("")
 // 导入状态
 const importMutation = useImportStudentsByExcel()
 const isImporting = computed(() => importMutation.isPending.value)
-const importResult = ref<ImportResult | null>(null)
 
 // 下载模板
 const downloadTemplateMutation = useDownloadExcelTemplate()
@@ -144,7 +99,6 @@ function open() {
   selectedFile.value = null
   selectedFileName.value = ""
   errorMessage.value = ""
-  importResult.value = null
 }
 
 // 关闭对话框
@@ -179,7 +133,6 @@ function onFileSelect(event: FileUploadSelectEvent) {
     selectedFile.value = file
     selectedFileName.value = file.name
     errorMessage.value = ""
-    importResult.value = null
   }
 }
 
@@ -195,30 +148,10 @@ async function handleImport() {
     return
   }
 
-  const response = await importMutation.mutateAsync(selectedFile.value)
+  await importMutation.mutateAsync(selectedFile.value)
 
-  // 解析后端返回的 JSON 字符串
-  if (response?.data) {
-    const parsed = JSON.parse(response.data)
-    // 使用类型守卫验证解析后的数据
-    if (isImportResult(parsed)) {
-      importResult.value = parsed
-    } else {
-      // 如果数据格式不符合预期，显示原始消息
-      importResult.value = { message: String(response.data) }
-    }
-  } else {
-    importResult.value = null
-  }
-
-  toast.add({
-    severity: "success",
-    summary: "导入完成",
-    detail: "学生数据导入成功",
-    life: 3000,
-  })
-
-  // 通知父组件刷新列表
+  // hook 的 onSuccess 已经处理了数据解析和 toast
+  // 这里只需要处理组件逻辑：刷新列表、关闭对话框
   emit("success")
 
   // 延迟关闭对话框，让用户看到结果

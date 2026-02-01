@@ -36,10 +36,8 @@ axiosInstance.interceptors.response.use(
       message?: string;
       data?: unknown;
     };
-    debugger
-    // 如果是二进制数据,通过响应头判断，直接返回
-    if (response.headers["content-type"] === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8") {
-      debugger
+    // 如果是二进制数据，直接返回
+    if (response.config.responseType === "blob") {
       return response;
     }
     // 检查业务错误码
