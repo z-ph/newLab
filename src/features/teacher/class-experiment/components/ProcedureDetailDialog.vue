@@ -3,6 +3,7 @@
     v-model:visible="visible"
     header="提交详情"
     :modal="true"
+    :style="{ maxWidth: '100vw' }"
   >
     <div v-if="isLoading" class="text-center py-8">
       <ProgressSpinner style="width: 50px; height: 50px" strokeWidth="4" />

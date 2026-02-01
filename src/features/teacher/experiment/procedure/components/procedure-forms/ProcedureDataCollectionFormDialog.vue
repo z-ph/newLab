@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-model:visible="visible" header="添加数据收集步骤"  :modal="true">
+  <Dialog v-model:visible="visible" header="添加数据收集步骤" :modal="true" :style="{ maxWidth: '100vw' }">
     <form @submit.prevent="handleSubmit">
       <div class="mb-4 flex flex-col gap-3">
         <!-- 步骤描述 -->

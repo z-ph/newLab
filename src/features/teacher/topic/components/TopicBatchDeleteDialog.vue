@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-model:visible="visible" header="批量删除确认" modal>
+  <Dialog v-model:visible="visible" header="批量删除确认" modal :style="{ maxWidth: '100vw' }">
     <div class="space-y-4">
       <p class="text-slate-700">
         确定要删除选中的 <span class="font-semibold text-red-600">{{ topicCount }}</span> 道题目吗？

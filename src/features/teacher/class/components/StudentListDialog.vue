@@ -3,6 +3,7 @@
     v-model:visible="visible"
     :header="`班级学生 - ${classCode}`"
     :modal="true"
+    :style="{ maxWidth: '100vw' }"
   >
     <div class="mb-4 flex items-center justify-between gap-4">
       <InputText
@@ -51,6 +52,7 @@
       v-model:visible="showAddDialog"
       header="添加学生"
       :modal="true"
+      :style="{ maxWidth: '100vw' }"
     >
       <div class="mb-4">
         <label class="mb-2 block text-sm font-medium text-slate-700">

@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-model:visible="visible" header="题目详情" modal>
+  <Dialog v-model:visible="visible" header="题目详情" modal :style="{ maxWidth: '100vw' }">
     <div v-if="topic" class="space-y-4">
       <!-- 题目类型和 ID -->
       <div class="flex items-center gap-4">

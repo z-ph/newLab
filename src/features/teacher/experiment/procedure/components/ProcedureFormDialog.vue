@@ -27,6 +27,7 @@
       v-model:visible="typeSelectVisible"
       header="添加实验步骤"
       :modal="true"
+      :style="{ maxWidth: '100vw' }"
     >
       <div class="flex flex-col gap-3">
         <label class="block text-sm font-medium text-slate-700">

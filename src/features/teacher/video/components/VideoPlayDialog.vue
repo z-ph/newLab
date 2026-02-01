@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-model:visible="visible" header="播放视频" modal>
+  <Dialog v-model:visible="visible" header="播放视频" modal :style="{ maxWidth: '100vw' }">
     <div class="aspect-video bg-black">
       <video
         v-if="playUrl"

@@ -1,6 +1,8 @@
 <template>
   <Dialog v-model:visible="visible" :header="isEdit ? '编辑实验' : '新建实验'"
-    :modal="true">
+    :modal="true"
+    :style="{ maxWidth: '100vw' }"
+  >
     <form @submit.prevent="handleSubmit">
       <div class="mb-4 flex flex-col gap-3">
         <div v-if="!isEdit">

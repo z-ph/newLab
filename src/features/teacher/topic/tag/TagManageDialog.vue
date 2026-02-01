@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-model:visible="visible" header="标签管理" modal>
+  <Dialog v-model:visible="visible" header="标签管理" modal :style="{ maxWidth: '100vw' }">
     <div class="space-y-4">
       <!-- 创建标签表单 -->
       <div class="flex gap-2 items-end">
@@ -80,7 +80,7 @@
     </template>
 
     <!-- 编辑对话框 -->
-    <Dialog v-model:visible="showEditDialog" header="编辑标签" modal>
+    <Dialog v-model:visible="showEditDialog" header="编辑标签" modal :style="{ maxWidth: '100vw' }">
       <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">标签名称</label>

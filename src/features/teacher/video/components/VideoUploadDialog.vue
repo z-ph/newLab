@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-model:visible="visible" header="上传视频" modal>
+  <Dialog v-model:visible="visible" header="上传视频" modal :style="{ maxWidth: '100vw' }">
     <div class="space-y-4">
       <div>
         <label class="block text-sm font-medium text-slate-700 mb-2">视频文件 *</label>

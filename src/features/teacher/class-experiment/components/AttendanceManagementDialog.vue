@@ -1,5 +1,5 @@
 <template>
-  <Dialog :visible="visible" @update:visible="emit('update:visible', $event)" header="签到管理" :modal="true">
+  <Dialog :visible="visible" @update:visible="emit('update:visible', $event)" header="签到管理" :modal="true" :style="{ maxWidth: '100vw' }">
     <AttendanceManagement
       v-if="classExperiment"
       :experiment-id="Number(classExperiment.experimentId)"

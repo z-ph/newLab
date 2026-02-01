@@ -4,6 +4,7 @@
     :header="isEdit ? '编辑课程' : '新建课程'"
     :modal="true"
     @update:visible="handleClose"
+    :style="{ maxWidth: '100vw' }"
   >
     <form @submit.prevent="handleSubmit">
       <div class="mb-4 flex flex-col gap-4">

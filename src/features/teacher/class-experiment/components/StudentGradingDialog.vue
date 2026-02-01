@@ -4,6 +4,7 @@
     @update:visible="emit('update:visible', $event)"
     header="学生批改"
     :modal="true"
+    :style="{ maxWidth: '100vw' }"
   >
     <div v-if="classExperiment" class="flex h-full gap-4">
       <!-- 左侧：学生列表 -->
@@ -96,7 +97,7 @@
     </div>
 
     <!-- 批改对话框 -->
-    <Dialog v-model:visible="showGradeDialog" header="批改" :modal="true">
+    <Dialog v-model:visible="showGradeDialog" header="批改" :modal="true" :style="{ maxWidth: '100vw' }">
       <div v-if="currentSubmission" class="space-y-4">
         <div>
           <label class="mb-2 block text-sm font-medium text-slate-700">

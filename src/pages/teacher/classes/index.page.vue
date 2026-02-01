@@ -11,7 +11,7 @@
     </ClassTable>
 
     <!-- 创建班级对话框 -->
-    <Dialog v-model:visible="showCreateDialog" header="新建班级" :modal="true">
+    <Dialog v-model:visible="showCreateDialog" header="新建班级" :modal="true" :style="{ maxWidth: '100vw' }">
       <form @submit.prevent="handleCreate">
         <div class="mb-4 flex flex-col gap-3">
           <div>
@@ -29,7 +29,7 @@
     </Dialog>
 
     <!-- 编辑班级对话框 -->
-    <Dialog v-model:visible="showEditDialog" header="编辑班级" :modal="true">
+    <Dialog v-model:visible="showEditDialog" header="编辑班级" :modal="true" :style="{ maxWidth: '100vw' }">
       <form @submit.prevent="handleUpdate">
         <div class="mb-4 flex flex-col gap-3">
           <div>
