@@ -1003,6 +1003,71 @@ export const CHOICE_LABEL_START_CHAR_CODE = 65
 
 ### Hook 封装规范（CRITICAL）
 
+**禁止组件直接调用 API，必须封装在 hook 中**
+
+- ❌ **禁止组件直接导入并调用 API 函数**：不要在组件中 `import { postApiXXX } from '@/core/api/generated'` 并直接调用
+- ✅ **所有 API 调用必须封装在 hook 中**：查询用 `useQuery`，变更用 `useMutation`
+- ✅ **组件只调用 hook**：组件通过 `useXXX()` 使用封装好的 hook
+
+**错误示例**：
+```vue
+<!-- ❌ 错误：组件直接调用 API -->
+<script setup lang="ts">
+import { getApiTestExcelTemplateUsers } from "@/core/api/generated"
+import client from "@/core/api/config"
+
+async function downloadTemplate() {
+  const response = await getApiTestExcelTemplateUsers({ client })
+  // 处理响应...
+}
+</script>
+```
+
+**正确示例**：
+```vue
+<!-- ✅ 正确：使用封装好的 hook -->
+<script setup lang="ts">
+import { useDownloadExcelTemplate } from "../hooks/useQueryExcelTemplate"
+
+const downloadTemplateMutation = useDownloadExcelTemplate()
+
+function downloadTemplate() {
+  downloadTemplateMutation.mutate()
+}
+</script>
+```
+
+**Hook 封装示例**：
+```typescript
+// hooks/useQueryExcelTemplate.ts
+import { getApiTestExcelTemplateUsers } from "@/core/api/generated"
+import { useMutation } from "@tanstack/vue-query"
+import client from "@/core/api/config"
+import { toast } from "@/core/utils/toast"
+
+export function useDownloadExcelTemplate() {
+  return useMutation({
+    mutationFn: async () => {
+      const response = await getApiTestExcelTemplateUsers({ client })
+      return response.data
+    },
+    onSuccess: (data) => {
+      // 处理成功逻辑
+      toast.success("下载成功")
+    },
+  })
+}
+```
+
+**理由**：
+- **统一错误处理**：Hook 中的 mutation/query 自动利用全局拦截器处理错误
+- **状态管理**：Hook 自动管理 loading、error 状态，组件无需手动管理
+- **代码复用**：Hook 可在多个组件中复用，避免重复代码
+- **关注点分离**：组件只负责 UI，Hook 负责业务逻辑
+- **易于测试**：Hook 可以独立测试，不需要挂载组件
+
+---
+
 **调用生成的 API 时必须传入 config.ts 的 client**
 
 - ✅ **必须导入并传入 client**：从 `@/core/api/config` 导入 client 并传给 API
