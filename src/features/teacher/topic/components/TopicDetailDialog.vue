@@ -68,7 +68,8 @@ import { ref } from "vue"
 
 import type { TopicDetailResponse } from "@/core/api/generated"
 import { getTopicTypeName, getTopicTypeSeverity } from "@/features/teacher/topic/constants"
-import { formatChoices } from "@/features/teacher/topic/utils/formatters"
+import { formatChoices, formatCorrectAnswer } from "@/features/teacher/topic/utils/formatters"
+import { formatDateTime } from "@/features/shared/utils"
 
 // ✅ 状态封装在组件内部
 const visible = ref(false)
@@ -101,40 +102,6 @@ function getTagSeverity(tagType?: string): "success" | "warn" | "contrast" | und
 function isCorrectChoice(choiceLabel: string | undefined): boolean {
   if (!choiceLabel || !topic.value?.correctAnswer) return false
   return topic.value.correctAnswer.includes(choiceLabel)
-}
-
-// 格式化正确答案
-function formatCorrectAnswer(answer?: string, type?: number): string {
-  if (!answer) return "-"
-
-  if (type === 3) {
-    // 判断题
-    return answer === "T" ? "正确" : "错误"
-  }
-
-  if (type === 1 || type === 2) {
-    // 单选/多选题：展开字母
-    return answer.split("").sort().join("、")
-  }
-
-  return answer
-}
-
-// 格式化时间
-function formatDateTime(dateStr?: string): string {
-  if (!dateStr) return "-"
-  try {
-    const date = new Date(dateStr)
-    return date.toLocaleString("zh-CN", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    })
-  } catch {
-    return dateStr
-  }
 }
 
 // ✅ 暴露方法

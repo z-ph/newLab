@@ -67,7 +67,8 @@ import { useConfirm } from 'primevue/useconfirm'
 import Popover from 'primevue/popover'
 
 import type { VideoUploadResponse } from '@/core/api/generated'
-import { formatDuration, formatFileSize, formatDateTime, truncateFileName } from '../utils/formatters'
+import { formatDuration, formatFileSize, truncateFileName } from '../utils/formatters'
+import { formatDateTime } from '@/features/shared/utils'
 import { useQueryVideoPage, useDeleteVideo } from '../hooks'
 
 interface Emits {

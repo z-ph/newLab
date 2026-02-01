@@ -67,7 +67,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useQuerySubmissionDetail } from '../hooks'
-import { formatDateTime } from '../utils'
+import { formatDateTime } from '@/features/shared/utils'
 
 // ==================== 对话框状态 ====================
 const visible = ref(false)

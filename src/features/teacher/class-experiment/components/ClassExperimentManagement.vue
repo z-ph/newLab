@@ -159,7 +159,7 @@ import { useQueryCourseAll } from '@/features/teacher/course'
 import { useQueryExperimentAll } from '@/features/teacher/experiment'
 import { useQueryClassExperiments } from '../hooks'
 import { useUnbindExperiment } from '@/features/teacher/class'
-import { formatDateTime } from '../utils'
+import { formatDateTime } from '@/features/shared/utils'
 import {
   AttendanceManagementDialog,
   StudentGradingDialog,

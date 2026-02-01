@@ -109,7 +109,6 @@ export {
 // Utils
 export {
   formatVideoDuration,
-  formatDateTime,
   parseJson,
   parseArray,
   ProcedureTimeCalculator,

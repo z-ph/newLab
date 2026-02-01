@@ -79,7 +79,7 @@ import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
 import { useBindStudents, useUnbindStudents } from '@/features/teacher/class/hooks/useMutateClassStudents'
 import { useQueryStudentList } from '@/features/teacher/class/hooks/useQueryStudentList'
-import { formatDateTime } from '@/features/teacher/class/utils'
+import { formatDateTime } from '@/features/shared/utils'
 import type { StudentClassRelation } from '@/core/api/generated'
 
 // ==================== Props & Emits ====================

@@ -55,6 +55,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { TIME_LIMITS } from '../../constants'
+import { formatOffsetDescription, formatDurationDescription } from '@/features/teacher/experiment/utils'
 
 interface Props {
   offsetMinutes: number
@@ -78,27 +79,4 @@ const localDurationMinutes = computed({
   get: () => props.durationMinutes,
   set: (value) => emit('update:durationMinutes', value ?? 60),
 })
-
-/**
- * 格式化偏移量描述
- */
-function formatOffsetDescription(minutes: number): string {
-  if (minutes === 0) return '上课后立即开始'
-  if (minutes < 60) return `上课后 ${minutes} 分钟开始`
-  const hours = Math.floor(minutes / 60)
-  const mins = minutes % 60
-  if (mins === 0) return `上课后 ${hours} 小时开始`
-  return `上课后 ${hours} 小时 ${mins} 分钟开始`
-}
-
-/**
- * 格式化持续时间描述
- */
-function formatDurationDescription(minutes: number): string {
-  if (minutes < 60) return `持续 ${minutes} 分钟`
-  const hours = Math.floor(minutes / 60)
-  const mins = minutes % 60
-  if (mins === 0) return `持续 ${hours} 小时`
-  return `持续 ${hours} 小时 ${mins} 分钟`
-}
 </script>

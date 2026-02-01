@@ -14,7 +14,4 @@ export { default as ClassExperimentManagement } from './components/ClassExperime
 // Hooks
 export { useQueryClassExperiments } from './hooks'
 
-// Utils
-export { formatDateTime } from './utils'
-
 

@@ -133,6 +133,7 @@ import { useQueryClassAll } from '@/features/teacher/class'
 import { useQueryCourseAll } from '@/features/teacher/course'
 import { useQueryExperimentAll } from '@/features/teacher/experiment'
 import { useBindExperiment } from '@/features/teacher/class'
+import { formatDateShort } from '@/features/shared/utils'
 
 interface Emits {
   (e: 'success'): void
@@ -268,7 +269,7 @@ const handleSubmit = async () => {
     experimentId: formData.experimentId,
     classCodes: formData.classCodes,
     courseTime: formData.courseStartTime && formData.courseEndTime
-      ? `${formatDateTime(formData.courseStartTime)} - ${formatDateTime(formData.courseEndTime)}`
+      ? `${formatDateShort(formData.courseStartTime)} - ${formatDateShort(formData.courseEndTime)}`
       : undefined,
     startTime: formData.startTime?.toISOString(),
     endTime: formData.endTime?.toISOString(),
@@ -282,18 +283,6 @@ const handleSubmit = async () => {
   visible.value = false
   resetForm()
   emit('success')
-}
-
-/**
- * 格式化日期时间为字符串
- */
-function formatDateTime(date: Date): string {
-  return date.toLocaleString('zh-CN', {
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
 }
 
 defineExpose({ open })

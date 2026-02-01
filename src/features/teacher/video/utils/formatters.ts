@@ -27,16 +27,6 @@ export function formatFileSize(bytes?: number): string {
 }
 
 /**
- * 格式化日期时间
- * @param dateTime 日期时间字符串
- * @returns 格式化后的日期时间字符串
- */
-export function formatDateTime(dateTime?: string): string {
-  if (!dateTime) return '-'
-  return new Date(dateTime).toLocaleString('zh-CN')
-}
-
-/**
  * 截断文件名显示
  * @param fileName 文件名
  * @param maxLength 最大显示长度（默认 10）

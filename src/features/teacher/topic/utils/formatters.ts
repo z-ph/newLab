@@ -45,3 +45,22 @@ export function filterTagsByType(tags?: Array<{ tagType?: string }>, targetType?
   if (!targetType) return tags
   return tags.filter((tagggggg) => tagggggg.tagType === targetType)
 }
+
+/**
+ * 格式化正确答案显示
+ *
+ * @param answer - 正确答案字符串
+ * @param type - 题目类型（1:单选, 2:多选, 3:判断）
+ * @returns 格式化后的答案字符串
+ */
+export function formatCorrectAnswer(answer?: string, type?: number): string {
+  if (!answer) return '-'
+
+  // 判断题
+  if (type === 3) {
+    return answer === 'true' ? '正确' : answer === 'false' ? '错误' : answer
+  }
+
+  // 单选题和多选题，显示选项字母
+  return answer
+}

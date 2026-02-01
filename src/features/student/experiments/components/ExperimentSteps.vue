@@ -19,8 +19,8 @@
           </div>
           <!-- 时间状态 -->
           <Tag
-            v-if="stepTimeValidation(step)"
-            :value="stepTimeValidation(step)?.statusText"
+            v-if="stepTimeValidation(step, baseTime)"
+            :value="stepTimeValidation(step, baseTime)?.statusText"
             :severity="getStepTimeSeverity(step)"
             class="text-xs"
           />
@@ -31,9 +31,9 @@
         <!-- 步骤未在时间窗口内 -->
         <div v-if="!isStepAvailable(step)" class="py-8 text-center">
           <i class="pi pi-clock text-4xl text-gray-300 mb-3" />
-          <p class="text-sm text-gray-600 mb-2">{{ getTimeUnavailableMessage(step) }}</p>
+          <p class="text-sm text-gray-600 mb-2">{{ getTimeUnavailableMessage(step, baseTime) }}</p>
           <p class="text-xs text-gray-400">
-            {{ getTimeWindowText(step) }}
+            {{ getTimeWindowText(step, baseTime) }}
           </p>
         </div>
 
@@ -122,19 +122,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { toast } from '@/core/utils/toast'
-
-interface ProcedureStep {
-  id: number
-  stepType: number
-  procedureName?: string
-  videoUrl?: string
-  topicContent?: string
-  dataCollectionInstruction?: string
-  isCompleted: boolean
-  // 时间配置字段
-  offsetMinutes?: number
-  durationMinutes?: number
-}
+import { getTimeUnavailableMessage, getTimeWindowText, stepTimeValidation } from '@/features/student/experiments/utils'
+import type { ProcedureStep } from '@/features/student/experiments/utils'
 
 interface Props {
   courseId: string
@@ -177,54 +166,10 @@ const procedureSteps = ref<ProcedureStep[]>([
 ])
 
 /**
- * 获取步骤时间校验状态
- */
-function stepTimeValidation(step: ProcedureStep) {
-  if (step.offsetMinutes === undefined || step.durationMinutes === undefined) {
-    return null
-  }
-
-  const baseTime = props.baseTime ? new Date(props.baseTime) : new Date()
-
-  // 这里可以使用 useProcedureTimeValidation hook
-  // 为简化演示，直接计算状态
-  const now = new Date()
-  const startTime = new Date(baseTime.getTime() + step.offsetMinutes * 60000)
-  const endTime = new Date(startTime.getTime() + step.durationMinutes * 60000)
-
-  const isNotStarted = now < startTime
-  const isEnded = now > endTime
-  const isAvailable = !isNotStarted && !isEnded
-
-  const remainingMinutes = isAvailable
-    ? Math.floor((endTime.getTime() - now.getTime()) / 60000)
-    : 0
-
-  const minutesUntilStart = isNotStarted
-    ? Math.ceil((startTime.getTime() - now.getTime()) / 60000)
-    : 0
-
-  return {
-    isAvailable,
-    isNotStarted,
-    isEnded,
-    remainingMinutes,
-    minutesUntilStart,
-    startTime,
-    endTime,
-    statusText: isAvailable
-      ? `进行中，剩余 ${remainingMinutes} 分钟`
-      : isNotStarted
-        ? `${minutesUntilStart} 分钟后开始`
-        : '已结束',
-  }
-}
-
-/**
  * 判断步骤是否在可用时间窗口内
  */
 function isStepAvailable(step: ProcedureStep): boolean {
-  const validation = stepTimeValidation(step)
+  const validation = stepTimeValidation(step, props.baseTime)
   if (!validation) return true // 没有时间配置则默认可用
   return validation.isAvailable
 }
@@ -252,39 +197,12 @@ function getStepClass(step: ProcedureStep, index: number): string {
  * 获取步骤时间状态严重性
  */
 function getStepTimeSeverity(step: ProcedureStep): 'success' | 'info' | 'warning' | 'danger' {
-  const validation = stepTimeValidation(step)
+  const validation = stepTimeValidation(step, props.baseTime)
   if (!validation) return 'info'
   if (validation.isEnded) return 'danger'
   if (validation.isNotStarted) return 'info'
   if (validation.remainingMinutes < 10) return 'warning'
   return 'success'
-}
-
-/**
- * 获取时间不可用提示消息
- */
-function getTimeUnavailableMessage(step: ProcedureStep): string {
-  const validation = stepTimeValidation(step)
-  if (!validation) return '步骤不可用'
-  if (validation.isNotStarted) return '步骤尚未开始'
-  if (validation.isEnded) return '步骤已结束'
-  return '步骤不可用'
-}
-
-/**
- * 获取时间窗口文本
- */
-function getTimeWindowText(step: ProcedureStep): string {
-  const validation = stepTimeValidation(step)
-  if (!validation) return ''
-
-  const formatTime = (date: Date) => {
-    const hours = String(date.getHours()).padStart(2, '0')
-    const minutes = String(date.getMinutes()).padStart(2, '0')
-    return `${hours}:${minutes}`
-  }
-
-  return `${formatTime(validation.startTime)} - ${formatTime(validation.endTime)}`
 }
 
 function getStepStatusText(step: ProcedureStep): string {

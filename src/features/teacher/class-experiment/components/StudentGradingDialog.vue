@@ -135,7 +135,7 @@ import type { ExperimentInfo } from '@/core/api/generated'
 import type { ProcedureSubmissionResponse } from '@/core/api/generated'
 import { useQueryStudentSubmissions } from '../hooks'
 import { useGradeSubmission } from '../hooks'
-import { formatDateTime } from '../utils'
+import { formatDateTime } from '@/features/shared/utils'
 import ProcedureDetailDialog from './ProcedureDetailDialog.vue'
 
 interface Props {

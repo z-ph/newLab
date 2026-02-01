@@ -95,6 +95,8 @@ import { useConfirm } from "primevue/useconfirm"
 import type { TopicDetailResponse } from "@/core/api/generated"
 import { getTopicTypeName, getTopicTypeSeverity } from "@/features/teacher/topic/constants"
 import { formatChoices } from "@/features/teacher/topic/utils/formatters"
+import { formatDateTime } from "@/features/shared/utils"
+import { getTagSeverity } from "@/features/teacher/topic/utils/tagHelpers"
 import { useQueryTopicPage, useDeleteTopic } from "@/features/teacher/topic/hooks"
 
 interface Emits {
@@ -148,34 +150,6 @@ const handleDelete = (topic: TopicDetailResponse) => {
       query.refetch()
     },
   })
-}
-
-// 获取标签类型对应的 Tag 颜色
-function getTagSeverity(tagType?: string): "success" | "warn" | "contrast" | undefined {
-  if (!tagType) return undefined
-  const severityMap: Record<string, "success" | "warn" | "contrast"> = {
-    "1": "success",  // 学科标签
-    "2": "warn",     // 难度标签
-    "4": "contrast", // 自定义标签
-  }
-  return severityMap[tagType]
-}
-
-// 格式化时间
-function formatDateTime(dateStr?: string): string {
-  if (!dateStr) return "-"
-  try {
-    const date = new Date(dateStr)
-    return date.toLocaleString("zh-CN", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    })
-  } catch {
-    return dateStr
-  }
 }
 
 // ✅ 批量删除

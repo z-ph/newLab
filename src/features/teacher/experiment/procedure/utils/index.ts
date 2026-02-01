@@ -20,22 +20,6 @@ export function formatVideoDuration(seconds?: number): string {
 }
 
 /**
- * 格式化日期时间
- * @param dateStr 日期时间字符串
- * @returns 格式化后的日期时间字符串
- */
-export function formatDateTime(dateStr: string | undefined): string {
-  if (!dateStr) return ''
-  const date = new Date(dateStr)
-  return date.toLocaleString('zh-CN', {
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
-
-/**
  * 解析 JSON 字符串
  * @param jsonStr JSON 字符串
  * @returns 解析后的对象，解析失败返回空对象
