@@ -15,7 +15,7 @@
         <template #header>
           <slot name="header" />
         </template>
-        <Column key="selection" selection-mode="multiple" header-style="width: 3rem" />
+        <Column key="selection" selection-mode="multiple" />
         <Column key="className" field="className" header="班级名称" />
         <Column key="studentCount" field="studentCount" header="学生数" />
         <Column key="actions" header="操作">

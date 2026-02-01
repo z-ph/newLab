@@ -67,7 +67,7 @@
               <Button label="添加班级实验" icon="pi pi-plus" @click="openAddDialog" />
             </div>
           </template>
-          <Column selection-mode="multiple" header-style="width: 3rem" />
+          <Column selection-mode="multiple" />
           <Column field="courseName" header="课程" />
           <Column field="className" header="班级" />
           <Column field="experimentName" header="实验" />

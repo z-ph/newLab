@@ -15,7 +15,7 @@
         <template #header>
           <slot name="header" />
         </template>
-        <Column key="selection" selection-mode="multiple" header-style="width: 3rem" />
+        <Column key="selection" selection-mode="multiple" />
         <Column key="courseId" field="courseId" header="课程编号" />
         <Column key="courseName" field="courseName" header="课程名称" />
         <Column key="teacherUsername" field="teacherUsername" header="教师名称" />

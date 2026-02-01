@@ -37,7 +37,7 @@
         :rows-per-page-options="[10, 20, 50]"
         current-page-report-template="显示 {first} 到 {last} 共 {totalRecords} 条"
       >
-        <Column field="id" header="ID" sortable style="width: 80px" />
+        <Column field="id" header="ID" sortable />
         <Column field="tagName" header="标签名称" sortable>
           <template #body="{ data }">
             <Tag :value="data.tagName" :severity="getSeverity(data.type)" />
@@ -53,7 +53,7 @@
             {{ data.description || '-' }}
           </template>
         </Column>
-        <Column header="操作" frozen frozen-align="right" style="width: 150px">
+        <Column header="操作" frozen frozen-align="right">
           <template #body="{ data }">
             <div class="flex gap-2">
               <Button

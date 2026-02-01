@@ -13,7 +13,7 @@
         <template #header>
           <slot name="header" />
         </template>
-        <Column key="selection" selection-mode="multiple" header-style="width: 3rem" />
+        <Column key="selection" selection-mode="multiple" />
         <Column key="experimentName" field="experimentName" header="实验名称" />
         <Column key="courseName" field="courseName" header="课程" />
         <Column key="teacherUsername" field="teacherUsername" header="教师" />
