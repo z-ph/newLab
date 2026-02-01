@@ -39,8 +39,8 @@
       <Column key="timeConfig" header="时间配置" style="width: 200px">
         <template #body="slotProps">
           <div class="text-xs space-y-1">
-            <div class="text-slate-600">偏移: {{ slotProps.data.offsetMinutes ?? 0 }} 分钟</div>
-            <div class="text-slate-600">持续: {{ slotProps.data.durationMinutes ?? '-' }} 分钟</div>
+            <div class="text-slate-600">上课后 {{ slotProps.data.offsetMinutes ?? 0 }} 分钟</div>
+            <div class="text-slate-600">持续 {{ slotProps.data.durationMinutes ?? '-' }} 分钟</div>
           </div>
         </template>
       </Column>
