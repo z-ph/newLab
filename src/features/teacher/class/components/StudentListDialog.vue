@@ -23,7 +23,7 @@
       :value="students"
       :paginator="true"
       :rows="10"
-      :loading="loading"
+      :loading="isLoading"
       :total-records="total"
       :rows-per-page-options="[10, 20, 50]"
       @page="onPageChange"
@@ -31,7 +31,7 @@
       <Column key="studentUsername" field="studentUsername" header="学号" />
       <Column key="bindTime" field="bindTime" header="绑定时间">
         <template #body="slotProps">
-          {{ formatDate(slotProps.data.bindTime) }}
+          {{ formatDateTime(slotProps.data.bindTime) }}
         </template>
       </Column>
       <Column key="actions" header="操作">
@@ -77,8 +77,9 @@
 import { ref, watch } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
-import { postApiTeacherClassByClassCodeStudents } from '@/core/api/generated'
 import { useBindStudents, useUnbindStudents } from '@/features/teacher/class/hooks/useMutateClassStudents'
+import { useQueryStudentList } from '@/features/teacher/class/hooks/useQueryStudentList'
+import { formatDateTime } from '@/features/teacher/class/utils'
 import type { StudentClassRelation } from '@/core/api/generated'
 
 // ==================== Props & Emits ====================
@@ -98,45 +99,30 @@ const visible = defineModel<boolean>()
 const toast = useToast()
 const confirm = useConfirm()
 
-// ==================== 响应式数据 ====================
-const students = ref<StudentClassRelation[]>([])
-const loading = ref(false)
-const total = ref(0)
-const current = ref(1)
-const size = ref(10)
-const searchKeyword = ref('')
+// ==================== 数据查询（使用 Hook）====================
+const {
+  current,
+  size,
+  searchKeyword,
+  students,
+  total,
+  isLoading,
+  query,
+} = useQueryStudentList(props.classCode, { current: 1, size: 10 })
 
-// 添加学生相关
+// ==================== 添加学生相关 ====================
 const showAddDialog = ref(false)
 const studentInput = ref('')
 const adding = ref(false)
 const bindMutation = useBindStudents()
 const unbindMutation = useUnbindStudents()
 
-// ==================== 查询学生列表 ====================
-const fetchStudents = async () => {
-  loading.value = true
-  try {
-    const response = await postApiTeacherClassByClassCodeStudents({
-      path: { classCode: props.classCode },
-      body: {
-        current: current.value,
-        size: size.value,
-        studentUsername: searchKeyword.value || undefined,
-      },
-    })
-    students.value = response.data?.data?.records || []
-    total.value = response.data?.data?.total || 0
-  } finally {
-    loading.value = false
-  }
-}
-
+// ==================== 对话框打开时查询数据 ====================
 watch(
   visible,
   (newVal) => {
     if (newVal) {
-      fetchStudents()
+      query.refetch()
     }
   },
 )
@@ -145,13 +131,11 @@ watch(
 const onPageChange = (event: any) => {
   current.value = event.page + 1
   size.value = event.rows
-  fetchStudents()
 }
 
 // ==================== 搜索 ====================
 const handleSearch = () => {
   current.value = 1
-  fetchStudents()
 }
 
 // ==================== 添加学生 ====================
@@ -200,7 +184,7 @@ const handleAddStudents = async () => {
 
   showAddDialog.value = false
   studentInput.value = ''
-  fetchStudents()
+  query.refetch()
   emit('refresh')
   adding.value = false
 }
@@ -221,7 +205,7 @@ const confirmRemove = (student: StudentClassRelation) => {
 const handleRemove = async (student: StudentClassRelation) => {
   await unbindMutation.mutateAsync({
     path: { classCode: props.classCode },
-    body: [student.studentUsername!] as any,
+    body: [student.studentUsername!], // ✅ 移除 as any，API 类型定义为 Array<string>
   })
 
   toast.add({
@@ -231,20 +215,7 @@ const handleRemove = async (student: StudentClassRelation) => {
     life: 3000,
   })
 
-  fetchStudents()
+  query.refetch()
   emit('refresh')
-}
-
-// ==================== 工具函数 ====================
-const formatDate = (dateStr?: string) => {
-  if (!dateStr) return '-'
-  const date = new Date(dateStr)
-  return date.toLocaleString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
 }
 </script>

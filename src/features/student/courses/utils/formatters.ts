@@ -39,3 +39,44 @@ export function getCourseProgress(submissions: any[]): { completed: number; tota
 
   return { completed, total }
 }
+
+/**
+ * 获取教师名称
+ *
+ * @param submissions - 提交记录数组
+ * @returns 教师名称
+ */
+export function getTeacherName(submissions: any[]): string {
+  if (!submissions || submissions.length === 0) return '未知教师'
+  return submissions[0].teacherName || '教师'
+}
+
+/**
+ * 获取进度标签文本
+ *
+ * @param submissions - 提交记录数组
+ * @returns 进度标签文本（未开始、刚开始、进行中、已完成）
+ */
+export function getProgressLabel(submissions: any[]): string {
+  const { completed, total } = getCourseProgress(submissions)
+  if (total === 0) return '未开始'
+  const percentage = (completed / total) * 100
+  if (percentage === 100) return '已完成'
+  if (percentage >= 50) return '进行中'
+  return '刚开始'
+}
+
+/**
+ * 获取进度标签颜色（用于 PrimeVue Tag 组件）
+ *
+ * @param submissions - 提交记录数组
+ * @returns PrimeVue Tag 的 severity 属性值
+ */
+export function getProgressSeverity(submissions: any[]): 'success' | 'info' | 'warning' | 'danger' {
+  const { completed, total } = getCourseProgress(submissions)
+  if (total === 0) return 'info'
+  const percentage = (completed / total) * 100
+  if (percentage === 100) return 'success'
+  if (percentage >= 50) return 'info'
+  return 'warning'
+}

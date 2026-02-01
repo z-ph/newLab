@@ -56,40 +56,14 @@
 import { useRouter } from 'vue-router'
 import MobileLayout from '@/features/student/components/MobileLayout.vue'
 import { useQueryCourses } from '@/features/student/courses/hooks'
-import { getCourseName, getCourseProgress } from '@/features/student/courses/utils'
+import {
+  getCourseName,
+  getCourseProgress,
+  getTeacherName,
+  getProgressLabel,
+  getProgressSeverity,
+} from '@/features/student/courses/utils'
 
 const router = useRouter()
 const { courses, query } = useQueryCourses()
-
-/**
- * 获取教师名称
- */
-function getTeacherName(submissions: any[]): string {
-  if (!submissions || submissions.length === 0) return '未知教师'
-  return submissions[0].teacherName || '教师'
-}
-
-/**
- * 获取进度标签
- */
-function getProgressLabel(submissions: any[]): string {
-  const { completed, total } = getCourseProgress(submissions)
-  if (total === 0) return '未开始'
-  const percentage = (completed / total) * 100
-  if (percentage === 100) return '已完成'
-  if (percentage >= 50) return '进行中'
-  return '刚开始'
-}
-
-/**
- * 获取进度标签颜色
- */
-function getProgressSeverity(submissions: any[]): 'success' | 'info' | 'warning' | 'danger' {
-  const { completed, total } = getCourseProgress(submissions)
-  if (total === 0) return 'info'
-  const percentage = (completed / total) * 100
-  if (percentage === 100) return 'success'
-  if (percentage >= 50) return 'info'
-  return 'warning'
-}
 </script>

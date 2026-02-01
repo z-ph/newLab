@@ -156,8 +156,9 @@ const attendanceList = useQueryAttendanceList({
 
 // 从响应中提取 classExperimentId（如果有的话）
 watchEffect(() => {
-  const data = attendanceList.data.value as any
-  if (data?.classExperimentId) {
+  const data = attendanceList.data.value
+  // 使用类型守卫安全地访问可能存在的字段
+  if (data && 'classExperimentId' in data && typeof data.classExperimentId === 'number') {
     selectedClassExperimentId.value = data.classExperimentId
   }
 })

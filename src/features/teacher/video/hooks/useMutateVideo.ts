@@ -13,12 +13,12 @@ export function useUploadVideo() {
     } & Partial<Omit<import('@/core/api/generated').PostApiTeacherVideosUploadData['query'], 'title'>> & {
       title: string
     }) => {
-      const { file, title, description, courseId, experimentId } = params
+      const { file, title, description } = params
 
-      // ✅ 使用自动生成的 API
+      // ✅ 只使用 API 支持的字段
       return await postApiTeacherVideosUpload({
         body: { file },
-        query: { title, description, courseId, experimentId },
+        query: { title, description },
         client,
       })
     },

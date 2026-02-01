@@ -40,7 +40,7 @@
         <Column field="id" header="ID" sortable />
         <Column field="tagName" header="标签名称" sortable>
           <template #body="{ data }">
-            <Tag :value="data.tagName" :severity="getSeverity(data.type)" />
+            <Tag :value="data.tagName" :severity="getTagSeverity(data.type)" />
           </template>
         </Column>
         <Column field="type" header="标签类型" sortable>
@@ -115,11 +115,10 @@
 <script setup lang="ts">
 import { ref, computed } from "vue"
 import { useConfirm } from "primevue/useconfirm"
-import { getApiTeacherTags, postApiTeacherTags, putApiTeacherTags, deleteApiTeacherTagsByTagId } from "@/core/api/generated"
-import client from "@/core/api/config"
-import { useMutation, useQuery } from "@tanstack/vue-query"
+import { useQueryTags, useCreateTag, useUpdateTag, useDeleteTag } from "@/features/teacher/topic/hooks"
+import { getTagTypeName, getTagSeverity } from "@/features/teacher/topic/utils"
 import { toast } from "@/core/utils/toast"
-import type { Tag, UpdateTagRequest, CreateTagRequest } from "@/core/api/generated"
+import type { Tag, UpdateTagRequest } from "@/core/api/generated"
 
 const confirm = useConfirm()
 
@@ -150,58 +149,17 @@ function handleEdit(tagggggg: Tag) {
   showEditDialog.value = true
 }
 
-// 查询标签列表
-const { data: tags, isLoading, refetch } = useQuery({
-  queryKey: ["tags"],
-  queryFn: () =>
-    getApiTeacherTags({
-      path: { type: "" },
-      client,
-    }),
-  select: (response) => response.data?.data || [],
-})
+// 查询标签列表（使用 Hook）
+const { data: tags, isLoading, refetch } = useQueryTags()
 
-// 创建标签
-const createMutation = useMutation({
-  mutationFn: (data: CreateTagRequest) =>
-    postApiTeacherTags({
-      body: data,
-      client,
-    }),
-  onSuccess: () => {
-    toast.success("标签创建成功")
-    newTagName.value = ""
-    newTagType.value = ""
-    refetch()
-  },
-})
+// 创建标签（使用 Hook）
+const createMutation = useCreateTag()
 
-// 更新标签
-const updateMutation = useMutation({
-  mutationFn: (data: UpdateTagRequest) =>
-    putApiTeacherTags({
-      body: data,
-      client,
-    }),
-  onSuccess: () => {
-    toast.success("标签更新成功")
-    showEditDialog.value = false
-    refetch()
-  },
-})
+// 更新标签（使用 Hook）
+const updateMutation = useUpdateTag()
 
-// 删除标签
-const deleteMutation = useMutation({
-  mutationFn: (tagId: number) =>
-    deleteApiTeacherTagsByTagId({
-      path: { tagId },
-      client,
-    }),
-  onSuccess: () => {
-    toast.success("标签删除成功")
-    refetch()
-  },
-})
+// 删除标签（使用 Hook）
+const deleteMutation = useDeleteTag()
 
 // 标签类型选项（不包含题型标签）
 const tagTypeOptions = [
@@ -229,14 +187,14 @@ function close() {
 async function handleCreateTag() {
   if (!newTagName.value.trim() || !newTagType.value) return
 
-  try {
-    await createMutation.mutateAsync({
-      tagName: newTagName.value.trim(),
-      type: newTagType.value,
-    })
-  } catch (error) {
-    // 错误已经在拦截器中处理
-  }
+  await createMutation.mutateAsync({
+    tagName: newTagName.value.trim(),
+    type: newTagType.value,
+  })
+
+  newTagName.value = ""
+  newTagType.value = ""
+  refetch()
 }
 
 // 更新标签
@@ -246,49 +204,24 @@ async function handleUpdateTag() {
     return
   }
 
-  try {
-    await updateMutation.mutateAsync(editFormData.value)
-  } catch (error) {
-    // 错误已经在拦截器中处理
-  }
+  await updateMutation.mutateAsync(editFormData.value)
+  showEditDialog.value = false
+  refetch()
 }
 
 // 删除标签
-function handleDelete(tagggggg: Tag) {
+function handleDelete(tag: Tag) {
   confirm.require({
-    message: `确定要删除标签"${tagggggg.tagName}"吗？删除后该标签将从所有题目中移除。`,
+    message: `确定要删除标签"${tag.tagName}"吗？删除后该标签将从所有题目中移除。`,
     header: "删除确认",
     icon: "pi pi-exclamation-triangle",
     acceptLabel: "确定",
     rejectLabel: "取消",
     accept: async () => {
-      try {
-        await deleteMutation.mutateAsync(tagggggg.id!)
-      } catch (error) {
-        // 错误已经在拦截器中处理
-      }
+      await deleteMutation.mutateAsync(tag.id!)
+      refetch()
     },
   })
-}
-
-// 获取标签类型名称
-function getTagTypeName(type?: string): string {
-  const typeMap: Record<string, string> = {
-    "1": "学科标签",
-    "2": "难度标签",
-    "4": "自定义标签",
-  }
-  return typeMap[type || ""] || "未知"
-}
-
-// 获取标签颜色
-function getSeverity(type?: string): "success" | "warn" | "contrast" | undefined {
-  const severityMap: Record<string, "success" | "warn" | "contrast"> = {
-    "1": "success",
-    "2": "warn",
-    "4": "contrast",
-  }
-  return severityMap[type || ""]
 }
 
 // ✅ 暴露方法

@@ -170,10 +170,7 @@
 import { ref, computed, watch } from "vue"
 import type { CreateTopicRequest, UpdateTopicRequest } from "@/core/api/generated"
 import { TOPIC_TYPE_OPTIONS, TOPIC_TYPE, TAG_TYPE } from "@/features/teacher/topic/constants"
-import { useQueryTags } from "@/features/teacher/topic/hooks"
-import { postApiTeacherTags } from "@/core/api/generated"
-import client from "@/core/api/config"
-import { useMutation } from "@tanstack/vue-query"
+import { useQueryTags, useCreateTag } from "@/features/teacher/topic/hooks"
 import { toast } from "@/core/utils/toast"
 import TopicChoiceInput from "./TopicChoiceInput.vue"
 import TopicAnswerInput from "./TopicAnswerInput.vue"
@@ -225,73 +222,91 @@ const selectedSubjectTags = ref<number[]>([])
 const selectedDifficultyTags = ref<number[]>([])
 const selectedCustomTags = ref<number[]>([])
 
-// 创建学科标签 mutation
-const createSubjectTagMutation = useMutation({
-  mutationFn: (tagName: string) =>
-    postApiTeacherTags({
-      body: {
-        tagName,
-        type: TAG_TYPE.SUBJECT,
-      },
-      client,
-    }),
-  onSuccess: (response) => {
-    toast.success("学科标签创建成功")
-    refetchTags()
-    const newTagId = response.data?.data
-    if (newTagId && !selectedSubjectTags.value.includes(newTagId)) {
-      selectedSubjectTags.value.push(newTagId)
-    }
-    newSubjectTagName.value = ""
-  },
-})
+// ✅ 使用 Hook 创建标签
+const createTagMutation = useCreateTag()
 
-// 创建难度标签 mutation
-const createDifficultyTagMutation = useMutation({
-  mutationFn: (tagName: string) =>
-    postApiTeacherTags({
-      body: {
-        tagName,
-        type: TAG_TYPE.DIFFICULTY,
-      },
-      client,
-    }),
-  onSuccess: (response) => {
-    toast.success("难度标签创建成功")
-    refetchTags()
-    const newTagId = response.data?.data
-    if (newTagId && !selectedDifficultyTags.value.includes(newTagId)) {
-      selectedDifficultyTags.value.push(newTagId)
-    }
-    newDifficultyTagName.value = ""
-  },
-})
+// 创建学科标签
+const createNewSubjectTag = async () => {
+  const trimmedName = newSubjectTagName.value.trim()
+  if (!trimmedName) return
 
-// 创建自定义标签 mutation
-const createCustomTagMutation = useMutation({
-  mutationFn: (tagName: string) =>
-    postApiTeacherTags({
-      body: {
-        tagName,
-        type: TAG_TYPE.CUSTOM,
-      },
-      client,
-    }),
-  onSuccess: (response) => {
-    toast.success("自定义标签创建成功")
-    refetchTags()
-    const newTagId = response.data?.data
-    if (newTagId && !selectedCustomTags.value.includes(newTagId)) {
-      selectedCustomTags.value.push(newTagId)
-    }
-    newCustomTagName.value = ""
-  },
-})
+  // 检查标签是否已存在
+  const existingTag = tags.value?.find(t => t.tagName === trimmedName && t.type === TAG_TYPE.SUBJECT)
+  if (existingTag) {
+    toast.warn(`学科标签"${trimmedName}"已存在，请从列表中选择`)
+    return
+  }
+
+  const response = await createTagMutation.mutateAsync({
+    tagName: trimmedName,
+    type: TAG_TYPE.SUBJECT,
+  })
+
+  const newTagId = response.data?.data
+  if (newTagId && !selectedSubjectTags.value.includes(newTagId)) {
+    selectedSubjectTags.value.push(newTagId)
+  }
+
+  newSubjectTagName.value = ""
+  await refetchTags()
+}
+
+// 创建难度标签
+const createNewDifficultyTag = async () => {
+  const trimmedName = newDifficultyTagName.value.trim()
+  if (!trimmedName) return
+
+  // 检查标签是否已存在
+  const existingTag = tags.value?.find(t => t.tagName === trimmedName && t.type === TAG_TYPE.DIFFICULTY)
+  if (existingTag) {
+    toast.warn(`难度标签"${trimmedName}"已存在，请从列表中选择`)
+    return
+  }
+
+  const response = await createTagMutation.mutateAsync({
+    tagName: trimmedName,
+    type: TAG_TYPE.DIFFICULTY,
+  })
+
+  const newTagId = response.data?.data
+  if (newTagId && !selectedDifficultyTags.value.includes(newTagId)) {
+    selectedDifficultyTags.value.push(newTagId)
+  }
+
+  newDifficultyTagName.value = ""
+  await refetchTags()
+}
+
+// 创建自定义标签
+const createNewCustomTag = async () => {
+  const trimmedName = newCustomTagName.value.trim()
+  if (!trimmedName) return
+
+  // 检查标签是否已存在
+  const existingTag = tags.value?.find(t => t.tagName === trimmedName && t.type === TAG_TYPE.CUSTOM)
+  if (existingTag) {
+    toast.warn(`自定义标签"${trimmedName}"已存在，请从列表中选择`)
+    return
+  }
+
+  const response = await createTagMutation.mutateAsync({
+    tagName: trimmedName,
+    type: TAG_TYPE.CUSTOM,
+  })
+
+  const newTagId = response.data?.data
+  if (newTagId && !selectedCustomTags.value.includes(newTagId)) {
+    selectedCustomTags.value.push(newTagId)
+  }
+
+  newCustomTagName.value = ""
+  await refetchTags()
+}
 
 // 是否正在创建标签
-const isCreatingSubjectTag = computed(() => createSubjectTagMutation.isPending.value)
-const isCreatingDifficultyTag = computed(() => createDifficultyTagMutation.isPending.value)
-const isCreatingCustomTag = computed(() => createCustomTagMutation.isPending.value)
+const isCreatingSubjectTag = computed(() => createTagMutation.isPending.value)
+const isCreatingDifficultyTag = computed(() => createTagMutation.isPending.value)
+const isCreatingCustomTag = computed(() => createTagMutation.isPending.value)
 
 // 所有选中的标签（合并）
 const selectedTags = computed(() => {
@@ -453,63 +468,6 @@ watch(() => formData.value.type, () => {
 function getTagNameById(tagId: number): string {
   const tagggggg = tags.value?.find(t => t.id === tagId)
   return tagggggg?.tagName || `标签${tagId}`
-}
-
-// 创建新学科标签
-async function createNewSubjectTag() {
-  const trimmedName = newSubjectTagName.value.trim()
-  if (!trimmedName) return
-
-  // 检查标签是否已存在
-  const existingTag = tags.value?.find(t => t.tagName === trimmedName && t.type === TAG_TYPE.SUBJECT)
-  if (existingTag) {
-    toast.warn(`学科标签"${trimmedName}"已存在，请从列表中选择`)
-    return
-  }
-
-  try {
-    await createSubjectTagMutation.mutateAsync(trimmedName)
-  } catch (error) {
-    // 错误已经在拦截器中处理
-  }
-}
-
-// 创建新难度标签
-async function createNewDifficultyTag() {
-  const trimmedName = newDifficultyTagName.value.trim()
-  if (!trimmedName) return
-
-  // 检查标签是否已存在
-  const existingTag = tags.value?.find(t => t.tagName === trimmedName && t.type === TAG_TYPE.DIFFICULTY)
-  if (existingTag) {
-    toast.warn(`难度标签"${trimmedName}"已存在，请从列表中选择`)
-    return
-  }
-
-  try {
-    await createDifficultyTagMutation.mutateAsync(trimmedName)
-  } catch (error) {
-    // 错误已经在拦截器中处理
-  }
-}
-
-// 创建新自定义标签
-async function createNewCustomTag() {
-  const trimmedName = newCustomTagName.value.trim()
-  if (!trimmedName) return
-
-  // 检查标签是否已存在
-  const existingTag = tags.value?.find(t => t.tagName === trimmedName && t.type === TAG_TYPE.CUSTOM)
-  if (existingTag) {
-    toast.warn(`自定义标签"${trimmedName}"已存在，请从列表中选择`)
-    return
-  }
-
-  try {
-    await createCustomTagMutation.mutateAsync(trimmedName)
-  } catch (error) {
-    // 错误已经在拦截器中处理
-  }
 }
 
 // ✅ 暴露方法

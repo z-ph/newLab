@@ -88,7 +88,6 @@ const handleClose = () => {
 }
 
 const handleSubmit = () => {
-
   if (!formData.courseName?.trim()) {
     toast.add({
       severity: 'warn',

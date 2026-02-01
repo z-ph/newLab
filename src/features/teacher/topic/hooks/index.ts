@@ -1,3 +1,6 @@
 export * from "./useQueryTopic"
 export * from "./useMutateTopic"
 export * from "./useQueryTags"
+export * from "./useMutateCreateTag"
+export * from "./useMutateUpdateTag"
+export * from "./useMutateDeleteTag"

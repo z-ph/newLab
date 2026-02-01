@@ -24,33 +24,6 @@
         <label class="block text-sm font-medium text-slate-700 mb-2">视频描述</label>
         <Textarea v-model="formData.description" placeholder="输入视频描述（可选）" rows="3" class="w-full" />
       </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-2">关联课程</label>
-          <Select
-            v-model="formData.courseId"
-            :options="courseOptions"
-            option-label="courseName"
-            option-value="courseId"
-            placeholder="无"
-            class="w-full"
-            show-clear
-          />
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-2">关联实验</label>
-          <Select
-            v-model="formData.experimentId"
-            :options="experimentOptions"
-            option-label="experimentName"
-            option-value="experimentId"
-            placeholder="无"
-            class="w-full"
-            show-clear
-          />
-        </div>
-      </div>
     </div>
 
     <template #footer>
@@ -72,12 +45,9 @@ import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import Textarea from 'primevue/textarea'
 import FileUpload from 'primevue/fileupload'
-import Select from 'primevue/select'
 import type { PostApiTeacherVideosUploadData } from '@/core/api/generated'
 
 defineProps<{
-  courseOptions: Array<{ courseId: string; courseName: string }>
-  experimentOptions: Array<{ experimentId: string; experimentName: string }>
   isLoading?: boolean
 }>()
 
@@ -94,13 +64,11 @@ const emit = defineEmits<Emits>()
 
 // ✅ 状态封装在组件内部
 const visible = ref(false)
-const formData = ref({
+const formData = ref<VideoUploadFormData>({
   title: '',
   description: '',
   file: undefined,
-  courseId: undefined,
-  experimentId: undefined,
-} satisfies VideoUploadFormData)
+})
 
 // ✅ 打开对话框
 function open() {
@@ -108,8 +76,6 @@ function open() {
     title: '',
     description: '',
     file: undefined,
-    courseId: undefined,
-    experimentId: undefined,
   }
   visible.value = true
 }

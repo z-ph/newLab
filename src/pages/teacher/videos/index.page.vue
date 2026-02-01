@@ -18,8 +18,11 @@
     </VideoTable>
 
     <!-- 上传视频对话框 -->
-    <VideoUploadDialog ref="uploadDialogRef" :course-options="courseOptions" :experiment-options="experimentOptions"
-      :is-loading="uploadMutation.isPending.value" @confirm="handleUploadConfirm" />
+    <VideoUploadDialog
+      ref="uploadDialogRef"
+      :is-loading="uploadMutation.isPending.value"
+      @confirm="handleUploadConfirm"
+    />
 
     <!-- 视频详情对话框 -->
     <VideoDetailDialog ref="detailDialogRef" />
@@ -58,12 +61,6 @@ const uploadDialogRef = ref<InstanceType<typeof VideoUploadDialog>>()
 const detailDialogRef = ref<InstanceType<typeof VideoDetailDialog>>()
 const playDialogRef = ref<InstanceType<typeof VideoPlayDialog>>()
 
-// 课程选项（上传表单使用）
-const courseOptions = ref<Array<{ courseId: string; courseName: string }>>([])
-
-// 实验选项（上传表单使用）
-const experimentOptions = ref<Array<{ experimentId: string; experimentName: string }>>([])
-
 // ✅ 上传按钮点击 - 通过 ref 调用
 const handleUploadClick = () => {
   uploadDialogRef.value?.open()
@@ -76,8 +73,6 @@ const handleUploadConfirm = (data: any) => {
       file: data.file!,
       title: data.title,
       description: data.description,
-      courseId: data.courseId,
-      experimentId: data.experimentId,
     },
     {
       onSuccess: () => {

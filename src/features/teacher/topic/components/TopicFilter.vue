@@ -93,12 +93,12 @@ const localSubjectTagIds = ref<number[] | undefined>(filters.value.subjectTagIds
 // 标签选项（按类型分组）
 const difficultyTagOptions = computed(() => {
   if (!tags.value) return []
-  return tags.value.filter((tagggggg: TagInfo) => tagggggg.tagType === "2")
+  return tags.value.filter((tag: TagInfo) => tag.tagType === "2")
 })
 
 const subjectTagOptions = computed(() => {
   if (!tags.value) return []
-  return tags.value.filter((tagggggg: TagInfo) => tagggggg.tagType === "1")
+  return tags.value.filter((tag: TagInfo) => tag.tagType === "1")
 })
 
 // 查询按钮
