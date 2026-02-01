@@ -425,7 +425,7 @@ function handleSubmit() {
 
   // 构建正确答案
   if (showChoices.value) {
-    if (formData.value.type === 2) {
+    if (formData.value.type === TOPIC_TYPE.MULTIPLE_CHOICE) {
       // 多选题：拼接选中的选项
       formData.value.correctAnswer = selectedChoices.value.sort().join("")
     }

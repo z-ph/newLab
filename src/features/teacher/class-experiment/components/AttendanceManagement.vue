@@ -42,7 +42,7 @@
           :value="getAttendanceStudents()"
           :loading="attendanceList.isLoading.value"
           :paginator="true"
-          :rows="10"
+          :rows="ATTENDANCE_TABLE_PAGE_SIZE"
         >
           <Column key="studentName" field="studentName" header="学生姓名" />
           <Column key="studentNumber" field="studentNumber" header="学号" />
@@ -94,7 +94,7 @@
         <DataTable
           :value="attendanceData.notAttendanceList"
           :paginator="true"
-          :rows="5"
+          :rows="NOT_ATTENDANCE_TABLE_PAGE_SIZE"
         >
           <Column key="studentName" field="studentName" header="学生姓名" />
           <Column key="studentNumber" field="studentNumber" header="学号" />
@@ -122,6 +122,7 @@ import { useQueryAttendanceList } from '@/features/teacher/experiment/attendance
 import { useQueryAttendanceStatistics } from '@/features/teacher/experiment/attendance/hooks/useQueryAttendanceStatistics'
 import { useUpdateAttendanceSuccess } from '@/features/teacher/experiment/attendance/hooks/useMutateAttendanceUpdate'
 import { ATTENDANCE_STATUS } from '@/features/teacher/experiment/attendance/constants'
+import { ATTENDANCE_TABLE_PAGE_SIZE, NOT_ATTENDANCE_TABLE_PAGE_SIZE } from '@/features/teacher/class-experiment/constants'
 import type { StudentAttendanceInfo, AttendanceListResponse } from '@/core/api/generated'
 
 interface Props {

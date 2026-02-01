@@ -65,7 +65,7 @@ import InputText from "primevue/inputtext"
 
 import type { TopicQueryRequest } from "@/core/api/generated"
 import type { TagInfo } from "@/core/api/generated"
-import { TOPIC_TYPE_OPTIONS } from "@/features/teacher/topic/constants"
+import { TOPIC_TYPE_OPTIONS, TAG_TYPE } from "@/features/teacher/topic/constants"
 import { useQueryTags } from "@/features/teacher/topic/hooks"
 
 // ✅ 从 API 类型派生
@@ -93,12 +93,12 @@ const localSubjectTagIds = ref<number[] | undefined>(filters.value.subjectTagIds
 // 标签选项（按类型分组）
 const difficultyTagOptions = computed(() => {
   if (!tags.value) return []
-  return tags.value.filter((tag: TagInfo) => tag.tagType === "2")
+  return tags.value.filter((tag: TagInfo) => tag.tagType === TAG_TYPE.DIFFICULTY)
 })
 
 const subjectTagOptions = computed(() => {
   if (!tags.value) return []
-  return tags.value.filter((tag: TagInfo) => tag.tagType === "1")
+  return tags.value.filter((tag: TagInfo) => tag.tagType === TAG_TYPE.SUBJECT)
 })
 
 // 查询按钮
