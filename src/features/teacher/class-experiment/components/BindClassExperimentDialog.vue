@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-model:visible="visible" header="添加班级实验配置" :modal="true" :style="{ maxWidth: '100vw' }">
+  <Dialog v-model:visible="visible" header="添加班级实验配置" :modal="true" :style="{ width: '100vw' }">
     <form @submit.prevent="handleSubmit">
       <div class="flex flex-col gap-4">
         <!-- 课程选择 -->
@@ -7,15 +7,8 @@
           <label class="mb-2 block text-sm font-medium text-slate-700">
             选择课程 <span class="text-red-500">*</span>
           </label>
-          <Select
-            v-model="formData.courseId"
-            :options="courseOptions"
-            option-label="label"
-            option-value="value"
-            placeholder="请选择课程"
-            filter
-            fluid
-          />
+          <Select v-model="formData.courseId" :options="courseOptions" option-label="label" option-value="value"
+            placeholder="请选择课程" filter fluid />
         </div>
 
         <!-- 实验选择 -->
@@ -23,16 +16,9 @@
           <label class="mb-2 block text-sm font-medium text-slate-700">
             选择实验 <span class="text-red-500">*</span>
           </label>
-          <Select
-            v-model="formData.experimentId"
-            :options="filteredExperimentOptions"
-            option-label="label"
-            option-value="value"
-            :placeholder="formData.courseId?'请选择实验':'请先选择课程'"
-            filter
-            :disabled="!formData.courseId"
-            fluid
-          />
+          <Select v-model="formData.experimentId" :options="filteredExperimentOptions" option-label="label"
+            option-value="value" :placeholder="formData.courseId ? '请选择实验' : '请先选择课程'" filter
+            :disabled="!formData.courseId" fluid />
         </div>
 
         <!-- 班级选择 -->
@@ -40,17 +26,8 @@
           <label class="mb-2 block text-sm font-medium text-slate-700">
             选择班级 <span class="text-red-500">*</span>
           </label>
-          <Select
-            v-model="formData.classCodes"
-            :options="classOptions"
-            option-label="label"
-            option-value="value"
-            placeholder="请选择班级（可多选）"
-            filter
-            multiple
-            display="chip"
-            fluid
-          />
+          <Select v-model="formData.classCodes" :options="classOptions" option-label="label" option-value="value"
+            placeholder="请选择班级（可多选）" filter multiple display="chip" fluid />
         </div>
 
         <!-- 上课时间 -->
@@ -59,55 +36,16 @@
             <label class="mb-2 block text-sm font-medium text-slate-700">
               上课开始时间
             </label>
-            <DatePicker
-              v-model="formData.courseStartTime"
-              showTime
-              showSeconds
-              placeholder="选择开始时间"
-              fluid
-            />
+            <DatePicker v-model="formData.startTime" showTime placeholder="选择开始时间" fluid />
           </div>
           <div>
             <label class="mb-2 block text-sm font-medium text-slate-700">
               上课结束时间
             </label>
-            <DatePicker
-              v-model="formData.courseEndTime"
-              showTime
-              showSeconds
-              placeholder="选择结束时间"
-              fluid
-            />
+            <DatePicker v-model="formData.endTime" showTime placeholder="选择结束时间" fluid />
           </div>
         </div>
 
-        <!-- 实验填写时间 -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="mb-2 block text-sm font-medium text-slate-700">
-              开始填写时间 <span class="text-red-500">*</span>
-            </label>
-            <DatePicker
-              v-model="formData.startTime"
-              showTime
-              showSeconds
-              placeholder="选择开始时间"
-              fluid
-            />
-          </div>
-          <div>
-            <label class="mb-2 block text-sm font-medium text-slate-700">
-              结束填写时间 <span class="text-red-500">*</span>
-            </label>
-            <DatePicker
-              v-model="formData.endTime"
-              showTime
-              showSeconds
-              placeholder="选择结束时间"
-              fluid
-            />
-          </div>
-        </div>
 
         <!-- 实验地点 -->
         <div>
@@ -133,7 +71,8 @@ import { useQueryClassAll } from '@/features/teacher/class'
 import { useQueryCourseAll } from '@/features/teacher/course'
 import { useQueryExperimentAll } from '@/features/teacher/experiment'
 import { useBindExperiment } from '@/features/teacher/class'
-import { formatDateShort } from '@/features/shared/utils'
+import { formatDateTime, formatTimeShort } from '@/features/shared/utils'
+import type { BatchBindClassesToExperimentRequest } from '@/core/api/generated'
 
 interface Emits {
   (e: 'success'): void
@@ -183,14 +122,14 @@ const filteredExperimentOptions = computed(() => {
 
 // 对话框状态
 const visible = ref(false)
-
+type SubmitFormData = {
+  [K in keyof Required<BatchBindClassesToExperimentRequest>]: BatchBindClassesToExperimentRequest[K] | undefined
+}
 // 表单数据
 interface FormData {
   courseId?: string
   experimentId?: string
   classCodes: string[]
-  courseStartTime: Date | null
-  courseEndTime: Date | null
   startTime: Date | null
   endTime: Date | null
   experimentLocation: string
@@ -201,29 +140,35 @@ const formData = reactive<FormData>({
   courseId: undefined,
   experimentId: undefined,
   classCodes: [],
-  courseStartTime: null,
-  courseEndTime: null,
   startTime: null,
   endTime: null,
   experimentLocation: '',
   userName: '',
 })
-
+const submitformData = computed<SubmitFormData>(() => ({
+  courseId: formData.courseId,
+  experimentId: formData.experimentId,
+  classCodes: formData.classCodes,
+  courseTime: formData.startTime && formData.endTime
+    ? `${formatDateTime(formData.startTime)} - ${formatTimeShort(formData.endTime)}`
+    : undefined,
+  startTime: formData.startTime?.toISOString(),
+  endTime: formData.endTime?.toISOString(),
+  experimentLocation: formData.experimentLocation,
+  userName: formData.userName,
+}))
 function open() {
   visible.value = true
 }
 
 function handleCancel() {
   visible.value = false
-  resetForm()
 }
 
 function resetForm() {
   formData.courseId = undefined
   formData.experimentId = undefined
   formData.classCodes = []
-  formData.courseStartTime = null
-  formData.courseEndTime = null
   formData.startTime = null
   formData.endTime = null
   formData.experimentLocation = ''
@@ -263,21 +208,8 @@ const handleSubmit = async () => {
     return
   }
 
-  // 将 Date 对象转换为 ISO 字符串
-  const submitData = {
-    courseId: formData.courseId,
-    experimentId: formData.experimentId,
-    classCodes: formData.classCodes,
-    courseTime: formData.courseStartTime && formData.courseEndTime
-      ? `${formatDateShort(formData.courseStartTime)} - ${formatDateShort(formData.courseEndTime)}`
-      : undefined,
-    startTime: formData.startTime?.toISOString(),
-    endTime: formData.endTime?.toISOString(),
-    experimentLocation: formData.experimentLocation,
-    userName: formData.userName,
-  }
 
-  await mutation.mutateAsync({ body: submitData })
+  await mutation.mutateAsync({ body: submitformData.value })
 
   toast.add({ severity: 'success', summary: '成功', detail: '班级实验配置添加成功', life: 3000 })
   visible.value = false
