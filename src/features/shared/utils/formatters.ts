@@ -45,7 +45,7 @@ export function formatTimeShort(dateStr?: string | Date): string {
   if (!dateStr) return "-";
   try {
     const date = typeof dateStr === "string" ? new Date(dateStr) : dateStr;
-    return date.toLocaleDateString("zh-CN", {
+    return date.toLocaleTimeString("zh-CN", {
       hour: "2-digit",
       minute: "2-digit",
     });
