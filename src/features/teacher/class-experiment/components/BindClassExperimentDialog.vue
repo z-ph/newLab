@@ -28,7 +28,7 @@
             :options="filteredExperimentOptions"
             option-label="label"
             option-value="value"
-            placeholder="请先选择课程"
+            :placeholder="formData.courseId?'请选择实验':'请先选择课程'"
             filter
             :disabled="!formData.courseId"
             fluid
