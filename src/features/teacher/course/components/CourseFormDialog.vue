@@ -144,7 +144,7 @@ async function handleSubmit() {
     isSubmitting.value = false
   }
 }
-
+defineEmits(['refresh'])
 // ==================== 暴露方法 ====================
 defineExpose({ open, close })
 </script>

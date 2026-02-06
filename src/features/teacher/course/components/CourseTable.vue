@@ -1,19 +1,14 @@
 <template>
   <Card>
     <template #content>
-      <DataTable
-        v-model:selection="selectedCourses"
-        :value="courses"
-        :paginator="true"
-        :rows="size"
-        :loading="query.isLoading.value"
-        selection-mode="multiple"
-        :total-records="total"
-        @page="onPageChange"
-        :pt="{ header: { class: 'px-0!' } }"
-      >
+      <DataTable v-model:selection="selectedCourses" :value="courses" :paginator="true" :rows="size"
+        :loading="query.isLoading.value" selection-mode="multiple" :total-records="total" @page="onPageChange"
+        :pt="{ header: { class: 'px-0!' } }">
         <template #header>
-          <slot name="header" />
+          <div class="flex items-center justify-between">
+            <h1 class="text-xl font-bold text-slate-900">课程管理</h1>
+            <Button label="新建课程" icon="pi pi-plus" @click="handleCreate" />
+          </div>
         </template>
         <Column key="selection" selection-mode="multiple" />
         <Column key="courseId" field="courseId" header="课程编号" />
@@ -21,32 +16,22 @@
         <Column key="teacherUsername" field="teacherUsername" header="教师名称" />
         <Column key="createTime" field="createTime" header="创建时间">
           <template #body="slotProps">
-            {{ formatDate(slotProps.data.createTime) }}
+            {{ formatDateTime(slotProps.data.createTime) }}
           </template>
         </Column>
         <Column key="actions" header="操作">
           <template #body="slotProps">
             <div class="flex gap-2">
-              <Button
-                icon="pi pi-pencil"
-                outlined
-                size="small"
-                @click="emit('edit', slotProps.data)"
-              />
-              <Button
-                icon="pi pi-trash"
-                outlined
-                severity="danger"
-                size="small"
-                @click="handleDelete(slotProps.data)"
-                :loading="deleteMutation.isPending.value"
-              />
+              <Button icon="pi pi-pencil" outlined size="small" @click="handleEdit(slotProps.data)" />
+              <Button icon="pi pi-trash" outlined severity="danger" size="small" @click="handleDelete(slotProps.data)"
+                :loading="deleteMutation.isPending.value" />
             </div>
           </template>
         </Column>
       </DataTable>
     </template>
   </Card>
+  <CourseFormDialog v-on:refresh="query.refetch"/>
 </template>
 
 <script setup lang="ts">
@@ -54,20 +39,32 @@ import { ref, computed } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
 import type { CourseResponse } from '@/core/api/generated'
 import { useQueryCoursePage, useDeleteCourse } from '../hooks'
+import {
+  CourseFormDialog,
+} from '@/features/teacher/course'
+import { formatDateTime } from '@/features/shared/utils'
 
+// ==================== 对话框 ref ====================
+const dialogRef = ref<InstanceType<typeof CourseFormDialog>>()
+
+// ==================== 创建课程 ====================
+const handleCreate = () => {
+  dialogRef.value?.open()
+}
+
+// ==================== 编辑课程 ====================
+const handleEdit = (course: CourseResponse) => {
+  dialogRef.value?.open({
+    courseId: course.courseId,
+    courseName: course.courseName,
+  })
+}
 interface PageStateEvent {
   page: number
   first: number
   rows: number
   pageCount: number
 }
-
-interface Emits {
-  (e: 'page-change', event: PageStateEvent): void
-  (e: 'edit', course: CourseResponse): void
-}
-
-const emit = defineEmits<Emits>()
 
 // ✅ 表格内部调用 hook 获取数据
 const { current, size, query } = useQueryCoursePage({
@@ -88,7 +85,6 @@ const total = computed(() => query.data.value?.total || 0)
 // 事件处理
 const onPageChange = (event: PageStateEvent) => {
   current.value = event.page + 1
-  emit('page-change', event)
 }
 
 // 删除处理
@@ -107,19 +103,6 @@ const handleDelete = (course: CourseResponse) => {
       await deleteMutation.mutateAsync(courseId)
       query.refetch()
     },
-  })
-}
-
-// 工具函数
-const formatDate = (dateStr?: string) => {
-  if (!dateStr) return '-'
-  const date = new Date(dateStr)
-  return date.toLocaleString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
   })
 }
 
