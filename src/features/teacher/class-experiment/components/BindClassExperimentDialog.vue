@@ -26,8 +26,8 @@
           <label class="mb-2 block text-sm font-medium text-slate-700">
             选择班级 <span class="text-red-500">*</span>
           </label>
-          <Select v-model="formData.classCodes" :options="classOptions" option-label="label" option-value="value"
-            placeholder="请选择班级（可多选）" filter multiple display="chip" fluid />
+          <MultiSelect v-model="formData.classCodes" :options="classOptions" option-label="label" option-value="value"
+            placeholder="请选择班级（可多选）" filter display="chip" fluid />
         </div>
 
         <!-- 上课时间 -->
