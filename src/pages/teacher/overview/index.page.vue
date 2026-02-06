@@ -13,7 +13,10 @@
             </div>
             <div>
               <p class="text-sm text-slate-600">{{ stat.title }}</p>
-              <p class="text-2xl font-bold text-slate-900">{{ stat.value }}</p>
+              <p class="text-2xl font-bold text-slate-900">
+                <span v-if="isLoading">...</span>
+                <span v-else>{{ stat.value }}</span>
+              </p>
             </div>
           </div>
         </template>
@@ -51,15 +54,12 @@
 import { useRouter } from 'vue-router'
 import type { RouteNamedMap } from 'vue-router/auto-routes'
 import Card from 'primevue/card'
+import { useOverviewStatistics } from '@/features/teacher/overview'
 
 const router = useRouter()
 
-const statistics = [
-  { title: '班级总数', value: '12', icon: 'pi pi-users', color: 'bg-emerald-500' },
-  { title: '实验总数', value: '48', icon: 'pi pi-book', color: 'bg-orange-500' },
-  { title: '待批改', value: '23', icon: 'pi pi-pencil', color: 'bg-red-500' },
-  { title: '学生总数', value: '356', icon: 'pi pi-user', color: 'bg-cyan-500' },
-]
+// 使用 hook 获取统计数据
+const { statistics, isLoading } = useOverviewStatistics()
 
 // 从 RouteNamedMap 派生教师端路由路径类型
 type TeacherRoutePath = keyof RouteNamedMap & `/teacher${string}`
