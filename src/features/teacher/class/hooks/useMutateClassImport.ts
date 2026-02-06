@@ -1,4 +1,4 @@
-import { postApiTestExcelImportUsers } from "@/core/api/generated"
+import { postApiExcelImportStudentsWithClasses } from "@/core/api/generated"
 import { useMutation } from "@tanstack/vue-query"
 import client from "@/core/api/config"
 import { toast } from "@/core/utils/toast"
@@ -62,7 +62,7 @@ function parseImportResponse(data: unknown): ImportResult {
 export function useImportStudentsByExcel() {
   return useMutation({
     mutationFn: async (file: File) => {
-      const response = await postApiTestExcelImportUsers({
+      const response = await postApiExcelImportStudentsWithClasses({
         body: { file },
         client,
       })

@@ -1,4 +1,4 @@
-import { getApiTestExcelTemplateUsers } from "@/core/api/generated"
+import { getApiExcelTemplateStudentsWithClasses } from "@/core/api/generated"
 import { useMutation } from "@tanstack/vue-query"
 import client from "@/core/api/config"
 import { toast } from "@/core/utils/toast"
@@ -10,7 +10,7 @@ import { downloadFile } from "@/core/utils/file"
 export function useDownloadExcelTemplate() {
   return useMutation({
     mutationFn: async () => {
-      const response = await getApiTestExcelTemplateUsers({
+      const response = await getApiExcelTemplateStudentsWithClasses({
         client,
         responseType: "blob",
         headers: {
