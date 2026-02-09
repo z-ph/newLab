@@ -74,12 +74,6 @@ import { useBindExperiment } from '@/features/teacher/class'
 import { formatDateTime, formatTimeShort } from '@/features/shared/utils'
 import type { BatchBindClassesToExperimentRequest } from '@/core/api/generated'
 
-interface Emits {
-  (e: 'success'): void
-}
-
-const emit = defineEmits<Emits>()
-
 const toast = useToast()
 const mutation = useBindExperiment()
 
@@ -214,7 +208,6 @@ const handleSubmit = async () => {
   toast.add({ severity: 'success', summary: '成功', detail: '班级实验配置添加成功', life: 3000 })
   visible.value = false
   resetForm()
-  emit('success')
 }
 
 defineExpose({ open })

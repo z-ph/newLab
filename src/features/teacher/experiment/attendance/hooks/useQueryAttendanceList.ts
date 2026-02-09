@@ -23,7 +23,7 @@ export function useQueryAttendanceList({
     queryFn: async () => {
       return getApiTeacherAttendanceList({
         query: {
-          classId: Number(unref(classCode)), // 将 classCode 转换为 number
+          classCode: (unref(classCode)), // 将 classCode 转换为 number
           experimentId: unref(experimentId),
         },
         client,

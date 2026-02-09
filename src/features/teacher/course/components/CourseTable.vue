@@ -37,6 +37,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
+import type { DataTablePageEvent } from 'primevue/datatable'
 import type { CourseResponse } from '@/core/api/generated'
 import { useQueryCoursePage, useDeleteCourse } from '../hooks'
 import {
@@ -59,12 +60,6 @@ const handleEdit = (course: CourseResponse) => {
     courseName: course.courseName,
   })
 }
-interface PageStateEvent {
-  page: number
-  first: number
-  rows: number
-  pageCount: number
-}
 
 // ✅ 表格内部调用 hook 获取数据
 const { current, size, query } = useQueryCoursePage({
@@ -83,7 +78,7 @@ const courses = computed(() => query.data.value?.records || [])
 const total = computed(() => query.data.value?.total || 0)
 
 // 事件处理
-const onPageChange = (event: PageStateEvent) => {
+const onPageChange = (event: DataTablePageEvent) => {
   current.value = event.page + 1
 }
 

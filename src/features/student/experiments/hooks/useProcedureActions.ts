@@ -2,26 +2,30 @@ import {
   postApiStudentProcedureSubmissionsVideoByProcedureIdViewed,
   postApiStudentProcedureSubmissionsTopicComplete,
   postApiStudentProcedureSubmissionsDataCollectionComplete,
-} from '@/core/api/generated'
-import client from '@/core/api/config'
-import { useMutation } from '@tanstack/vue-query'
-import { toast } from '@/core/utils/toast'
+} from "@/core/api/generated";
+import client from "@/core/api/config";
+import { useMutation } from "@tanstack/vue-query";
+import { toast } from "@/core/utils/toast";
+import type { ClassCode } from "@/features/teacher/class-experiment";
 
 /**
  * 标记视频已观看
  */
 export function useMarkVideoViewed() {
   return useMutation({
-    mutationFn: (params: { procedureId: number; classCode: string }) =>
+    mutationFn: (params: {
+      procedureId: number;
+      classCode: NonNullable<ClassCode>;
+    }) =>
       postApiStudentProcedureSubmissionsVideoByProcedureIdViewed({
         path: { procedureId: params.procedureId },
         query: { classCode: params.classCode },
         client,
       }),
     onSuccess: () => {
-      toast.success('视频观看记录已更新')
+      toast.success("视频观看记录已更新");
     },
-  })
+  });
 }
 
 /**
@@ -35,9 +39,9 @@ export function useCompleteTopic() {
         client,
       }),
     onSuccess: () => {
-      toast.success('题目已完成')
+      toast.success("题目已完成");
     },
-  })
+  });
 }
 
 /**
@@ -46,11 +50,11 @@ export function useCompleteTopic() {
 export function useCompleteDataCollection() {
   return useMutation({
     mutationFn: (params: {
-      body: any
-      procedureId: number
-      classCode: string
-      fillBlankAnswers?: string
-      tableCellAnswers?: string
+      body: any;
+      procedureId: number;
+      classCode: string;
+      fillBlankAnswers?: string;
+      tableCellAnswers?: string;
     }) =>
       postApiStudentProcedureSubmissionsDataCollectionComplete({
         body: params.body,
@@ -63,7 +67,7 @@ export function useCompleteDataCollection() {
         client,
       }),
     onSuccess: () => {
-      toast.success('数据采集已完成')
+      toast.success("数据采集已完成");
     },
-  })
+  });
 }
