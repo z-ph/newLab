@@ -95,11 +95,11 @@ const ROUTE_META: Partial<Record<TeacherRoutePath, RouteMeta>> = {
     title: '实验模版管理',
     icon: 'pi pi-file-edit',
   },
-  '/teacher/class-experiments/': {
-    name: 'class-experiments',
-    title: '班级实验管理',
-    icon: 'pi pi-folder',
-  },
+  // '/teacher/class-experiments/': {
+  //   name: 'class-experiments',
+  //   title: '班级实验管理',
+  //   icon: 'pi pi-folder',
+  // },
   '/teacher/videos/': {
     name: 'videos',
     title: '视频管理',
