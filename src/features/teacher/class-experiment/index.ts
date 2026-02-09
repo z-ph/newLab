@@ -3,7 +3,6 @@
  */
 
 // Components
-export { default as AttendanceManagement } from './components/AttendanceManagement.vue'
 export { default as AttendanceManagementDialog } from './components/AttendanceManagementDialog.vue'
 export { default as ClassExperimentStatisticsDialog } from './components/ClassExperimentStatisticsDialog.vue'
 export { default as ExperimentStatistics } from './components/ExperimentStatistics.vue'
