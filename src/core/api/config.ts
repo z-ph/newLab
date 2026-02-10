@@ -8,7 +8,7 @@ import type { RouteNamedMap } from "vue-router/auto-routes";
 
 // 从 RouteNamedMap 提取公开路由类型
 type PublicRoute = keyof RouteNamedMap & ("/" | "/login");
-export const baseURL = import.meta.env.DEV ? "/api" : import.meta.env.BASE_URL
+export const baseURL = import.meta.env.DEV ? "/api" : import.meta.env.VITE_BASE_API
 /**
  * 创建 axios 实例
  */
