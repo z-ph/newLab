@@ -20,10 +20,6 @@
         <Column key="actions" header="操作">
           <template #body="slotProps">
             <div class="flex gap-2">
-              <Button icon="pi pi-calendar-plus" outlined size="small" v-tooltip.top="'查看实验'"
-                @click="openExperimentDialog(slotProps.data)" />
-              <Button icon="pi pi-users" outlined size="small" v-tooltip.top="'查看学生'"
-                @click="openStudentDialog(slotProps.data)" />
               <Button icon="pi pi-pencil" outlined size="small" @click="openEditDialog(slotProps.data)" />
               <Button icon="pi pi-trash" outlined severity="danger" size="small" @click="handleDelete(slotProps.data)"
                 :loading="deleteMutation.isPending.value" />
@@ -36,9 +32,7 @@
   <!-- 对话框组件 -->
   <ClassCreateDialog ref="createDialogRef" />
   <ClassEditDialog ref="editDialogRef" />
-  <StudentListDialog ref="studentDialogRef" />
   <ClassImportDialog ref="importDialogRef" />
-  <ClassExperimentDialog ref="experimentDialogRef" />
 </template>
 
 <script setup lang="ts">
@@ -47,20 +41,17 @@ import { useConfirm } from 'primevue/useconfirm'
 import { useQueryClassPage } from '../hooks/useQueryClass'
 import { useDeleteClass } from '../hooks/useMutateClassDelete'
 import {
-  StudentListDialog,
   ClassImportDialog,
   ClassCreateDialog,
   ClassEditDialog,
-  ClassExperimentDialog,
 } from '@/features/teacher/class'
-import type { Class, ClassWithExperimentsResponse } from '@/core/api/generated'
+import type { Class } from '@/core/api/generated'
 import type { DataTablePageEvent } from 'primevue/datatable'
+
 // ==================== 对话框 Ref ====================
 const createDialogRef = ref<InstanceType<typeof ClassCreateDialog>>()
 const editDialogRef = ref<InstanceType<typeof ClassEditDialog>>()
-const studentDialogRef = ref<InstanceType<typeof StudentListDialog>>()
 const importDialogRef = ref<InstanceType<typeof ClassImportDialog>>()
-const experimentDialogRef = ref<InstanceType<typeof ClassExperimentDialog>>()
 
 // ==================== 对话框操作 ====================
 const openCreateDialog = () => {
@@ -70,25 +61,13 @@ const openCreateDialog = () => {
 const openEditDialog = (classItem: Class) => {
   editDialogRef.value?.open({
     id: classItem.id,
+    classCode: classItem.classCode,
     className: classItem.className,
-  })
-}
-
-const openStudentDialog = (classItem: Class) => {
-  studentDialogRef.value?.open({
-    classCode: classItem.classCode || '',
   })
 }
 
 const openImportDialog = () => {
   importDialogRef.value?.open()
-}
-
-const openExperimentDialog = (classItem: ClassWithExperimentsResponse) => {
-  experimentDialogRef.value?.open({
-    classCode: classItem.classCode,
-    className: classItem.className,
-  })
 }
 
 // ✅ 表格内部调用 hook 获取数据
