@@ -9,7 +9,7 @@
     "build:nocheck": "tsx scripts/generate-api.ts && vite build",
     "preview": "vite preview",
     "typecheck": "tsx scripts/generate-api.ts && vue-tsc -b",
-    "generate-api": "tsx scripts/generate-api.ts",
+    "gen": "tsx scripts/generate-api.ts",
     "check:invisible": "python3 scripts/detect-invisible-chars.py"
   },
   "dependencies": {
