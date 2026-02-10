@@ -71,6 +71,7 @@ import { ref } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
 import Popover from 'primevue/popover'
 
+import { VideoFilter } from '@/features/teacher/video'
 import { formatDuration, formatFileSize, truncateFileName } from '../utils/formatters'
 import { formatDateTime } from '@/features/shared/utils'
 import { useQueryVideoPage, useDeleteVideo } from '../hooks'
