@@ -1,6 +1,6 @@
 <template>
   <Dialog v-model:visible="visible" :header="isEdit ? '编辑题目' : '新增题目'" modal :style="{ maxWidth: '100vw' }">
-    <form @submit.prevent="handleSubmit">
+    <form >
       <div class="space-y-4">
         <!-- 题目类型 -->
         <div>
@@ -161,7 +161,11 @@
 
     <template #footer>
       <Button label="取消" severity="secondary" @click="close" />
-      <Button label="确定" type="submit" :loading="isLoading" />
+      <Button
+        label="确定"
+        @click="handleSubmit"
+        :loading="createMutation.isPending.value || updateMutation.isPending.value"
+      />
     </template>
   </Dialog>
 </template>
@@ -170,21 +174,13 @@
 import { ref, computed, watch } from "vue"
 import type { CreateTopicRequest, UpdateTopicRequest } from "@/core/api/generated"
 import { TOPIC_TYPE_OPTIONS, TOPIC_TYPE, TAG_TYPE } from "@/features/teacher/topic/constants"
-import { useQueryTags, useCreateTag } from "@/features/teacher/topic/hooks"
+import { useQueryTags, useCreateTag, useCreateTopic, useUpdateTopic } from "@/features/teacher/topic/hooks"
 import { toast } from "@/core/utils/toast"
 import TopicChoiceInput from "./TopicChoiceInput.vue"
 import TopicAnswerInput from "./TopicAnswerInput.vue"
 
-interface Props {
-  isLoading?: boolean
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  isLoading: false,
-})
-
 interface Emits {
-  (e: 'submit', data: CreateTopicRequest | UpdateTopicRequest): void
+  (e: 'refresh'): void
 }
 
 const emit = defineEmits<Emits>()
@@ -224,6 +220,10 @@ const selectedCustomTags = ref<number[]>([])
 
 // ✅ 使用 Hook 创建标签
 const createTagMutation = useCreateTag()
+
+// ✅ 使用 Hook 创建/更新题目
+const createMutation = useCreateTopic()
+const updateMutation = useUpdateTopic()
 
 // 创建学科标签
 const createNewSubjectTag = async () => {
@@ -410,12 +410,23 @@ function close() {
 }
 
 // 提交表单
-function handleSubmit() {
+async function handleSubmit() {
+  // 基础验证
+  if (formData.value.type === undefined) {
+    toast.warn("请选择题目类型")
+    return
+  }
+
+  if (!formData.value.content?.trim()) {
+    toast.warn("请输入题目内容")
+    return
+  }
+
   // 构建选项字符串
   if (showChoices.value) {
     const validOptions = choiceList.value.filter(Boolean)
     if (validOptions.length < 2) {
-      // 至少需要2个选项
+      toast.warn("请至少填写2个选项")
       return
     }
     formData.value.choices = validOptions.join("$")
@@ -427,9 +438,23 @@ function handleSubmit() {
   if (showChoices.value) {
     if (formData.value.type === TOPIC_TYPE.MULTIPLE_CHOICE) {
       // 多选题：拼接选中的选项
-      formData.value.correctAnswer = selectedChoices.value.sort().join("")
+      const answer = selectedChoices.value.sort().join("")
+      if (!answer) {
+        toast.warn("请选择正确答案")
+        return
+      }
+      formData.value.correctAnswer = answer
+    } else if (!formData.value.correctAnswer?.trim()) {
+      toast.warn("请选择正确答案")
+      return
     }
     // 单选题的答案已经通过 v-model 直接更新到 formData.correctAnswer
+  } else {
+    // 判断题或填空题
+    if (!formData.value.correctAnswer?.trim()) {
+      toast.warn("请输入正确答案")
+      return
+    }
   }
 
   // 验证必选标签
@@ -447,15 +472,19 @@ function handleSubmit() {
   formData.value.tagIds = selectedTags.value.length ? selectedTags.value : undefined
 
   if (!isEdit.value) {
-    // 新增
-    emit("submit", formData.value as CreateTopicRequest)
+    // 新增：直接调用 hook
+    await createMutation.mutateAsync(formData.value as CreateTopicRequest)
   } else {
-    // 编辑
-    emit("submit", {
+    // 编辑：直接调用 hook
+    await updateMutation.mutateAsync({
       id: editTopicId.value!,
       ...formData.value,
     } as UpdateTopicRequest)
   }
+
+  // 成功后关闭对话框并刷新列表
+  close()
+  emit("refresh")
 }
 
 // 监听类型变化，重置选项和答案

@@ -17,11 +17,7 @@
     />
 
     <!-- 新增/编辑对话框 -->
-    <TopicFormDialog
-      ref="formDialogRef"
-      :is-loading="createMutation.isPending.value || updateMutation.isPending.value"
-      @submit="handleSubmit"
-    />
+    <TopicFormDialog ref="formDialogRef" @refresh="query.refetch()" />
 
     <!-- 详情对话框 -->
     <TopicDetailDialog ref="detailDialogRef" />
@@ -35,7 +31,7 @@
 <script setup lang="ts">
 import { ref, computed } from "vue"
 
-import type { TopicDetailResponse, CreateTopicRequest, UpdateTopicRequest } from "@/core/api/generated"
+import type { TopicDetailResponse } from "@/core/api/generated"
 
 import {
   TopicFilter,
@@ -44,11 +40,7 @@ import {
   TopicDetailDialog,
   TagManageDialog,
 } from "@/features/teacher/topic"
-import {
-  useQueryTopicPage,
-  useCreateTopic,
-  useUpdateTopic,
-} from "@/features/teacher/topic/hooks"
+import { useQueryTopicPage } from "@/features/teacher/topic/hooks"
 
 // ✅ 使用题目查询 hook，直接从 hook 获取所有状态
 const { current, type, keyword, difficultyTagIds, subjectTagIds, query } =
@@ -72,10 +64,6 @@ const filters = computed({
     subjectTagIds.value = value.subjectTagIds
   },
 })
-
-// 使用 mutations
-const createMutation = useCreateTopic()
-const updateMutation = useUpdateTopic()
 
 // ✅ 对话框 ref（不管理状态）
 const formDialogRef = ref<InstanceType<typeof TopicFormDialog>>()
@@ -107,18 +95,5 @@ const handleView = (topic: TopicDetailResponse) => {
 // ✅ 编辑
 const handleEdit = (topic: TopicDetailResponse) => {
   formDialogRef.value?.openEdit(topic)
-}
-
-// ✅ 新增/编辑提交
-const handleSubmit = async (data: CreateTopicRequest | UpdateTopicRequest) => {
-  if ("id" in data) {
-    // 编辑
-    await updateMutation.mutateAsync(data)
-  } else {
-    // 新增
-    await createMutation.mutateAsync(data)
-  }
-  formDialogRef.value?.close()
-  query.refetch()
 }
 </script>

@@ -18,14 +18,14 @@
         <h3 class="text-sm font-medium text-slate-700 mb-2">选项</h3>
         <div class="space-y-2">
           <div
-            v-for="(choice, index) in formatChoices(topic.choices).filter(Boolean)"
+            v-for="(choice, index) in getChoicesList(topic.choices)"
             :key="index"
             class="flex items-center gap-2 p-2 rounded"
-            :class="isCorrectChoice(choice?.[0]) ? 'bg-green-50' : ''"
+            :class="isCorrectChoice(getChoiceLabel(index)) ? 'bg-green-50' : ''"
           >
-            <Tag :value="choice?.[0]" severity="secondary" />
-            <span>{{ choice?.substring(2) || choice }}</span>
-            <Tag v-if="isCorrectChoice(choice?.[0])" value="正确答案" severity="success" class="ml-auto" />
+            <Tag :value="getChoiceLabel(index)" severity="secondary" />
+            <span>{{ choice }}</span>
+            <Tag v-if="isCorrectChoice(getChoiceLabel(index))" value="正确答案" severity="success" class="ml-auto" />
           </div>
         </div>
       </div>
@@ -67,8 +67,8 @@
 import { ref } from "vue"
 
 import type { TopicDetailResponse } from "@/core/api/generated"
-import { getTopicTypeName, getTopicTypeSeverity } from "@/features/teacher/topic/constants"
-import { formatChoices, formatCorrectAnswer } from "@/features/teacher/topic/utils/formatters"
+import { getTopicTypeName, getTopicTypeSeverity, CHOICE_LABEL_START_CHAR_CODE } from "@/features/teacher/topic/constants"
+import { formatCorrectAnswer } from "@/features/teacher/topic/utils/formatters"
 import { formatDateTime } from "@/features/shared/utils"
 
 // ✅ 状态封装在组件内部
@@ -87,6 +87,20 @@ function close() {
   topic.value = undefined
 }
 
+// 获取选项标签（A, B, C, ...）
+function getChoiceLabel(index: number): string {
+  return String.fromCharCode(CHOICE_LABEL_START_CHAR_CODE + index)
+}
+
+// 获取选项列表（纯文本，去掉可能存在的前缀）
+function getChoicesList(choices?: string): string[] {
+  if (!choices) return []
+  return choices.split("$").map((choice) => {
+    // 去掉可能存在的字母前缀（如 "A:", "B:" 等）
+    return choice.replace(/^[A-Z]:\s*/, "").trim()
+  }).filter(Boolean)
+}
+
 // 获取标签颜色
 function getTagSeverity(tagType?: string): "success" | "warn" | "contrast" | undefined {
   if (!tagType) return undefined
@@ -99,7 +113,7 @@ function getTagSeverity(tagType?: string): "success" | "warn" | "contrast" | und
 }
 
 // 判断是否是正确选项
-function isCorrectChoice(choiceLabel: string | undefined): boolean {
+function isCorrectChoice(choiceLabel: string): boolean {
   if (!choiceLabel || !topic.value?.correctAnswer) return false
   return topic.value.correctAnswer.includes(choiceLabel)
 }
