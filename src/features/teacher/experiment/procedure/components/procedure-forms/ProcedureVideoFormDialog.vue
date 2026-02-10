@@ -28,10 +28,8 @@
         </div>
 
         <!-- 时间配置 -->
-        <ProcedureTimeConfig
-          v-model:offset-minutes="formData.offsetMinutes"
-          v-model:duration-minutes="formData.durationMinutes"
-        />
+        <ProcedureTimeConfig v-model:offset-minutes="formData.offsetMinutes"
+          v-model:duration-minutes="formData.durationMinutes" />
 
         <!-- 视频选择 -->
         <ProcedureVideoForm v-model:video-id="formData.videoId" />
@@ -64,7 +62,10 @@ const props = defineProps<Props>()
 const visible = ref<boolean>(false)
 const toast = useToast()
 const mutation = useCreateVideoProcedure()
-
+interface Emit {
+  (e: 'refresh'): void
+}
+const emit = defineEmits<Emit>()
 const formData = ref<BaseProcedureFields & { videoId: number | null }>({
   type: 1, // PROCEDURE_TYPE.VIDEO
   remark: '',
@@ -116,6 +117,7 @@ const handleSubmit = async () => {
   toast.add({ severity: 'success', summary: '成功', detail: '步骤添加成功', life: 3000 })
   visible.value = false
   resetForm()
+  emit('refresh')
 }
 function open() {
   visible.value = true

@@ -5,6 +5,7 @@
       ref="videoDialogRef"
       v-if="procedureType === PROCEDURE_TYPE.VIDEO"
       :experiment-id="experimentId"
+      @refresh="emit('refresh')"
     />
 
     <!-- 数据收集步骤对话框 -->
@@ -12,6 +13,7 @@
       ref="dataCollectionDialogRef"
       v-if="procedureType === PROCEDURE_TYPE.DATA_COLLECTION"
       :experiment-id="experimentId"
+      @refresh="emit('refresh')"
     />
 
     <!-- 题库答题步骤对话框 -->
@@ -19,6 +21,7 @@
       ref="topicDialogRef"
       v-if="procedureType === PROCEDURE_TYPE.TOPIC"
       :experiment-id="experimentId"
+      @refresh="emit('refresh')"
     />
 
     <!-- 步骤类型选择对框 -->
@@ -71,7 +74,7 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'success'): void
+  (e: 'refresh'): void
 }
 
 const props = defineProps<Props>()

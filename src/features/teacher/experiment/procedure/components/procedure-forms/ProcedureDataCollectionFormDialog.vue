@@ -15,13 +15,8 @@
           <label class="mb-2 block text-sm font-medium text-slate-700">
             分数占比(%) <span class="text-red-500">*</span>
           </label>
-          <InputNumber
-            v-model="formData.proportion"
-            :min="DEFAULT_VALUES.MIN_PROPORTION"
-            :max="DEFAULT_VALUES.MAX_PROPORTION"
-            class="w-full"
-            placeholder="请输入分数占比"
-          />
+          <InputNumber v-model="formData.proportion" :min="DEFAULT_VALUES.MIN_PROPORTION"
+            :max="DEFAULT_VALUES.MAX_PROPORTION" class="w-full" placeholder="请输入分数占比" />
         </div>
 
         <!-- 可跳过 -->
@@ -33,18 +28,13 @@
         </div>
 
         <!-- 时间配置 -->
-        <ProcedureTimeConfig
-          v-model:offset-minutes="formData.offsetMinutes"
-          v-model:duration-minutes="formData.durationMinutes"
-        />
+        <ProcedureTimeConfig v-model:offset-minutes="formData.offsetMinutes"
+          v-model:duration-minutes="formData.durationMinutes" />
 
         <!-- 数据收集配置 -->
-        <ProcedureDataCollectionForm
-          v-model:data-type="formData.dataType"
-          v-model:data-fields-json="formData.dataFieldsJson"
-          v-model:table-row-headers-str="formData.tableRowHeadersStr"
-          v-model:table-column-headers-str="formData.tableColumnHeadersStr"
-        />
+        <ProcedureDataCollectionForm v-model:data-type="formData.dataType"
+          v-model:data-fields-json="formData.dataFieldsJson" v-model:table-row-headers-str="formData.tableRowHeadersStr"
+          v-model:table-column-headers-str="formData.tableColumnHeadersStr" />
       </div>
 
       <div class="flex justify-end gap-2">
@@ -68,9 +58,11 @@ import ProcedureTimeConfig from './ProcedureTimeConfig.vue'
 interface Props {
   experimentId: number
 }
-
+interface Emits {
+  (e: 'refresh'): void
+}
 const props = defineProps<Props>()
-
+const emit = defineEmits<Emits>()
 const visible = ref<boolean>(false)
 const toast = useToast()
 const mutation = useCreateDataCollectionProcedure()
@@ -147,6 +139,7 @@ const handleSubmit = async () => {
   toast.add({ severity: 'success', summary: '成功', detail: '步骤添加成功', life: 3000 })
   visible.value = false
   resetForm()
+  emit('refresh')
 }
 
 function open() {

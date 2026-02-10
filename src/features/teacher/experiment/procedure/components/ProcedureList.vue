@@ -1,7 +1,8 @@
 <template>
   <div>
-    <div class="mb-4 flex justify-end">
+    <div class="mb-4 flex justify-end gap-1">
       <Button label="添加步骤" icon="pi pi-plus" @click="handleOpenAddDialog" />
+      <Button label="刷新" @click="proceduresQuery.refetch()"></Button>
     </div>
     <DataTable
       :value="proceduresQuery.data.value || []"
@@ -66,6 +67,7 @@
     <ProcedureFormDialog
       ref="procedureFormDialogRef"
       :experiment-id="experimentId"
+      @refresh="proceduresQuery.refetch()"
     />
   </div>
 </template>
@@ -83,12 +85,8 @@ interface Props {
   experimentId: number
 }
 
-interface Emits {
-  (e: 'refresh'): void
-}
 
 const props = defineProps<Props>()
-const emit = defineEmits<Emits>()
 
 const toast = useToast()
 const confirm = useConfirm()
@@ -137,7 +135,6 @@ const confirmDelete = async (id: number) => {
     life: 3000,
   })
   proceduresQuery.refetch()
-  emit('refresh')
 }
 
 const getTypeText = (type: number | undefined) => {
