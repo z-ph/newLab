@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsx scripts/generate-api.ts && vue-tsc -b && vite build",
+    "build:nocheck": "tsx scripts/generate-api.ts && vite build",
     "preview": "vite preview",
     "typecheck": "tsx scripts/generate-api.ts && vue-tsc -b",
     "generate-api": "tsx scripts/generate-api.ts",
