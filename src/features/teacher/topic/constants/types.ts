@@ -17,10 +17,29 @@ export type TopicType = typeof TOPIC_TYPE[keyof typeof TOPIC_TYPE]
 export const TAG_TYPE = {
   SUBJECT: "1",        // 学科标签
   DIFFICULTY: "2",     // 难度标签
+  TOPIC: "3",          // 题型标签
   CUSTOM: "4",         // 自定义标签
 } as const
 
 export type TagType = typeof TAG_TYPE[keyof typeof TAG_TYPE]
+
+/**
+ * 标签类型映射
+ */
+export const TAG_TYPE_MAP: Record<string, string> = {
+  "1": "学科标签",
+  "2": "难度标签",
+  "3": "题型标签",
+  "4": "自定义标签",
+}
+
+/**
+ * 获取标签类型名称
+ */
+export function getTagTypeName(type?: string): string {
+  if (!type) return "-"
+  return TAG_TYPE_MAP[type] || "未知"
+}
 
 /**
  * 题目类型映射

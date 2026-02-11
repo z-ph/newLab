@@ -1,24 +1,6 @@
 import type { TopicDetailResponse } from "@/core/api/generated"
 
 /**
- * 标签类型映射
- */
-export const TAG_TYPE_MAP: Record<string, string> = {
-  "1": "学科标签",
-  "2": "难度标签",
-  "3": "题型标签",
-  "4": "自定义标签",
-}
-
-/**
- * 获取标签类型名称
- */
-export function getTagTypeName(tagType?: string): string {
-  if (!tagType) return "-"
-  return TAG_TYPE_MAP[tagType] || "未知"
-}
-
-/**
  * 格式化选项内容
  * 输入: "A:选项A$B:选项B"
  * 输出: ["A: 选项A", "B: 选项B"]
