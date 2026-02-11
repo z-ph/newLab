@@ -107,20 +107,15 @@ import {
   CUSTOM_TAG_PLACEHOLDER,
   ADD_BUTTON_LABEL,
 } from '@/features/teacher/experiment/procedure/constants'
-import { useQueryTopicPage } from '@/features/teacher/topic'
+import { useQueryAllTopics } from '@/features/teacher/topic'
 
 const isRandom = defineModel<boolean>('isRandom', { default: false })
 const topicNumber = defineModel<number | null>('topicNumber', { default: null })
 const topicTags = defineModel<string[]>('topicTags', { default: () => [] })
 const teacherSelectedTopicIdsStr = defineModel<string>('teacherSelectedTopicIdsStr', { default: '' })
 
-// 获取所有题目列表
-const { topics, query } = useQueryTopicPage({
-  current: 1,
-  size: 10000, // 获取所有题目
-})
-
-const isLoading = computed(() => query.isLoading.value)
+// 获取所有题目列表（两次查询模式）
+const { topics, isLoading } = useQueryAllTopics()
 
 // 为题目添加显示标签
 const topicsWithLabel = computed(() => {

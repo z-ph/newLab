@@ -106,3 +106,72 @@ export function useQueryTopicStatistics() {
     select: (response) => response.data?.data,
   })
 }
+
+/**
+ * 获取所有题目（两次查询模式）
+ * 第一次查询获取总数，第二次查询获取所有数据
+ */
+export function useQueryAllTopics(filters?: {
+  type?: number
+  keyword?: string
+  tagIds?: number[]
+  difficultyTagIds?: number[]
+  subjectTagIds?: number[]
+  requireAllTags?: boolean
+  createdBy?: string
+}) {
+  // 第一次查询：获取总数
+  const countQuery = useQuery({
+    queryKey: ["topics-count", filters],
+    queryFn: () =>
+      postApiTeacherTopicsQuery({
+        body: {
+          current: 1,
+          size: 1,
+          type: filters?.type,
+          keyword: filters?.keyword,
+          tagIds: filters?.tagIds,
+          difficultyTagIds: filters?.difficultyTagIds,
+          subjectTagIds: filters?.subjectTagIds,
+          requireAllTags: filters?.requireAllTags,
+          createdBy: filters?.createdBy,
+        },
+        client,
+      }),
+    select: (response) => response.data?.data?.total || 0,
+  })
+
+  // 第二次查询：根据总数获取所有数据
+  const total = computed(() => countQuery.data.value || 0)
+  const allQuery = useQuery({
+    queryKey: computed(() => ["topics-all", total.value, filters]),
+    queryFn: () =>
+      postApiTeacherTopicsQuery({
+        body: {
+          current: 1,
+          size: total.value,
+          type: filters?.type,
+          keyword: filters?.keyword,
+          tagIds: filters?.tagIds,
+          difficultyTagIds: filters?.difficultyTagIds,
+          subjectTagIds: filters?.subjectTagIds,
+          requireAllTags: filters?.requireAllTags,
+          createdBy: filters?.createdBy,
+        },
+        client,
+      }),
+    select: (response) => response.data?.data?.records || [],
+    enabled: computed(() => total.value > 0), // 只有当总数 > 0 时才执行第二次查询
+  })
+
+  const topics = computed(() => allQuery.data.value || [])
+  const isLoading = computed(() => countQuery.isLoading.value || allQuery.isLoading.value)
+
+  return {
+    topics,
+    total,
+    isLoading,
+    countQuery,
+    allQuery,
+  }
+}
