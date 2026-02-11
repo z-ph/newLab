@@ -8,6 +8,7 @@
           <div class="flex items-center justify-between">
             <h1 class="text-xl font-bold text-slate-900">班级管理</h1>
             <div class="flex gap-2">
+              <Button label="绑定实验" icon="pi pi-link" outlined severity="secondary" @click="openBindDialog" />
               <Button label="批量导入" icon="pi pi-upload" outlined severity="secondary" @click="openImportDialog" />
               <Button label="新建班级" icon="pi pi-plus" @click="openCreateDialog" />
             </div>
@@ -33,6 +34,7 @@
   <ClassCreateDialog ref="createDialogRef" />
   <ClassEditDialog ref="editDialogRef" />
   <ClassImportDialog ref="importDialogRef" />
+  <BindClassExperimentDialog ref="bindDialogRef" />
 </template>
 
 <script setup lang="ts">
@@ -45,6 +47,7 @@ import {
   ClassCreateDialog,
   ClassEditDialog,
 } from '@/features/teacher/class'
+import BindClassExperimentDialog from '@/features/teacher/class-experiment/components/BindClassExperimentDialog.vue'
 import type { Class } from '@/core/api/generated'
 import type { DataTablePageEvent } from 'primevue/datatable'
 
@@ -52,6 +55,7 @@ import type { DataTablePageEvent } from 'primevue/datatable'
 const createDialogRef = ref<InstanceType<typeof ClassCreateDialog>>()
 const editDialogRef = ref<InstanceType<typeof ClassEditDialog>>()
 const importDialogRef = ref<InstanceType<typeof ClassImportDialog>>()
+const bindDialogRef = ref<InstanceType<typeof BindClassExperimentDialog>>()
 
 // ==================== 对话框操作 ====================
 const openCreateDialog = () => {
@@ -68,6 +72,10 @@ const openEditDialog = (classItem: Class) => {
 
 const openImportDialog = () => {
   importDialogRef.value?.open()
+}
+
+const openBindDialog = () => {
+  bindDialogRef.value?.open()
 }
 
 // ✅ 表格内部调用 hook 获取数据

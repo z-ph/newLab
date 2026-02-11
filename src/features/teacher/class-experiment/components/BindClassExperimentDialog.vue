@@ -151,7 +151,15 @@ const submitformData = computed<SubmitFormData>(() => ({
   experimentLocation: formData.experimentLocation,
   userName: formData.userName,
 }))
-function open() {
+interface OpenOptions {
+  classCodes?: string[]
+}
+
+function open(options?: OpenOptions) {
+  resetForm()
+  if (options?.classCodes) {
+    formData.classCodes = options.classCodes
+  }
   visible.value = true
 }
 

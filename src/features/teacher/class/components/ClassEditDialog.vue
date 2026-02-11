@@ -420,7 +420,7 @@ const statisticsDialogRef = ref<InstanceType<typeof ClassExperimentStatisticsDia
 const classExperimentId = ref<number>()
 
 const openBindExperimentDialog = () => {
-  bindExperimentDialogRef.value?.open()
+  bindExperimentDialogRef.value?.open({ classCodes: [classCode.value] })
 }
 
 const openAttendanceDialog = (experiment: ExperimentInfo) => {
