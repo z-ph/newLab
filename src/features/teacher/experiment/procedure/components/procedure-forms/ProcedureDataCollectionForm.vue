@@ -25,6 +25,7 @@
       v-if="dataType === DATA_COLLECTION_TYPE.TABLE_DATA"
       v-model:row-headers-str="tableRowHeadersStr"
       v-model:column-headers-str="tableColumnHeadersStr"
+      v-model:cell-answers-str="tableCellAnswersStr"
     />
   </div>
 </template>
@@ -41,4 +42,5 @@ const dataType = defineModel<number | null>('dataType', { default: null })
 const dataFieldsJson = defineModel<string>('dataFieldsJson', { default: '' })
 const tableRowHeadersStr = defineModel<string>('tableRowHeadersStr', { default: '' })
 const tableColumnHeadersStr = defineModel<string>('tableColumnHeadersStr', { default: '' })
+const tableCellAnswersStr = defineModel<string>('tableCellAnswersStr', { default: '' })
 </script>

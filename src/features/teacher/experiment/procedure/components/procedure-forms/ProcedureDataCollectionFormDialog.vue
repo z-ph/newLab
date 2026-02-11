@@ -34,7 +34,42 @@
         <!-- 数据收集配置 -->
         <ProcedureDataCollectionForm v-model:data-type="formData.dataType"
           v-model:data-fields-json="formData.dataFieldsJson" v-model:table-row-headers-str="formData.tableRowHeadersStr"
-          v-model:table-column-headers-str="formData.tableColumnHeadersStr" />
+          v-model:table-column-headers-str="formData.tableColumnHeadersStr"
+          v-model:table-cell-answers-str="formData.tableCellAnswersStr" />
+
+        <!-- 附加选项 -->
+        <div class="border-t border-slate-200 pt-3">
+          <h3 class="text-sm font-medium text-slate-700 mb-3">附加选项</h3>
+
+          <!-- 误差范围 -->
+          <div class="mb-3">
+            <label class="mb-2 block text-sm font-medium text-slate-700">
+              误差范围（可选）
+            </label>
+            <InputNumber
+              v-model="formData.tolerance"
+              :min="0"
+              class="w-full"
+              placeholder="用于数值类答案的判分，允许的误差范围"
+            />
+            <p class="text-xs text-slate-500 mt-1">
+              <i class="pi pi-info-circle mr-1"></i>
+              设置数值答案允许的误差范围（如：±0.1）
+            </p>
+          </div>
+
+          <!-- 提交要求 -->
+          <div class="space-y-2">
+            <div class="flex items-center gap-2">
+              <Checkbox v-model="formData.needPhoto" binary input-id="needPhoto" />
+              <label for="needPhoto" class="text-sm text-slate-700">要求学生提交照片</label>
+            </div>
+            <div class="flex items-center gap-2">
+              <Checkbox v-model="formData.needDoc" binary input-id="needDoc" />
+              <label for="needDoc" class="text-sm text-slate-700">要求学生提交文档</label>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="flex justify-end gap-2">
@@ -73,6 +108,10 @@ const formData = ref<
     dataFieldsJson: string
     tableRowHeadersStr: string
     tableColumnHeadersStr: string
+    tableCellAnswersStr: string
+    tolerance: number | null
+    needPhoto: boolean
+    needDoc: boolean
   }
 >({
   type: PROCEDURE_TYPE.DATA_COLLECTION,
@@ -85,6 +124,10 @@ const formData = ref<
   dataFieldsJson: '',
   tableRowHeadersStr: '',
   tableColumnHeadersStr: '',
+  tableCellAnswersStr: '',
+  tolerance: null,
+  needPhoto: false,
+  needDoc: false,
 })
 
 const resetForm = () => {
@@ -99,6 +142,10 @@ const resetForm = () => {
     dataFieldsJson: '',
     tableRowHeadersStr: '',
     tableColumnHeadersStr: '',
+    tableCellAnswersStr: '',
+    tolerance: null,
+    needPhoto: false,
+    needDoc: false,
   }
 }
 
@@ -131,7 +178,19 @@ const handleSubmit = async () => {
     // 表格数据类型
     body.tableRowHeaders = parseArray(formData.value.tableRowHeadersStr)
     body.tableColumnHeaders = parseArray(formData.value.tableColumnHeadersStr)
-    body.tableDataAnswers = {}
+    // 表格答案（可选填）
+    body.tableCellAnswers = parseJson(formData.value.tableCellAnswersStr || '{}')
+  }
+
+  // 附加选项（可选）
+  if (formData.value.tolerance !== null) {
+    body.tolerance = formData.value.tolerance
+  }
+  if (formData.value.needPhoto) {
+    body.needPhoto = true
+  }
+  if (formData.value.needDoc) {
+    body.needDoc = true
   }
 
   await mutation.mutateAsync({ body })
