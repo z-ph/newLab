@@ -36,11 +36,6 @@ export function useOverviewStatistics() {
       }),
     select: (response) => response.data?.data?.length ?? 0,
   })
-
-  // 待批改数量（暂时设为 0，需要后端提供统计接口）
-  // TODO: 后端需要提供待批改统计接口
-  const pendingGradingCount = computed(() => 0)
-
   // 统计卡片数据
   const statistics = computed(() => [
     {
@@ -54,12 +49,6 @@ export function useOverviewStatistics() {
       value: experimentQuery.data.value?.toString() ?? '0',
       icon: 'pi pi-book',
       color: 'bg-orange-500',
-    },
-    {
-      title: '待批改',
-      value: pendingGradingCount.value.toString(),
-      icon: 'pi pi-pencil',
-      color: 'bg-red-500',
     },
     {
       title: '学生总数',
