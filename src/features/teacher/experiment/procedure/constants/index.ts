@@ -86,8 +86,8 @@ export const DEFAULT_VALUES = {
  * 时间配置范围限制
  */
 export const TIME_LIMITS = {
-  /** 最小偏移量(分钟) */
-  MIN_OFFSET_MINUTES: 0,
+  /** 最小偏移量(分钟) - 负数表示上课前，最多7天前 */
+  MIN_OFFSET_MINUTES: -10080,
   /** 最大偏移量(分钟) - 7天 */
   MAX_OFFSET_MINUTES: 10080,
   /** 最小持续时间(分钟) */
@@ -111,6 +111,29 @@ export const TIME_UNITS = {
   /** 天转分钟 */
   DAY_TO_MINUTES: 1440,
 } as const
+
+/**
+ * 时间单位类型
+ */
+export type TimeUnitUnit = 'minute' | 'hour' | 'day'
+
+/**
+ * 时间单位选项
+ */
+export const TIME_UNIT_OPTIONS: Array<{
+  label: string
+  value: TimeUnitUnit
+  conversionFactor: number // 转换为分钟的系数
+}> = [
+  { label: '分钟', value: 'minute', conversionFactor: 1 },
+  { label: '小时', value: 'hour', conversionFactor: 60 },
+  { label: '天', value: 'day', conversionFactor: 1440 },
+]
+
+/**
+ * 默认时间单位
+ */
+export const DEFAULT_TIME_UNIT: TimeUnitUnit = 'minute'
 
 /**
  * 步骤表单基础字段配置

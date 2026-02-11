@@ -45,6 +45,7 @@
               @page="onStudentPageChange"
             >
               <Column key="studentUsername" field="studentUsername" header="学号" />
+              <Column key="studentName" field="studentName" header="姓名" />
               <Column key="bindTime" field="bindTime" header="绑定时间">
                 <template #body="slotProps">
                   {{ formatDateTime(slotProps.data.bindTime) }}
