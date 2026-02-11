@@ -75,33 +75,75 @@
     <!-- 指定题目模式 -->
     <div v-if="!isRandom">
       <label class="mb-2 block text-sm font-medium text-slate-700">
-        选定题目ID列表 <span class="text-red-500">*</span>
+        选定题目 <span class="text-red-500">*</span>
       </label>
-      <p class="text-xs text-slate-500 mb-2">{{ TOPIC_IDS_HINT }}</p>
-      <InputText
-        v-model="teacherSelectedTopicIdsStr"
+      <MultiSelect
+        v-model="selectedTopics"
+        :options="topicsWithLabel"
+        option-label="displayLabel"
+        option-value="id"
+        :loading="isLoading"
+        filter
+        placeholder="请选择题目"
         class="w-full"
-        :placeholder="TOPIC_IDS_PLACEHOLDER"
-      />
+        display="chip"
+      >
+        <template #option="slotProps">
+          <div class="flex flex-col">
+            <span class="font-medium">{{ slotProps.option.displayLabel }}</span>
+            <span class="text-xs text-slate-500 truncate max-w-[200px]">{{ slotProps.option.content }}</span>
+          </div>
+        </template>
+      </MultiSelect>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import {
   PREDEFINED_TAGS,
   MIN_TOPIC_NUMBER,
   CUSTOM_TAG_PLACEHOLDER,
   ADD_BUTTON_LABEL,
-  TOPIC_IDS_HINT,
-  TOPIC_IDS_PLACEHOLDER,
 } from '@/features/teacher/experiment/procedure/constants'
+import { useQueryTopicPage } from '@/features/teacher/topic'
 
 const isRandom = defineModel<boolean>('isRandom', { default: false })
 const topicNumber = defineModel<number | null>('topicNumber', { default: null })
 const topicTags = defineModel<string[]>('topicTags', { default: () => [] })
 const teacherSelectedTopicIdsStr = defineModel<string>('teacherSelectedTopicIdsStr', { default: '' })
+
+// 获取所有题目列表
+const { topics, query } = useQueryTopicPage({
+  current: 1,
+  size: 10000, // 获取所有题目
+})
+
+const isLoading = computed(() => query.isLoading.value)
+
+// 为题目添加显示标签
+const topicsWithLabel = computed(() => {
+  return topics.value.map(topic => ({
+    ...topic,
+    displayLabel: `ID:${topic.id} - ${topic.content?.slice(0, 30)}${topic.content && topic.content.length > 30 ? '...' : ''}`,
+  }))
+})
+
+// 选中的题目 ID 数组
+const selectedTopics = ref<number[]>([])
+
+// 初始化：从字符串解析 ID 数组
+watch(teacherSelectedTopicIdsStr, (str) => {
+  if (str && selectedTopics.value.length === 0) {
+    selectedTopics.value = str.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id))
+  }
+}, { immediate: true })
+
+// 监听选中变化，同步到字符串
+watch(selectedTopics, (ids) => {
+  teacherSelectedTopicIdsStr.value = ids.join(',')
+}, { deep: true })
 
 // 预定义标签选中状态映射
 const selectedTagsMap = ref<Record<string, boolean>>({})
