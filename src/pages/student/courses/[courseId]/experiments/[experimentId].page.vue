@@ -10,20 +10,20 @@
         <TabPanel value="overview">
           <ExperimentOverview
             :course-id="courseId"
-            :experiment-id="experimentId"
+            :experiment-id="String(experimentId)"
           />
         </TabPanel>
         <TabPanel value="attendance">
           <ExperimentAttendance
             :course-id="courseId"
-            :experiment-id="experimentId"
+            :experiment-id="String(experimentId)"
           />
         </TabPanel>
         <TabPanel value="steps">
           <ExperimentSteps
             v-if="currentClassCode"
             :course-id="courseId"
-            :experiment-id="experimentId"
+            :experiment-id="String(experimentId)"
             :class-code="currentClassCode"
           />
           <div v-else class="text-center py-12">
@@ -45,10 +45,10 @@ import ExperimentSteps from '@/features/student/experiments/components/Experimen
 import { useQueryCourseExperiments } from '@/features/student/courses/hooks'
 
 const route = useRoute()
-const params = route.params as { courseId: string; experimentId: string }
+const params = route.params as { courseId: string; experimentId: number }
 const courseId = params.courseId
 const experimentId = params.experimentId
-const experimentName = experimentId || '实验详情'
+const experimentName = String(experimentId) || '实验详情'
 
 const activeTab = ref('overview')
 
@@ -60,7 +60,7 @@ const currentClassCode = computed(() => {
   if (!experiments.value) return undefined
 
   const experiment = experiments.value.find(
-    (exp) => exp.experimentId === experimentId
+    (exp) => exp.experimentId === Number(experimentId)
   )
 
   if (!experiment || !experiment.classExperiments || experiment.classExperiments.length === 0) {

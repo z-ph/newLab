@@ -9,7 +9,7 @@
         v-for="experiment in experiments"
         :key="experiment.experimentId"
         class="cursor-pointer active:scale-[0.98] transition-transform"
-        @click="$emit('select', experiment.experimentId)"
+        @click="handleSelect(experiment.experimentId!)"
       >
         <template #content>
           <div class="flex items-start justify-between">
@@ -20,7 +20,7 @@
                 </div>
                 <div>
                   <h3 class="text-base font-semibold text-gray-900">
-                    {{ getExperimentName(experiment.submissions) }}
+                    {{ getExperimentName(experiment.classExperiments) }}
                   </h3>
                   <p class="text-xs text-gray-500 mt-0.5">
                     {{ experiment.experimentId }}
@@ -30,17 +30,18 @@
 
               <div class="flex items-center gap-3 mt-3">
                 <div class="flex items-center gap-1">
-                  <i class="pi pi-tasks text-gray-400 text-sm" />
+                  <i class="pi pi-clock text-gray-400 text-sm" />
                   <span class="text-xs text-gray-500">
-                    {{ experiment.submissions.length }} 个步骤
+                    {{ getExperimentTimeRange(experiment.classExperiments) }}
                   </span>
                 </div>
 
-                <Tag
-                  :value="getStatusText(experiment.submissions)"
-                  :severity="getStatusSeverity(experiment.submissions)"
-                  class="text-xs"
-                />
+                <div class="flex items-center gap-1">
+                  <i class="pi pi-map-marker text-gray-400 text-sm" />
+                  <span class="text-xs text-gray-500">
+                    {{ getExperimentLocation(experiment.classExperiments) }}
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -58,40 +59,63 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed } from 'vue'
 import { useQueryCourseExperiments } from '../hooks'
-import { getExperimentName } from '../utils'
+import type { ClassExperiment } from '@/core/api/generated'
 
 interface Props {
   courseId: string
 }
 
 interface Emits {
-  (e: 'select', experimentId: string): void
+  (e: 'select', experimentId: number): void
 }
 
 const props = defineProps<Props>()
-defineEmits<Emits>()
+const emit = defineEmits<Emits>()
 
-const { experiments, query } = useQueryCourseExperiments(computed(()=>props.courseId))
+const { experiments, query } = useQueryCourseExperiments(computed(() => props.courseId))
 
-function getStatusText(submissions: any[]): string {
-  if (!submissions || submissions.length === 0) return '未开始'
-
-  // 检查是否有已提交的
-  const hasSubmitted = submissions.some((s) => s.submissionStatus === 2)
-  if (hasSubmitted) return '进行中'
-
-  return '未开始'
+function handleSelect(experimentId: number) {
+  emit('select', experimentId)
 }
 
-function getStatusSeverity(submissions: any[]): 'success' | 'info' | 'warning' | 'danger' {
-  if (!submissions || submissions.length === 0) return 'info'
+function getExperimentName(classExperiments: ClassExperiment[]): string {
+  if (!classExperiments || classExperiments.length === 0) return '未知实验'
+  const first = classExperiments[0]!
+  return (first.experimentId as string | undefined) || '未知实验'
+}
 
-  const hasSubmitted = submissions.some((s) => s.submissionStatus === 2)
-  if (hasSubmitted) return 'warning'
+function getExperimentTimeRange(classExperiments: ClassExperiment[]): string {
+  if (!classExperiments || classExperiments.length === 0) {
+    return '暂无时间安排'
+  }
 
-  return 'info'
+  const first = classExperiments[0]!
+  if (!first.startTime || !first.endTime) {
+    return '暂无时间安排'
+  }
+
+  const startDate = new Date(first.startTime!)
+  const endDate = new Date(first.endTime!)
+
+  const format = (date: Date) => {
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const hours = String(date.getHours()).padStart(2, '0')
+    const minutes = String(date.getMinutes()).padStart(2, '0')
+    return `${month}-${day} ${hours}:${minutes}`
+  }
+
+  return `${format(startDate)} ~ ${format(endDate)}`
+}
+
+function getExperimentLocation(classExperiments: ClassExperiment[]): string {
+  if (!classExperiments || classExperiments.length === 0) {
+    return '暂无地点'
+  }
+
+  const first = classExperiments[0]!
+  return (first.experimentLocation as string | undefined) || '暂无地点'
 }
 </script>
-
