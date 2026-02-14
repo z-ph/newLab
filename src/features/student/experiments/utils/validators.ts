@@ -5,6 +5,14 @@
 import type { ProcedureStep } from './types'
 
 /**
+ * 步骤时间配置接口（通用）
+ */
+export interface StepTimeConfig {
+  offsetMinutes?: number
+  durationMinutes?: number
+}
+
+/**
  * 步骤时间校验结果
  */
 export interface StepTimeValidation {
@@ -21,12 +29,12 @@ export interface StepTimeValidation {
 /**
  * 获取步骤时间校验状态
  *
- * @param step - 实验步骤
+ * @param step - 实验步骤（支持 ProcedureStep 或其他包含 offsetMinutes/durationMinutes 的对象）
  * @param baseTime - 基准时间（班级实验开始时间）
  * @returns 步骤时间校验结果，如果没有时间配置则返回 null
  */
 export function stepTimeValidation(
-  step: ProcedureStep,
+  step: ProcedureStep | StepTimeConfig,
   baseTime?: Date | string
 ): StepTimeValidation | null {
   if (step.offsetMinutes === undefined || step.durationMinutes === undefined) {

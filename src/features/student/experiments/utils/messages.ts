@@ -4,6 +4,7 @@
 
 import type { ProcedureStep } from './types'
 import { stepTimeValidation } from './validators'
+import type { StepTimeConfig } from './validators'
 
 /**
  * 获取时间不可用提示消息
@@ -13,11 +14,11 @@ import { stepTimeValidation } from './validators'
  * @returns 时间不可用时的提示消息
  */
 export function getTimeUnavailableMessage(
-  step: ProcedureStep,
+  step: ProcedureStep | StepTimeConfig,
   baseTime?: Date | string
 ): string {
   const validation = stepTimeValidation(step, baseTime)
-  if (!validation) return '步骤不可用'
+  if (!validation) return '时间未配置'
   if (validation.isNotStarted) return '步骤尚未开始'
   if (validation.isEnded) return '步骤已结束'
   return '步骤不可用'

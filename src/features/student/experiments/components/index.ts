@@ -1,2 +1,5 @@
 export { default as ExperimentList } from './ExperimentList.vue'
 export { default as ExperimentDetail } from './ExperimentDetail.vue'
+export { default as ExperimentOverview } from './ExperimentOverview.vue'
+export { default as ExperimentAttendance } from './ExperimentAttendance.vue'
+export { default as ExperimentSteps } from './ExperimentSteps.vue'
