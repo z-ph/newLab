@@ -43,7 +43,7 @@ import { useQueryCoursePage, useDeleteCourse } from '../hooks'
 import {
   CourseFormDialog,
 } from '@/features/teacher/course'
-import { formatDateTime } from '@/features/shared/utils'
+import { formatDateTime } from '@/features/shared/utils/formatters'
 
 // ==================== 对话框 ref ====================
 const dialogRef = ref<InstanceType<typeof CourseFormDialog>>()

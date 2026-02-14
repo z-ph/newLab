@@ -115,7 +115,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useQueryAttendanceRecords } from '@/features/student/attendance/hooks'
-import { formatDateTime } from '@/features/shared/utils'
+import { formatDateTime } from '@/features/shared/utils/formatters'
 import { toast } from '@/core/utils/toast'
 
 interface Props {
@@ -178,9 +178,6 @@ async function handleSubmitCode() {
     attendanceTime.value = new Date().toISOString()
     toast.success('签到成功')
     attendanceCode.value = ''
-  } catch (error) {
-    console.error('签到失败:', error)
-    toast.error('签到失败，请检查签到码是否正确')
   } finally {
     submitting.value = false
   }

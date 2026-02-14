@@ -103,6 +103,7 @@ import { useQueryAttendanceList } from '@/features/teacher/experiment/attendance
 import { useUpdateAttendanceSuccess } from '@/features/teacher/experiment/attendance/hooks/useMutateAttendanceUpdate'
 import { ATTENDANCE_STATUS } from '@/features/teacher/experiment/attendance/constants'
 import { ATTENDANCE_TABLE_PAGE_SIZE, NOT_ATTENDANCE_TABLE_PAGE_SIZE } from '@/features/teacher/class-experiment/constants'
+import { formatDateTime } from '@/features/shared/utils/formatters'
 
 interface Props {
   classCode: ClassCode
@@ -140,11 +141,6 @@ const attendanceData = computed((): AttendanceListResponse | null => {
 })
 
 // ==================== 工具函数 ====================
-const formatDateTime = (dateStr: string | undefined) => {
-  if (!dateStr) return '-'
-  return new Date(dateStr).toLocaleString('zh-CN')
-}
-
 const getAttendanceStatusText = (status: number | undefined) => {
   const statusMap: Record<number, string> = {
     [ATTENDANCE_STATUS.NORMAL]: '正常签到',

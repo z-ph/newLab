@@ -10553,6 +10553,14 @@
                       "message": "",
                       "data": null
                     }
+                  },
+                  "5": {
+                    "summary": "成功示例",
+                    "value": {
+                      "code": 0,
+                      "message": "",
+                      "data": null
+                    }
                   }
                 }
               }
@@ -10637,6 +10645,24 @@
                     }
                   },
                   "4": {
+                    "summary": "成功示例",
+                    "value": {
+                      "code": 0,
+                      "message": "",
+                      "data": [
+                        {
+                          "id": 0,
+                          "courseId": "",
+                          "experimentName": "",
+                          "percentage": 0,
+                          "createdTime": "",
+                          "endTime": "",
+                          "updatedTime": ""
+                        }
+                      ]
+                    }
+                  },
+                  "5": {
                     "summary": "成功示例",
                     "value": {
                       "code": 0,
@@ -10972,6 +10998,43 @@
                         ]
                       }
                     }
+                  },
+                  "3": {
+                    "summary": "成功示例",
+                    "value": {
+                      "code": 0,
+                      "message": "",
+                      "data": {
+                        "current": 0,
+                        "size": 0,
+                        "total": 0,
+                        "pages": 0,
+                        "records": [
+                          {
+                            "classExperimentId": 0,
+                            "classCode": "",
+                            "className": "",
+                            "classCodes": [
+                              ""
+                            ],
+                            "classNames": [
+                              ""
+                            ],
+                            "isMergedClass": false,
+                            "courseId": "",
+                            "courseName": "",
+                            "experimentId": 0,
+                            "experimentName": "",
+                            "courseTime": "",
+                            "startTime": "",
+                            "endTime": "",
+                            "experimentLocation": "",
+                            "userName": "",
+                            "teacherName": ""
+                          }
+                        ]
+                      }
+                    }
                   }
                 }
               }
@@ -10986,23 +11049,23 @@
         ]
       }
     },
-    "/api/teacher/experiments/by-class": {
+    "/api/teacher/experiments/by-class/{classCode}": {
       "get": {
         "summary": "根据班级代码查询该班级关联的所有实验详情（按课程分组）",
         "deprecated": false,
         "description": "",
         "tags": [],
-        "parameters": [],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ClassExperimentQueryByClassRequest",
-                "description": "查询请求（包含班级代码）"
-              }
+        "parameters": [
+          {
+            "name": "classCode",
+            "in": "path",
+            "description": "包含班级代码",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           }
-        },
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -22670,7 +22733,20 @@
       },
       "key": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "courseInfo": {
+            "$ref": "#/components/schemas/CourseInfo",
+            "description": "课程信息"
+          },
+          "experiments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExperimentDetailItem",
+              "description": "实验详情项"
+            },
+            "description": "该课程下的实验列表"
+          }
+        }
       },
       "ApiResponseListMapObject": {
         "type": "object",
@@ -27424,7 +27500,7 @@
         "type": "object",
         "properties": {
           "key": {
-            "$ref": "#/components/schemas/key1"
+            "$ref": "#/components/schemas/key"
           }
         }
       },

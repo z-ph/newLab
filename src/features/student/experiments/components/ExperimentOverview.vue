@@ -75,7 +75,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useQueryProcedureSubmissions } from '../hooks'
-import { formatDateTime } from '@/features/shared/utils'
+import { formatDateTime } from '@/features/shared/utils/formatters'
 
 interface Props {
   courseId: string

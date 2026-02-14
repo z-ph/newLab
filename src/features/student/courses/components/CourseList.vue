@@ -20,7 +20,7 @@
                 </div>
                 <div>
                   <h3 class="text-base font-semibold text-gray-900">
-                    {{ getCourseName(course.submissions) }}
+                    {{ course.courseName }}
                   </h3>
                   <p class="text-xs text-gray-500 mt-0.5">
                     {{ course.courseId }}
@@ -32,17 +32,10 @@
                 <div class="flex items-center gap-1">
                   <i class="pi pi-list text-gray-400 text-sm" />
                   <span class="text-xs text-gray-500">
-                    {{ course.submissions.length }} 个实验
+                    {{ course.classExperiments.length }} 个实验
                   </span>
                 </div>
 
-                <div class="flex items-center gap-1">
-                  <i class="pi pi-check-circle text-gray-400 text-sm" />
-                  <span class="text-xs text-gray-500">
-                    已完成 {{ getCourseProgress(course.submissions).completed }} /
-                    {{ getCourseProgress(course.submissions).total }}
-                  </span>
-                </div>
               </div>
             </div>
 
@@ -62,7 +55,6 @@
 
 <script setup lang="ts">
 import { useQueryCourses } from '../hooks'
-import { getCourseName, getCourseProgress } from '../utils'
 
 interface Emits {
   (e: 'select', courseId: string): void

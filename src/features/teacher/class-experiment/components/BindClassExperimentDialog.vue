@@ -71,7 +71,7 @@ import { useQueryClassAll } from '@/features/teacher/class'
 import { useQueryCourseAll } from '@/features/teacher/course'
 import { useQueryExperimentAll } from '@/features/teacher/experiment'
 import { useBindExperiment } from '@/features/teacher/class'
-import { formatDateTime, formatTimeShort } from '@/features/shared/utils'
+import { formatDateTime, formatTimeShort } from '@/features/shared/utils/formatters'
 import type { BatchBindClassesToExperimentRequest } from '@/core/api/generated'
 
 const toast = useToast()

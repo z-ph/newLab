@@ -8,18 +8,19 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import MobileLayout from '@/features/student/components/MobileLayout.vue'
 import { CourseExperimentList } from '@/features/student/courses'
 
 const route = useRoute()
+const router = useRouter()
 const params = route.params as { courseId: string }
 const courseId = params.courseId || ''
 
 const courseName = courseId || '课程详情'
 
-const handleSelectExperiment = (experimentId: string) => {
+const handleSelectExperiment = (experimentId: number) => {
   // 跳转到实验详情页
-  window.location.href = `/student/courses/${courseId}/experiments/${experimentId}`
+  router.push(`/student/courses/${courseId}/experiments/${experimentId}`)
 }
 </script>

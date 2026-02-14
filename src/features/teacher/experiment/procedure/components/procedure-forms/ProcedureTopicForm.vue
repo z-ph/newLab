@@ -173,7 +173,7 @@ const addCustomTag = () => {
     topicTags.value = [...topicTags.value, tag]
     customTagInput.value = ''
     // 如果是预定义标签，同步更新映射
-    if (PREDEFINED_TAGS.includes(tag as any)) {
+    if (PREDEFINED_TAGS.includes(tag as typeof PREDEFINED_TAGS[number])) {
       selectedTagsMap.value[tag] = true
     }
   }
@@ -187,7 +187,7 @@ const removeTag = (tag: string) => {
     newTags.splice(index, 1)
     topicTags.value = newTags
     // 如果是预定义标签，同步更新映射
-    if (PREDEFINED_TAGS.includes(tag as any)) {
+    if (PREDEFINED_TAGS.includes(tag as typeof PREDEFINED_TAGS[number])) {
       selectedTagsMap.value[tag] = false
     }
   }

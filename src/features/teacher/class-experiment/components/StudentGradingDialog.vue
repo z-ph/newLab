@@ -91,7 +91,7 @@ import type { ExperimentInfo } from '@/core/api/generated'
 import type { ProcedureSubmissionResponse } from '@/core/api/generated'
 import { useQueryStudentSubmissions, useStudentList } from '../hooks'
 import type { StudentSummary } from '../hooks'
-import { formatDateTime } from '@/features/shared/utils'
+import { formatDateTime } from '@/features/shared/utils/formatters'
 import { getSubmissionStatusText, getSubmissionStatusSeverity } from '../utils'
 import {
   SUBMISSION_STATUS,

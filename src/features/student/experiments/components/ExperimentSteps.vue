@@ -235,15 +235,11 @@ async function handleMarkVideoViewed(step: StudentProcedureDetailResponse) {
     return
   }
 
-  try {
-    await markVideoViewed.mutateAsync({
-      procedureId: step.id,
-      classCode: props.classCode as NonNullable<typeof props.classCode>,
-    })
-    query.refetch()
-  } catch (error) {
-    console.error('标记视频观看失败:', error)
-  }
+  await markVideoViewed.mutateAsync({
+    procedureId: step.id,
+    classCode: props.classCode as NonNullable<typeof props.classCode>,
+  })
+  query.refetch()
 }
 
 async function handleCompleteTopic(step: StudentProcedureDetailResponse) {
@@ -252,14 +248,10 @@ async function handleCompleteTopic(step: StudentProcedureDetailResponse) {
     return
   }
 
-  try {
-    await completeTopic.mutateAsync({
-      procedureTopicId: step.procedureTopicId,
-    })
-    query.refetch()
-  } catch (error) {
-    console.error('完成题目失败:', error)
-  }
+  await completeTopic.mutateAsync({
+    procedureTopicId: step.procedureTopicId,
+  })
+  query.refetch()
 }
 
 function handleUploadData(step: StudentProcedureDetailResponse) {

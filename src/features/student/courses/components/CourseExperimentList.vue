@@ -9,7 +9,7 @@
         v-for="experiment in experiments"
         :key="experiment.experimentId"
         class="cursor-pointer active:scale-[0.98] transition-transform"
-        @click="handleSelect(experiment.experimentId!)"
+        @click="handleSelect(Number(experiment.experimentId))"
       >
         <template #content>
           <div class="flex items-start justify-between">

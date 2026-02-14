@@ -44,7 +44,7 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import type { CourseSessionResponse } from '@/core/api/generated'
-import { formatDateTime } from '@/features/shared/utils'
+import { formatDateTime } from '@/features/shared/utils/formatters'
 
 interface Props {
   session: CourseSessionResponse

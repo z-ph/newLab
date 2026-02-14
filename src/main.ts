@@ -8,6 +8,7 @@ import PrimeVue from 'primevue/config'
 import Aura from '@primevue/themes/aura'
 import ToastService from 'primevue/toastservice'
 import ConfirmationService from 'primevue/confirmationservice'
+import type { ToastServiceMethods } from 'primevue/toastservice'
 import 'primeicons/primeicons.css'
 
 // TanStack Query
@@ -44,7 +45,7 @@ app.use(ConfirmationService)
 // ToastService 安装后会在 globalProperties 上创建 $toast
 const instance = createApp({})
 instance.use(ToastService)
-const toastService = instance.config.globalProperties.$toast as any
+const toastService = instance.config.globalProperties.$toast as ToastServiceMethods
 initToast(toastService)
 
 app.mount('#app')

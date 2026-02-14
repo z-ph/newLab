@@ -41,7 +41,7 @@ import Button from 'primevue/button'
 
 import type { VideoUploadResponse } from '@/core/api/generated'
 import { formatDuration } from '../utils/formatters'
-import { formatDateTime } from '@/features/shared/utils'
+import { formatDateTime } from '@/features/shared/utils/formatters'
 
 // ✅ 状态封装在组件内部
 const visible = ref(false)

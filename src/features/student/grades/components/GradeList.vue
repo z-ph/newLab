@@ -56,7 +56,7 @@
 
 <script setup lang="ts">
 import { useQueryGrades } from '../hooks'
-import { formatDateTime } from '@/features/shared/utils'
+import { formatDateTime } from '@/features/shared/utils/formatters'
 import {
   getGradeSeverity,
   getGradeLevel,

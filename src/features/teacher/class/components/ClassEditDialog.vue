@@ -71,65 +71,55 @@
               <Button label="绑定实验" icon="pi pi-plus" @click="openBindExperimentDialog" />
             </div>
 
-            <DataTable
-              :value="experiments"
-              :paginator="true"
-              :rows="experimentSize"
-              :loading="experimentsLoading"
-              :total-records="experimentTotal"
-              :lazy="true"
-              @page="onExperimentPageChange"
-            >
-              <Column field="experimentName" header="实验名称" />
-              <Column field="courseTime" header="上课时间" />
-              <Column field="startTime" header="开始时间">
-                <template #body="slotProps">
-                  {{ formatDateTime(slotProps.data.startTime) }}
-                </template>
-              </Column>
-              <Column field="endTime" header="结束时间">
-                <template #body="slotProps">
-                  {{ formatDateTime(slotProps.data.endTime) }}
-                </template>
-              </Column>
-              <Column field="experimentLocation" header="地点" />
-              <Column header="操作">
-                <template #body="slotProps">
-                  <div class="flex gap-2">
-                    <Button
-                      icon="pi pi-check-circle"
-                      outlined
-                      size="small"
-                      v-tooltip.top="'签到管理'"
-                      @click="openAttendanceDialog(slotProps.data)"
-                    />
-                    <Button
-                      icon="pi pi-pencil"
-                      outlined
-                      size="small"
-                      v-tooltip.top="'学生批改'"
-                      @click="openGradingDialog(slotProps.data)"
-                    />
-                    <Button
-                      icon="pi pi-chart-bar"
-                      outlined
-                      size="small"
-                      v-tooltip.top="'统计信息'"
-                      @click="openStatisticsDialog(slotProps.data)"
-                    />
-                    <Button
-                      icon="pi pi-trash"
-                      outlined
-                      severity="danger"
-                      size="small"
-                      v-tooltip.top="'删除'"
-                      @click="handleDeleteExperiment(slotProps.data)"
-                      :loading="deleteExperimentMutation.isPending.value"
-                    />
+            <!-- 按课程分组的实验列表 -->
+            <div v-if="experimentQuery.isLoading.value" class="flex justify-center p-8">
+              <ProgressSpinner />
+            </div>
+
+            <Accordion v-else :value="[]">
+              <AccordionPanel v-for="courseGroup in courseGroups" :key="courseGroup.courseId" :value="courseGroup.courseId">
+                <AccordionHeader>
+                  <div class="flex items-center justify-between w-full">
+                    <div class="flex items-center gap-2">
+                      <i class="pi pi-book text-slate-600"></i>
+                      <span class="font-semibold text-slate-900">{{ courseGroup.courseInfo?.courseName }}</span>
+                      <Tag :value="`${courseGroup.experiments.length} 个实验`" severity="secondary" />
+                    </div>
                   </div>
-                </template>
-              </Column>
-            </DataTable>
+                </AccordionHeader>
+                <AccordionContent>
+                  <!-- 实验列表 -->
+                  <DataTable :value="courseGroup.experiments" :paginator="courseGroup.experiments.length > 5"
+                    :rows="5" :pt="{ header: { class: 'px-0!' } }">
+                    <Column field="experimentName" header="实验名称" />
+                    <Column field="courseTime" header="上课时间" />
+                    <Column field="percentage" header="占比">
+                      <template #body="slotProps">
+                        {{ slotProps.data.percentage }}%
+                      </template>
+                    </Column>
+                    <Column header="操作">
+                      <template #body="slotProps">
+                        <div class="flex gap-2">
+                          <Button icon="pi pi-check-circle" outlined size="small" v-tooltip.top="'签到管理'"
+                            @click="openAttendanceDialog(slotProps.data)" />
+                          <Button icon="pi pi-pencil" outlined size="small" v-tooltip.top="'学生批改'"
+                            @click="openGradingDialog(slotProps.data)" />
+                          <Button icon="pi pi-chart-bar" outlined size="small" v-tooltip.top="'统计信息'"
+                            @click="openStatisticsDialog(slotProps.data)" />
+                          <Button icon="pi pi-trash" outlined severity="danger" size="small" v-tooltip.top="'删除'"
+                            @click="handleDeleteExperiment(slotProps.data)" :loading="deleteExperimentMutation.isPending.value" />
+                        </div>
+                      </template>
+                    </Column>
+                  </DataTable>
+                </AccordionContent>
+              </AccordionPanel>
+            </Accordion>
+
+            <div v-if="!experimentQuery.isLoading.value && courseGroups.length === 0" class="text-center p-8 text-slate-500">
+              暂无实验数据
+            </div>
           </TabPanel>
         </TabPanels>
       </Tabs>
@@ -171,11 +161,11 @@ import { useConfirm } from 'primevue/useconfirm'
 import { useUpdateClass } from '@/features/teacher/class'
 import { useQueryStudentList } from '@/features/teacher/class/hooks/useQueryStudentList'
 import { useBindStudents, useUnbindStudents } from '@/features/teacher/class/hooks/useMutateClassStudents'
-import { useQueryClassExperiments } from '@/features/teacher/class/hooks/useQueryClassExperiments'
+import { useQueryClassExperimentsGroupedByCourse, toCourseGroups } from '@/features/teacher/class/hooks/useQueryClassExperimentsGroupedByCourse'
 import { useUnbindExperiment } from '@/features/teacher/class/hooks/useMutateClassExperiment'
 import { useToast } from 'primevue/usetoast'
-import { formatDateTime } from '@/features/shared/utils'
-import type { StudentClassRelation, ExperimentInfo } from '@/core/api/generated'
+import { formatDateTime } from '@/features/shared/utils/formatters'
+import type { StudentClassRelation, ExperimentInfo, ExperimentDetailItem } from '@/core/api/generated'
 import BindClassExperimentDialog from '@/features/teacher/class-experiment/components/BindClassExperimentDialog.vue'
 import AttendanceManagementDialog from '@/features/teacher/class-experiment/components/AttendanceManagementDialog.vue'
 import StudentGradingDialog from '@/features/teacher/class-experiment/components/StudentGradingDialog.vue'
@@ -201,6 +191,7 @@ interface ClassInfo {
 }
 
 function open(classInfo: ClassInfo) {
+  console.log(classInfo)
   classId = classInfo.id
   classCode.value = classInfo.classCode || ''
   formData.className = classInfo.className || ''
@@ -376,23 +367,29 @@ const handleRemoveStudent = async (student: StudentClassRelation) => {
 }
 
 // ==================== 实验管理 ====================
-const { current: experimentCurrent, size: experimentSize, query: experimentQuery } = useQueryClassExperiments(classCode)
-const experiments = computed(() => experimentQuery.data.value || [])
-const experimentTotal = computed(() => experiments.value.length)
-const experimentsLoading = computed(() => experimentQuery.isLoading.value)
+const { query: experimentQuery } = useQueryClassExperimentsGroupedByCourse(classCode)
+const courseGroups = computed(() => toCourseGroups(experimentQuery.data.value))
 
 // 删除实验
 const deleteExperimentMutation = useUnbindExperiment()
 
-// 实验分页
-const onExperimentPageChange = (event: any) => {
-  experimentCurrent.value = event.page + 1
-  experimentSize.value = event.rows
+// 将 ExperimentDetailItem 转换为 ExperimentInfo
+function toExperimentInfo(item: ExperimentDetailItem): ExperimentInfo {
+  return {
+    classExperimentId: item.classExperimentId,
+    experimentId: item.experimentId?.toString(),
+    experimentName: item.experimentName,
+    courseTime: item.courseTime,
+    startTime: item.startTime,
+    endTime: item.endTime,
+    experimentLocation: item.experimentLocation,
+    userName: item.userName,
+  }
 }
 
 // 删除实验
-const handleDeleteExperiment = (experiment: ExperimentInfo) => {
-  const experimentId = experiment.experimentId
+const handleDeleteExperiment = (experiment: ExperimentDetailItem) => {
+  const experimentId = experiment.experimentId?.toString()
   if (!experimentId || !classCode.value) return
 
   confirm.require({
@@ -423,16 +420,16 @@ const openBindExperimentDialog = () => {
   bindExperimentDialogRef.value?.open({ classCodes: [classCode.value] })
 }
 
-const openAttendanceDialog = (experiment: ExperimentInfo) => {
-  attendanceDialogRef.value?.open({ classExperiment: experiment })
+const openAttendanceDialog = (experiment: ExperimentDetailItem) => {
+  attendanceDialogRef.value?.open({ classExperiment: toExperimentInfo(experiment) })
   classExperimentId.value = experiment.classExperimentId
 }
 
-const openGradingDialog = (experiment: ExperimentInfo) => {
-  gradingDialogRef.value?.open({ classExperiment: experiment })
+const openGradingDialog = (experiment: ExperimentDetailItem) => {
+  gradingDialogRef.value?.open({ classExperiment: toExperimentInfo(experiment) })
 }
 
-const openStatisticsDialog = (experiment: ExperimentInfo) => {
-  statisticsDialogRef.value?.open({ classExperiment: experiment })
+const openStatisticsDialog = (experiment: ExperimentDetailItem) => {
+  statisticsDialogRef.value?.open({ classExperiment: toExperimentInfo(experiment) })
 }
 </script>

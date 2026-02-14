@@ -73,7 +73,7 @@ import Popover from 'primevue/popover'
 
 import { VideoFilter } from '@/features/teacher/video'
 import { formatDuration, formatFileSize, truncateFileName } from '../utils/formatters'
-import { formatDateTime } from '@/features/shared/utils'
+import { formatDateTime } from '@/features/shared/utils/formatters'
 import { useQueryVideoPage, useDeleteVideo } from '../hooks'
 
 import type { VideoUploadResponse, VideoQueryRequest } from "@/core/api/generated"

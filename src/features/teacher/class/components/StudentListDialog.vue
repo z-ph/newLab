@@ -80,7 +80,7 @@ import { useConfirm } from 'primevue/useconfirm'
 import { useBindStudents, useUnbindStudents } from '@/features/teacher/class/hooks/useMutateClassStudents'
 import { useQueryStudentList } from '@/features/teacher/class/hooks/useQueryStudentList'
 import type { StudentClassRelation } from '@/core/api/generated'
-import { formatDateTime } from '@/features/shared/utils'
+import { formatDateTime } from '@/features/shared/utils/formatters'
 
 // ==================== Props & Emits ====================
 interface Emits {

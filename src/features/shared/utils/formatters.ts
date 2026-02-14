@@ -70,3 +70,15 @@ export function formatFileSize(bytes?: number): string {
   }
   return `${size.toFixed(2)} ${units[unitIndex]}`;
 }
+
+/**
+ * 格式化时间（HH:MM 格式）
+ * @param date - 日期对象或字符串
+ * @returns 格式化后的时间字符串（HH:MM）
+ */
+export function formatTime(date: Date | string): string {
+  const d = typeof date === "string" ? new Date(date) : date;
+  const hours = String(d.getHours()).padStart(2, "0");
+  const minutes = String(d.getMinutes()).padStart(2, "0");
+  return `${hours}:${minutes}`;
+}

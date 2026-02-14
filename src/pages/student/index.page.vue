@@ -1,25 +1,10 @@
 <template>
   <MobileLayout title="我的课程">
     <div class="space-y-4">
-      <!-- 课程会话列表 -->
+      <!-- 课程列表 -->
       <Card>
         <template #content>
-          <div v-if="isLoading" class="flex justify-center py-8">
-            <ProgressSpinner />
-          </div>
-
-          <div v-else-if="courseSessions && courseSessions.length > 0" class="space-y-3">
-            <CourseSessionCard
-              v-for="session in courseSessions.filter(s => s.classExperimentId)"
-              :key="session.classExperimentId"
-              :session="session"
-            />
-          </div>
-
-          <div v-else class="text-center py-12">
-            <i class="pi pi-inbox text-4xl text-gray-300 mb-3" />
-            <p class="text-sm text-gray-500">暂无课程</p>
-          </div>
+          <CourseList @select="handleSelectCourse" />
         </template>
       </Card>
     </div>
@@ -27,8 +12,13 @@
 </template>
 
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import MobileLayout from '@/features/student/components/MobileLayout.vue'
-import { useQueryCourseSessions } from '@/features/student/courses/hooks'
-import { CourseSessionCard } from '@/features/student/courses';
-const { courseSessions, isLoading } = useQueryCourseSessions()
+import { CourseList } from '@/features/student/courses'
+
+const router = useRouter()
+
+const handleSelectCourse = (courseId: string) => {
+  router.push(`/student/courses/${courseId}`)
+}
 </script>

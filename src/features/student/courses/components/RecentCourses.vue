@@ -11,8 +11,8 @@
       @click="router.push(`/student/courses/${course.courseId}`)"
     >
       <div class="flex-1">
-        <p class="text-sm font-medium text-gray-900">{{ getCourseName(course.submissions) }}</p>
-        <p class="text-xs text-gray-500 mt-0.5">{{ getTeacherName(course.submissions) }}</p>
+        <p class="text-sm font-medium text-gray-900">{{ course.courseName }}</p>
+        <p class="text-xs text-gray-500 mt-0.5">{{ course.classExperiments.length }} 个实验</p>
       </div>
       <i class="pi pi-chevron-right text-gray-400 text-sm" />
     </div>
@@ -27,16 +27,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { useQueryCourses } from '../hooks'
-import { getCourseName } from '../utils'
 
 const router = useRouter()
 const { courses, query } = useQueryCourses()
-
-/**
- * 获取教师名称
- */
-function getTeacherName(submissions: any[]): string {
-  if (!submissions || submissions.length === 0) return '未知教师'
-  return submissions[0].teacherName || '教师'
-}
 </script>

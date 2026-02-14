@@ -45,10 +45,10 @@ import ExperimentSteps from '@/features/student/experiments/components/Experimen
 import { useQueryCourseExperiments } from '@/features/student/courses/hooks'
 
 const route = useRoute()
-const params = route.params as { courseId: string; experimentId: number }
+const params = route.params as { courseId: string; experimentId: string }
 const courseId = params.courseId
 const experimentId = params.experimentId
-const experimentName = String(experimentId) || '实验详情'
+const experimentName = experimentId || '实验详情'
 
 const activeTab = ref('overview')
 
@@ -60,7 +60,7 @@ const currentClassCode = computed(() => {
   if (!experiments.value) return undefined
 
   const experiment = experiments.value.find(
-    (exp) => exp.experimentId === Number(experimentId)
+    (exp) => String(exp.experimentId) === experimentId
   )
 
   if (!experiment || !experiment.classExperiments || experiment.classExperiments.length === 0) {
