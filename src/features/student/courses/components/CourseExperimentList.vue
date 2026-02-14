@@ -9,7 +9,7 @@
         v-for="experiment in experiments"
         :key="experiment.experimentId"
         class="cursor-pointer active:scale-[0.98] transition-transform"
-        @click="handleSelect(Number(experiment.experimentId))"
+        @click="handleSelect(experiment.experimentId!)"
       >
         <template #content>
           <div class="flex items-start justify-between">
@@ -68,7 +68,7 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'select', experimentId: number): void
+  (e: 'select', experimentId: string): void
 }
 
 const props = defineProps<Props>()
@@ -76,7 +76,7 @@ const emit = defineEmits<Emits>()
 
 const { experiments, query } = useQueryCourseExperiments(computed(() => props.courseId))
 
-function handleSelect(experimentId: number) {
+function handleSelect(experimentId: string) {
   emit('select', experimentId)
 }
 
