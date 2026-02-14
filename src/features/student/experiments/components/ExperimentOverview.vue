@@ -88,7 +88,7 @@ interface Emits {
 }
 
 const props = defineProps<Props>()
-defineEmits<Emits>()
+const emit = defineEmits<Emits>()
 
 const { submissions } = useQueryProcedureSubmissions()
 
