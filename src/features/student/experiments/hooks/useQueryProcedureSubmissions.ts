@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue'
+import { ref, computed, unref, type Ref } from 'vue'
 import {
   getApiStudentProcedureSubmissions,
   getApiStudentProcedureSubmissionsUncompleted,
@@ -7,16 +7,47 @@ import client from '@/core/api/config'
 import { useQuery } from '@tanstack/vue-query'
 
 /**
- * 查询实验步骤提交列表
+ * 查询实验步骤提交列表的参数
  */
-export function useQueryProcedureSubmissions() {
+export interface UseQueryProcedureSubmissionsParams {
+  /** 课程ID（可选，用于过滤） */
+  courseId?: string | Ref<string | undefined>
+  /** 实验ID（可选，用于过滤） */
+  experimentId?: string | Ref<string | undefined>
+}
+
+/**
+ * 查询实验步骤提交列表
+ * @param params - 过滤参数（可选）
+ */
+export function useQueryProcedureSubmissions(params?: UseQueryProcedureSubmissionsParams) {
   const query = useQuery({
-    queryKey: ['student-procedure-submissions'],
+    queryKey: computed(() => [
+      'student-procedure-submissions',
+      unref(params?.courseId),
+      unref(params?.experimentId),
+    ]),
     queryFn: () =>
       getApiStudentProcedureSubmissions({
         client,
       }),
-    select: (response) => response.data?.data ?? [],
+    select: (response) => {
+      const allSubmissions = response.data?.data ?? []
+
+      // 如果提供了过滤参数，在前端过滤
+      if (params?.courseId || params?.experimentId) {
+        const courseId = unref(params?.courseId)
+        const experimentId = unref(params?.experimentId)
+
+        return allSubmissions.filter((submission) => {
+          if (courseId && submission.courseId !== courseId) return false
+          if (experimentId && submission.experimentId !== experimentId) return false
+          return true
+        })
+      }
+
+      return allSubmissions
+    },
   })
 
   return {

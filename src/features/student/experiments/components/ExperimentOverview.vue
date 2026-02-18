@@ -5,40 +5,18 @@
       <template #title>实验信息</template>
       <template #content>
         <div class="space-y-2">
-          <div class="flex justify-between">
-            <span class="text-sm text-gray-500">实验ID</span>
-            <span class="text-sm font-medium">{{ experimentId }}</span>
+          <div v-if="experimentName" class="flex justify-between">
+            <span class="text-sm text-gray-500">实验名称</span>
+            <span class="text-sm font-medium">{{ experimentName }}</span>
           </div>
-          <div class="flex justify-between">
-            <span class="text-sm text-gray-500">课程ID</span>
-            <span class="text-sm font-medium">{{ courseId }}</span>
+          <div v-if="courseName" class="flex justify-between">
+            <span class="text-sm text-gray-500">课程名称</span>
+            <span class="text-sm font-medium">{{ courseName }}</span>
           </div>
           <div class="flex justify-between">
             <span class="text-sm text-gray-500">进度</span>
             <Tag :value="progressText" :severity="progressSeverity" />
           </div>
-        </div>
-      </template>
-    </Card>
-
-    <!-- 操作卡片 -->
-    <Card>
-      <template #title>快捷操作</template>
-      <template #content>
-        <div class="grid grid-cols-2 gap-3">
-          <Button
-            label="签到"
-            icon="pi pi-qrcode"
-            outlined
-            class="w-full"
-            @click="$emit('checkIn')"
-          />
-          <Button
-            label="开始实验"
-            icon="pi pi-play"
-            class="w-full"
-            @click="$emit('start')"
-          />
         </div>
       </template>
     </Card>
@@ -62,8 +40,8 @@
               </p>
             </div>
             <Tag
-              :value="getStatusText(submission.submissionStatus)"
-              :severity="getStatusSeverity(submission.submissionStatus)"
+              :value="getSubmissionStatusText(submission.submissionStatus)"
+              :severity="getSubmissionStatusSeverity(submission.submissionStatus)"
             />
           </div>
         </div>
@@ -74,62 +52,73 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import type { ProcedureSubmissionResponse } from '@/core/api/generated'
 import { useQueryProcedureSubmissions } from '../hooks'
+import { useQueryCourseExperiments } from '@/features/student/courses/hooks'
 import { formatDateTime } from '@/features/shared/utils/formatters'
+import {
+  getSubmissionStatusText,
+  getSubmissionStatusSeverity,
+  calculateProgress,
+} from '../utils'
 
+/**
+ * Props 类型 - 从 API 类型派生
+ */
 interface Props {
-  courseId: string
-  experimentId: string
-}
-
-interface Emits {
-  (e: 'checkIn'): void
-  (e: 'start'): void
+  courseId: ProcedureSubmissionResponse['courseId']
+  experimentId: ProcedureSubmissionResponse['experimentId']
 }
 
 const props = defineProps<Props>()
-const emit = defineEmits<Emits>()
 
-const { submissions } = useQueryProcedureSubmissions()
+// 获取提交数据（使用过滤参数）
+const { submissions } = useQueryProcedureSubmissions({
+  courseId: computed(() => props.courseId),
+  experimentId: computed(() => props.experimentId),
+})
+
+// 获取课程数据以获取名称
+const { experiments: courseExperiments } = useQueryCourseExperiments(
+  computed(() => props.courseId || '')
+)
+
+// 获取实验名称
+const experimentName = computed(() => {
+  if (!courseExperiments.value) return undefined
+  const experiment = courseExperiments.value.find(
+    (exp) => String(exp.experimentId) === props.experimentId
+  )
+  return experiment?.experimentName
+})
+
+// 获取课程名称
+const courseName = computed(() => {
+  if (!courseExperiments.value || courseExperiments.value.length === 0) return undefined
+  // 所有实验的课程名称相同，取第一个
+  const firstExperiment = courseExperiments.value[0]
+  if (!firstExperiment?.classExperiments || firstExperiment.classExperiments.length === 0) {
+    return undefined
+  }
+  return firstExperiment.classExperiments[0]?.courseName
+})
 
 const recentSubmissions = computed(() => {
   if (!submissions.value) return []
-  return submissions.value.filter(
-    (s) => s.courseId === props.courseId && s.experimentId === props.experimentId
-  )
+  return submissions.value
 })
 
 const progressText = computed(() => {
-  const total = recentSubmissions.value.length
+  const { completed, total } = calculateProgress(recentSubmissions.value)
   if (total === 0) return '未开始'
-  const completed = recentSubmissions.value.filter((s) => s.submissionStatus === 2).length
   return `${completed}/${total}`
 })
 
 const progressSeverity = computed(() => {
-  const total = recentSubmissions.value.length
+  const { completed, total } = calculateProgress(recentSubmissions.value)
   if (total === 0) return 'info'
-  const completed = recentSubmissions.value.filter((s) => s.submissionStatus === 2).length
   if (completed === 0) return 'info'
   if (completed < total) return 'warning'
   return 'success'
 })
-
-function getStatusText(status?: number): string {
-  const statusMap: Record<number, string> = {
-    0: '草稿',
-    1: '已提交',
-    2: '已批改',
-  }
-  return statusMap[status ?? 0] || '未知'
-}
-
-function getStatusSeverity(status?: number): 'success' | 'info' | 'warning' | 'danger' {
-  const severityMap: Record<number, 'success' | 'info' | 'warning' | 'danger'> = {
-    0: 'info',
-    1: 'warning',
-    2: 'success',
-  }
-  return severityMap[status ?? 0] || 'info'
-}
 </script>
