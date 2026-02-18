@@ -62,21 +62,20 @@
 import { computed } from 'vue'
 import { useQueryCourseExperiments } from '../hooks'
 import { getExperimentTimeRange, getExperimentLocation } from '../utils'
+import { useRoute, useRouter } from 'vue-router'
 
-interface Props {
-  courseId: string
-}
+const route = useRoute()
+const router = useRouter()
+const params = route.params as { courseId: string }
+const courseId = params.courseId || ''
 
-interface Emits {
-  (e: 'select', experimentId: number): void
-}
-
-const props = defineProps<Props>()
-const emit = defineEmits<Emits>()
-
-const { experiments, query } = useQueryCourseExperiments(computed(() => props.courseId))
+const { experiments, query } = useQueryCourseExperiments(computed(() => courseId))
 
 function handleSelect(experimentId: number) {
-  emit('select', experimentId)
+  // 跳转到实验详情页（通过查询参数传递 courseId）
+  router.push({
+    path: `/student/experiments/${experimentId}`,
+    query: { courseId }
+  })
 }
 </script>

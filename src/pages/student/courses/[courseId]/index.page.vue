@@ -1,29 +1,19 @@
 <template>
   <MobileLayout :title="courseName">
-    <CourseExperimentList
-      :course-id="courseId"
-      @select="handleSelectExperiment"
-    />
+    <CourseExperimentList />
   </MobileLayout>
 </template>
 
 <script setup lang="ts">
-import { useRoute, useRouter } from 'vue-router'
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 import MobileLayout from '@/features/student/components/MobileLayout.vue'
-import { CourseExperimentList } from '@/features/student/courses'
+import { CourseExperimentList, useQueryCourseExperiments } from '@/features/student/courses'
 
 const route = useRoute()
-const router = useRouter()
 const params = route.params as { courseId: string }
 const courseId = params.courseId || ''
 
-const courseName = courseId || '课程详情'
-
-const handleSelectExperiment = (experimentId: number) => {
-  // 跳转到实验详情页（通过查询参数传递 courseId）
-  router.push({
-    path: `/student/experiments/${experimentId}`,
-    query: { courseId }
-  })
-}
+// 调用 hook 获取课程名称
+const { courseName } = useQueryCourseExperiments(computed(() => courseId))
 </script>

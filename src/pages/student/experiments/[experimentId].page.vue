@@ -41,12 +41,22 @@ const params = route.params as { experimentId: string }
 const query = route.query as { courseId?: string }
 const courseId = query.courseId || ''
 const experimentId = params.experimentId
-const experimentName = experimentId || '实验详情'
 
-// 获取课程实验列表以找到对应的 classCode（如果有 courseId）
+// 获取课程实验列表以找到对应的 classCode 和实验名称（如果有 courseId）
 const { experiments } = courseId
   ? useQueryCourseExperiments(computed(() => courseId))
   : { experiments: ref(undefined) }
+
+// 获取实验名称
+const experimentName = computed(() => {
+  if (!experiments.value) return '实验详情'
+
+  const experiment = experiments.value.find(
+    (exp: any) => String(exp.experimentId) === experimentId
+  )
+
+  return experiment?.experimentName || '实验详情'
+})
 
 // 当前实验的 classCode（取第一个班级的编号）
 const currentClassCode = computed(() => {

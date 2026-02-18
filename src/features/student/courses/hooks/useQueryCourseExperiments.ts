@@ -59,13 +59,20 @@ export function useQueryCourseExperiments(courseId: Ref<string>) {
         })
       )
 
-      return experiments
+      // 获取课程名称（从第一条数据中提取）
+      const courseName = validExperiments[0]?.courseName || '未命名课程'
+
+      return {
+        experiments,
+        courseName,
+      }
     },
     enabled: computed(() => !!unref(courseId)),
   })
 
   return {
-    experiments: query.data,
+    experiments: computed(() => query.data.value?.experiments),
+    courseName: computed(() => query.data.value?.courseName),
     query,
   }
 }
