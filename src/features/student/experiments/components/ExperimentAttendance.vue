@@ -64,29 +64,6 @@
       </template>
     </Card>
 
-    <!-- 手动输入签到码（备用方案） -->
-    <Card v-if="!attendanceStatus">
-      <template #title>手动输入签到码</template>
-      <template #subtitle>备用方案</template>
-      <template #content>
-        <div class="space-y-3">
-          <p class="text-xs text-gray-500">如果无法扫码，可手动输入签到码</p>
-          <InputText
-            v-model="attendanceCode"
-            placeholder="请输入签到码"
-            class="w-full"
-          />
-          <Button
-            label="提交签到码"
-            class="w-full"
-            :disabled="!attendanceCode.trim() || submitting"
-            :loading="submitting"
-            @click="handleSubmitCode"
-          />
-        </div>
-      </template>
-    </Card>
-
     <!-- 签到记录 -->
     <Card v-if="attendanceHistory && attendanceHistory.length > 0">
       <template #title>签到记录</template>
@@ -116,7 +93,7 @@
 import { ref, computed } from 'vue'
 import { useQueryAttendanceRecords } from '@/features/student/attendance/hooks'
 import { formatDateTime } from '@/features/shared/utils/formatters'
-import { toast } from '@/core/utils/toast'
+import { getAttendanceStatusText, getAttendanceStatusSeverity } from '@/features/student/attendance/constants'
 
 interface Props {
   courseId: string
@@ -129,8 +106,6 @@ const { records } = useQueryAttendanceRecords()
 
 const attendanceStatus = ref(false)
 const attendanceTime = ref<string>()
-const attendanceCode = ref('')
-const submitting = ref(false)
 
 // 筛选当前实验的签到记录
 const attendanceHistory = computed(() => {
@@ -160,46 +135,4 @@ const statusBgClass = computed(() => {
 const statusIcon = computed(() => {
   return checkedToday.value ? 'pi pi-check-circle text-green-600' : 'pi pi-clock text-gray-400'
 })
-
-async function handleSubmitCode() {
-  if (!attendanceCode.value.trim()) {
-    toast.warn('请输入签到码')
-    return
-  }
-
-  submitting.value = true
-
-  try {
-    // TODO: 调用后端接口验证签到码
-    // await verifyAttendanceCode(attendanceCode.value, props.courseId, props.experimentId)
-
-    // 模拟签到成功
-    attendanceStatus.value = true
-    attendanceTime.value = new Date().toISOString()
-    toast.success('签到成功')
-    attendanceCode.value = ''
-  } finally {
-    submitting.value = false
-  }
-}
-
-function getAttendanceStatusText(status?: number): string {
-  const statusMap: Record<number, string> = {
-    0: '正常',
-    1: '迟到',
-    2: '补签',
-    3: '跨班签到',
-  }
-  return statusMap[status ?? 0] || '未知'
-}
-
-function getAttendanceStatusSeverity(status?: number): 'success' | 'info' | 'warning' | 'danger' {
-  const severityMap: Record<number, 'success' | 'info' | 'warning' | 'danger'> = {
-    0: 'success',
-    1: 'warning',
-    2: 'info',
-    3: 'danger',
-  }
-  return severityMap[status ?? 0] || 'info'
-}
 </script>

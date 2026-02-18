@@ -137,6 +137,7 @@ import { toast } from '@/core/utils/toast'
 import { getTimeUnavailableMessage, getTimeWindowText, stepTimeValidation } from '@/features/student/experiments/utils'
 import { useQueryStudentExperimentDetail, useMarkVideoViewed, useCompleteTopic } from '../hooks'
 import type { StudentProcedureDetailResponse } from '@/core/api/generated'
+import { WARNING_THRESHOLD_MINUTES } from '@/features/student/experiments/constants'
 
 interface Props {
   courseId: string
@@ -211,7 +212,7 @@ function getStepTimeSeverity(step: StudentProcedureDetailResponse): 'success' | 
   if (!validation) return 'info'
   if (validation.isEnded) return 'danger'
   if (validation.isNotStarted) return 'info'
-  if (validation.remainingMinutes < 10) return 'warning'
+  if (validation.remainingMinutes < WARNING_THRESHOLD_MINUTES) return 'warning'
   return 'success'
 }
 

@@ -44,7 +44,7 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import type { CourseSessionResponse } from '@/core/api/generated'
-import { formatDateTime } from '@/features/shared/utils/formatters'
+import { formatDateTimeRange } from '@/features/student/courses/utils'
 
 interface Props {
   session: CourseSessionResponse
@@ -60,27 +60,6 @@ const displayClassName = computed(() => {
   }
   return props.session.className
 })
-
-// 时间范围显示
-const formatDateTimeRange = (start?: string, end?: string) => {
-  if (!start || !end) return ''
-  const startDate = new Date(start)
-  const endDate = new Date(end)
-  const now = new Date()
-
-  // 判断课程状态
-  let status = ''
-  if (now < startDate) {
-    status = '未开始'
-  } else if (now > endDate) {
-    status = '已结束'
-  } else {
-    status = '进行中'
-  }
-
-  const dateStr = formatDateTime(start).split(' ')[0] // 只取日期部分
-  return `${dateStr} ${status}`
-}
 
 // 状态标签
 const statusLabel = computed(() => {
@@ -99,9 +78,10 @@ const statusSeverity = computed(() => statusLabel.value.severity)
 
 const handleClick = () => {
   if (props.session.courseId && props.session.experimentId) {
-    router.push(
-      `/student/courses/${props.session.courseId}/experiments/${props.session.experimentId}`
-    )
+    router.push({
+      path: `/student/experiments/${props.session.experimentId}`,
+      query: { courseId: props.session.courseId }
+    })
   }
 }
 </script>

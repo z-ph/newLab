@@ -20,7 +20,7 @@
                 </div>
                 <div>
                   <h3 class="text-base font-semibold text-gray-900">
-                    {{ getExperimentName(experiment.classExperiments) }}
+                    {{ getExperimentNameFromClasses(experiment.classExperiments) }}
                   </h3>
                   <p class="text-xs text-gray-500 mt-0.5">
                     {{ experiment.experimentId }}
@@ -61,7 +61,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useQueryCourseExperiments } from '../hooks'
-import type { ClassExperiment } from '@/core/api/generated'
+import { getExperimentNameFromClasses, getExperimentTimeRange, getExperimentLocation } from '../utils'
 
 interface Props {
   courseId: string
@@ -78,44 +78,5 @@ const { experiments, query } = useQueryCourseExperiments(computed(() => props.co
 
 function handleSelect(experimentId: string) {
   emit('select', experimentId)
-}
-
-function getExperimentName(classExperiments: ClassExperiment[]): string {
-  if (!classExperiments || classExperiments.length === 0) return '未知实验'
-  const first = classExperiments[0]!
-  return (first.experimentId as string | undefined) || '未知实验'
-}
-
-function getExperimentTimeRange(classExperiments: ClassExperiment[]): string {
-  if (!classExperiments || classExperiments.length === 0) {
-    return '暂无时间安排'
-  }
-
-  const first = classExperiments[0]!
-  if (!first.startTime || !first.endTime) {
-    return '暂无时间安排'
-  }
-
-  const startDate = new Date(first.startTime!)
-  const endDate = new Date(first.endTime!)
-
-  const format = (date: Date) => {
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const day = String(date.getDate()).padStart(2, '0')
-    const hours = String(date.getHours()).padStart(2, '0')
-    const minutes = String(date.getMinutes()).padStart(2, '0')
-    return `${month}-${day} ${hours}:${minutes}`
-  }
-
-  return `${format(startDate)} ~ ${format(endDate)}`
-}
-
-function getExperimentLocation(classExperiments: ClassExperiment[]): string {
-  if (!classExperiments || classExperiments.length === 0) {
-    return '暂无地点'
-  }
-
-  const first = classExperiments[0]!
-  return (first.experimentLocation as string | undefined) || '暂无地点'
 }
 </script>

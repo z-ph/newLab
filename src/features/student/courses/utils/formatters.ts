@@ -2,6 +2,35 @@
  * 课程相关格式化函数
  */
 
+import { formatDateTime } from '@/features/shared/utils/formatters'
+
+/**
+ * 格式化日期时间范围，包含状态判断
+ * @param start 开始时间
+ * @param end 结束时间
+ * @returns 格式化后的字符串，如 "2024-01-15 进行中"
+ */
+export function formatDateTimeRange(start?: string, end?: string): string {
+  if (!start || !end) return ''
+
+  const startDate = new Date(start)
+  const endDate = new Date(end)
+  const now = new Date()
+
+  // 判断课程状态
+  let status = ''
+  if (now < startDate) {
+    status = '未开始'
+  } else if (now > endDate) {
+    status = '已结束'
+  } else {
+    status = '进行中'
+  }
+
+  const dateStr = formatDateTime(start).split(' ')[0] // 只取日期部分
+  return `${dateStr} ${status}`
+}
+
 /**
  * 从提交记录中提取课程名称
  */
