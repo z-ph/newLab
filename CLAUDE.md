@@ -20,7 +20,10 @@ pnpm preview      # 预览生产构建
 pnpm typecheck    # 类型检查
 ```
 
-⚠️ **禁止使用 `pnpm dev`**（开发服务器后台运行，无法管理）
+⚠️ **禁止使用 `pnpm dev`**
+- 开发服务器会后台运行，无法通过 CLI 管理
+- 如需开发，请在终端直接运行 `pnpm dev`（不通过 Claude Code）
+- 验证代码使用 `pnpm typecheck` 或 `pnpm build`
 
 ## 工作流程规范（CRITICAL）
 
