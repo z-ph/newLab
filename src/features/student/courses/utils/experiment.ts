@@ -2,17 +2,17 @@
  * 实验相关工具函���
  */
 
-import type { ClassExperiment } from '@/core/api/generated'
+import type { ClassExperimentDetailResponse } from '@/core/api/generated'
 
 /**
  * 获取实验名称
  * @param classExperiments 班级实验数组
  * @returns 实验名称
  */
-export function getExperimentNameFromClasses(classExperiments: ClassExperiment[]): string {
+export function getExperimentNameFromClasses(classExperiments: ClassExperimentDetailResponse[]): string {
   if (!classExperiments || classExperiments.length === 0) return '未知实验'
   const first = classExperiments[0]!
-  return first.experimentId?.toString() || '未知实验'
+  return first.experimentName || '未知实验'
 }
 
 /**
@@ -20,7 +20,7 @@ export function getExperimentNameFromClasses(classExperiments: ClassExperiment[]
  * @param classExperiments 班级实验数组
  * @returns 格式化的时间范围字符串
  */
-export function getExperimentTimeRange(classExperiments: ClassExperiment[]): string {
+export function getExperimentTimeRange(classExperiments: ClassExperimentDetailResponse[]): string {
   if (!classExperiments || classExperiments.length === 0) {
     return '暂无时间安排'
   }
@@ -49,7 +49,7 @@ export function getExperimentTimeRange(classExperiments: ClassExperiment[]): str
  * @param classExperiments 班级实验数组
  * @returns 实验地点
  */
-export function getExperimentLocation(classExperiments: ClassExperiment[]): string {
+export function getExperimentLocation(classExperiments: ClassExperimentDetailResponse[]): string {
   if (!classExperiments || classExperiments.length === 0) {
     return '暂无地点'
   }

@@ -20,10 +20,10 @@
                 </div>
                 <div>
                   <h3 class="text-base font-semibold text-gray-900">
-                    {{ getExperimentNameFromClasses(experiment.classExperiments) }}
+                    {{ experiment.experimentName }}
                   </h3>
                   <p class="text-xs text-gray-500 mt-0.5">
-                    {{ experiment.experimentId }}
+                    ID: {{ experiment.experimentId }}
                   </p>
                 </div>
               </div>
@@ -61,14 +61,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useQueryCourseExperiments } from '../hooks'
-import { getExperimentNameFromClasses, getExperimentTimeRange, getExperimentLocation } from '../utils'
+import { getExperimentTimeRange, getExperimentLocation } from '../utils'
 
 interface Props {
   courseId: string
 }
 
 interface Emits {
-  (e: 'select', experimentId: string): void
+  (e: 'select', experimentId: number): void
 }
 
 const props = defineProps<Props>()
@@ -76,7 +76,7 @@ const emit = defineEmits<Emits>()
 
 const { experiments, query } = useQueryCourseExperiments(computed(() => props.courseId))
 
-function handleSelect(experimentId: string) {
+function handleSelect(experimentId: number) {
   emit('select', experimentId)
 }
 </script>

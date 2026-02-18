@@ -317,6 +317,56 @@ src/features/student/courses/
 6. ❌ 删除独立的签到页面（`/student/attendance`）
 7. ❌ 删除独立的实验页面（`/student/experiments`）
 
+### 学生端 API 展示规范（CRITICAL）
+
+**核心 API**：`/api/student/experiments/class-experiments`
+
+**API 返回类型**：`ClassExperimentDetailResponse`
+
+**展示规则**：✅ 展示**名称**字段，而不是 ID
+
+**必须展示的字段**：
+- ✅ **课程名称**：`courseName`（而非 `courseId`）
+- ✅ **实验名称**：`experimentName`（而非 `experimentId`）
+- ✅ **班级名称**：`className`（而非 `classCode`）
+
+**类型定义示例**：
+```typescript
+import type { ClassExperimentDetailResponse } from '@/core/api/generated'
+
+// ✅ 正确：从 API 类型派生
+export type CourseInfo = {
+  courseId: ClassExperimentDetailResponse['courseId']
+  courseName: ClassExperimentDetailResponse['courseName']     // 用于展示
+  classExperiments: ClassExperimentDetailResponse[]
+}
+
+export type ExperimentInfo = {
+  experimentId: ClassExperimentDetailResponse['experimentId']
+  experimentName: ClassExperimentDetailResponse['experimentName'] // 用于展示
+  classExperiments: ClassExperimentDetailResponse[]
+}
+```
+
+**UI 展示示例**：
+```vue
+<template>
+  <div>
+    <h1>{{ course.courseName }}</h1>   <!-- ✅ 展示课程名称 -->
+    <ul>
+      <li v-for="exp in experiments" :key="exp.experimentId">
+        {{ exp.experimentName }}        <!-- ✅ 展示实验名称 -->
+      </li>
+    </ul>
+  </div>
+</template>
+```
+
+**理由**：
+- **用户友好**：用户看到的是可读的名称，而不是不理解的 ID
+- **业务逻辑**：ID 用于数据关联，名称用于用户展示
+- **类型安全**：从 API 类型派生，确保类型一致
+
 ## 开发注意事项
 
 1. **类型生成**：
@@ -396,6 +446,55 @@ src/
 4. ✅ **优先使用 satisfies**：保留精确类型推断，防止访问未定义属性
 5. ❌ **禁止重复定义**：不要手动写与 API 类型相同的接口
 6. ❌ **禁止手动定义 Schema**：不要自己写 JSON Schema，使用 API 类型
+7. ❌ **禁止使用原始类型**：不要使用 `string`、`number` 等原始类型定义字段
+
+**字段类型必须从 API 类型派生（CRITICAL）**：
+
+- ❌ **错误：��用原始类型**
+  ```typescript
+  export type CourseInfo = {
+    courseId: string        // ❌ 失去类型关联
+    courseName: string      // ❌ 失去类型关联
+    experimentId: number    // ❌ 失去类型关联
+  }
+  ```
+
+- ✅ **正确：使用索引访问类型从 API 派生**
+  ```typescript
+  import type { ClassExperimentDetailResponse } from '@/core/api/generated'
+
+  export type CourseInfo = {
+    courseId: ClassExperimentDetailResponse['courseId']          // ✅ 从 API 类型派生
+    courseName: ClassExperimentDetailResponse['courseName']      // ✅ 从 API 类型派生
+    experimentId: ClassExperimentDetailResponse['experimentId']  // ✅ 从 API 类型派生
+  }
+  ```
+
+**为什么要从 API 类型派生**：
+1. **单一数据源**：当 API 类型变化时，业务类型自动更新
+2. **类型一致性**：确保所有地方使用相同的类型定义
+3. **避免错误**：防止因为类型不一致导致的运行时错误
+4. **减少维护**：不需要手动同步类型定义
+5. **自动补全**：IDE 可以提供准确的类型提示
+
+**复合类型的派生方式**：
+```typescript
+// ✅ 直接使用 API 类型
+export type ExperimentEntity = ClassExperimentDetailResponse
+
+// ✅ 使用工具类型派生
+export type ExperimentFormData = Partial<CreateExperimentRequest>
+
+// ✅ 使用 Pick 选择字段
+export type ExperimentSummary = Pick<ClassExperimentDetailResponse, 'experimentId' | 'experimentName'>
+
+// ✅ 自定义类型，但字段从 API 派生
+export type CourseInfo = {
+  courseId: ClassExperimentDetailResponse['courseId']
+  courseName: ClassExperimentDetailResponse['courseName']
+  classExperiments: ClassExperimentDetailResponse[]
+}
+```
 
 **satisfies vs 泛型断言**：
 ```typescript

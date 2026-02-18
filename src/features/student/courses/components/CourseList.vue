@@ -9,7 +9,7 @@
         v-for="course in courses"
         :key="course.courseId"
         class="cursor-pointer active:scale-[0.98] transition-transform"
-        @click="$emit('select', course.courseId)"
+        @click="$emit('select', course.courseId!)"
       >
         <template #content>
           <div class="flex items-start justify-between">

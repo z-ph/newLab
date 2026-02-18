@@ -1,15 +1,15 @@
 import { getApiStudentExperimentsClassExperiments } from '@/core/api/generated'
 import client from '@/core/api/config'
 import { useQuery } from '@tanstack/vue-query'
-import type { ClassExperiment } from '@/core/api/generated'
+import type { ClassExperimentDetailResponse } from '@/core/api/generated'
 
 /**
- * 课程信息
+ * 课程信息 - 从 API 类型派生
  */
-export interface CourseInfo {
-  courseId: string
-  courseName: string
-  classExperiments: ClassExperiment[]
+export type CourseInfo = {
+  courseId: ClassExperimentDetailResponse['courseId']
+  courseName: ClassExperimentDetailResponse['courseName']
+  classExperiments: ClassExperimentDetailResponse[]
 }
 
 /**
@@ -30,9 +30,9 @@ export function useQueryCourses() {
         : pageData?.records ?? []
 
       // 按 courseId 分组
-      const courseMap = new Map<string, ClassExperiment[]>()
+      const courseMap = new Map<string, ClassExperimentDetailResponse[]>()
 
-      classExperiments.forEach((classExperiment: ClassExperiment) => {
+      classExperiments.forEach((classExperiment: ClassExperimentDetailResponse) => {
         if (classExperiment.courseId) {
           if (!courseMap.has(classExperiment.courseId)) {
             courseMap.set(classExperiment.courseId, [])
@@ -46,8 +46,7 @@ export function useQueryCourses() {
         ([courseId, classExperiments]) => ({
           courseId,
           courseName:
-            (classExperiments[0]?.courseId as string | undefined) ||
-            '未命名课程',
+            classExperiments[0]?.courseName || '未命名课程', // ✅ 使用 courseName 字段
           classExperiments,
         })
       )

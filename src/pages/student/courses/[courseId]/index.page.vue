@@ -19,7 +19,7 @@ const courseId = params.courseId || ''
 
 const courseName = courseId || '课程详情'
 
-const handleSelectExperiment = (experimentId: string) => {
+const handleSelectExperiment = (experimentId: number) => {
   // 跳转到实验详情页（通过查询参数传递 courseId）
   router.push({
     path: `/student/experiments/${experimentId}`,

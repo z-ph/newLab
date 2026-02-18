@@ -2,14 +2,15 @@ import { type Ref, unref, computed } from 'vue'
 import { getApiStudentExperimentsClassExperiments } from '@/core/api/generated'
 import client from '@/core/api/config'
 import { useQuery } from '@tanstack/vue-query'
-import type { ClassExperiment } from '@/core/api/generated'
+import type { ClassExperimentDetailResponse } from '@/core/api/generated'
 
 /**
  * 实验信息 - 从 API 类型派生
  */
 export type ExperimentInfo = {
-  experimentId: ClassExperiment['experimentId']
-  classExperiments: ClassExperiment[]
+  experimentId: ClassExperimentDetailResponse['experimentId']
+  experimentName: ClassExperimentDetailResponse['experimentName']
+  classExperiments: ClassExperimentDetailResponse[]
 }
 
 /**
@@ -36,11 +37,11 @@ export function useQueryCourseExperiments(courseId: Ref<string>) {
 
       // 过滤掉没有 experimentId 的实验
       const validExperiments = courseExperiments.filter(
-        (exp): exp is ClassExperiment & { experimentId: string } => !!exp.experimentId
+        (exp): exp is ClassExperimentDetailResponse & { experimentId: number } => !!exp.experimentId
       )
 
       // 按 experimentId 分组
-      const experimentMap = new Map<ClassExperiment['experimentId'], ClassExperiment[]>()
+      const experimentMap = new Map<ClassExperimentDetailResponse['experimentId'], ClassExperimentDetailResponse[]>()
       validExperiments.forEach((classExperiment) => {
         const experimentId = classExperiment.experimentId!
         if (!experimentMap.has(experimentId)) {
@@ -53,6 +54,7 @@ export function useQueryCourseExperiments(courseId: Ref<string>) {
       const experiments: ExperimentInfo[] = Array.from(experimentMap.entries()).map(
         ([experimentId, classExperiments]) => ({
           experimentId,
+          experimentName: classExperiments[0]?.experimentName || '未命名实验', // ✅ 使用 experimentName 字段
           classExperiments,
         })
       )
