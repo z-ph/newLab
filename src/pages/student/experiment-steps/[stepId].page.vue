@@ -53,11 +53,11 @@ import TimedQuizStep from '@/features/student/experiments/steps/TimedQuizStep.vu
 
 const route = useRoute()
 
-const params = route.params as { experimentId: string; stepId: string }
-const query = route.query as { courseId?: string; classCode?: string; stepType?: string }
+const params = route.params as { stepId: string }
+const query = route.query as { experimentId?: string; courseId?: string; classCode?: string; stepType?: string }
 
-const experimentId = params.experimentId
 const stepId = params.stepId
+const experimentId = query.experimentId || ''
 const courseId = query.courseId || ''
 const classCode = query.classCode || ''
 const stepType = query.stepType || ''

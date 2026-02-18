@@ -1,14 +1,8 @@
 <template>
   <MobileLayout :title="experimentName">
     <div class="space-y-4">
-      <!-- 概览卡片 -->
+      <!-- 概览卡片（包含签到状态） -->
       <ExperimentOverview
-        :course-id="courseId"
-        :experiment-id="String(experimentId)"
-      />
-
-      <!-- 签到状态 -->
-      <ExperimentAttendance
         :course-id="courseId"
         :experiment-id="String(experimentId)"
       />
@@ -32,7 +26,6 @@ import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import MobileLayout from '@/features/student/components/MobileLayout.vue'
 import ExperimentOverview from '@/features/student/experiments/components/ExperimentOverview.vue'
-import ExperimentAttendance from '@/features/student/experiments/components/ExperimentAttendance.vue'
 import ExperimentSteps from '@/features/student/experiments/components/ExperimentSteps.vue'
 import { useQueryCourseExperiments } from '@/features/student/courses/hooks'
 

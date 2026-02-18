@@ -131,12 +131,12 @@ function handleStepClick(step: StudentProcedureDetailResponse) {
   if (!isStepClickable(step) || !step.id) return
 
   router.push({
-    name: '/student/experiments/[experimentId]/steps/[stepId]',
+    name: '/student/experiment-steps/[stepId]',
     params: {
-      experimentId: props.experimentId,
       stepId: String(step.id),
     },
     query: {
+      experimentId: props.experimentId,
       courseId: props.courseId,
       classCode: props.classCode,
       stepType: String(step.type),
