@@ -27,5 +27,5 @@ export const ATTENDANCE_STATUS_OPTIONS = [
   { label: '迟到', value: ATTENDANCE_STATUS.LATE, severity: 'warning' },
   { label: '请假', value: ATTENDANCE_STATUS.EXCUSED, severity: 'info' },
   { label: '未签到', value: ATTENDANCE_STATUS.ABSENT, severity: 'danger' },
-] as const
+]
 

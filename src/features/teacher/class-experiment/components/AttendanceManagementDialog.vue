@@ -14,17 +14,23 @@
             <Column key="studentName" field="studentName" header="学生姓名" />
             <Column key="studentUsername" field="studentUsername" header="学号" />
             <Column key="className" field="className" header="班级" />
-            <Column key="attendanceStatus" header="签到状态">
-              <template #body="slotProps">
-                <Tag
-                  :value="getAttendanceStatusText(slotProps.data.attendanceStatus)"
-                  :severity="getAttendanceStatusSeverity(slotProps.data.attendanceStatus)"
-                />
-              </template>
-            </Column>
             <Column key="attendanceTime" header="签到时间">
               <template #body="slotProps">
                 {{ formatDateTime(slotProps.data.attendanceTime) }}
+              </template>
+            </Column>
+            <Column key="attendanceStatus" header="签到状态">
+              <template #body="slotProps">
+                <Select
+                  :model-value="slotProps.data.attendanceStatus"
+                  :options="ATTENDANCE_STATUS_OPTIONS"
+                  option-label="label"
+                  option-value="value"
+                  placeholder="选择状态"
+                  class="w-full"
+                  @update:model-value="(value) => updateAttendanceStatus(slotProps.data, value)"
+                  :loading="updateMutation.isPending.value"
+                />
               </template>
             </Column>
           </DataTable>
@@ -44,17 +50,23 @@
             <Column key="studentName" field="studentName" header="学生姓名" />
             <Column key="studentUsername" field="studentUsername" header="学号" />
             <Column key="className" field="className" header="班级" />
-            <Column key="attendanceStatus" header="签到状态">
-              <template #body="slotProps">
-                <Tag
-                  :value="getAttendanceStatusText(slotProps.data.attendanceStatus)"
-                  :severity="getAttendanceStatusSeverity(slotProps.data.attendanceStatus)"
-                />
-              </template>
-            </Column>
             <Column key="attendanceTime" header="签到时间">
               <template #body="slotProps">
                 {{ formatDateTime(slotProps.data.attendanceTime) }}
+              </template>
+            </Column>
+            <Column key="attendanceStatus" header="签到状态">
+              <template #body="slotProps">
+                <Select
+                  :model-value="slotProps.data.attendanceStatus"
+                  :options="ATTENDANCE_STATUS_OPTIONS"
+                  option-label="label"
+                  option-value="value"
+                  placeholder="选择状态"
+                  class="w-full"
+                  @update:model-value="(value) => updateAttendanceStatus(slotProps.data, value)"
+                  :loading="updateMutation.isPending.value"
+                />
               </template>
             </Column>
           </DataTable>
@@ -101,7 +113,7 @@ import type { ExperimentInfo, StudentAttendanceInfo, AttendanceListResponse } fr
 import type { ClassCode, ClassExperimentId } from '../types'
 import { useQueryAttendanceList } from '@/features/teacher/experiment/attendance/hooks/useQueryAttendanceList'
 import { useUpdateAttendanceSuccess } from '@/features/teacher/experiment/attendance/hooks/useMutateAttendanceUpdate'
-import { ATTENDANCE_STATUS } from '@/features/teacher/experiment/attendance/constants'
+import { ATTENDANCE_STATUS, ATTENDANCE_STATUS_OPTIONS } from '@/features/teacher/experiment/attendance/constants'
 import { ATTENDANCE_TABLE_PAGE_SIZE, NOT_ATTENDANCE_TABLE_PAGE_SIZE } from '@/features/teacher/class-experiment/constants'
 import { formatDateTime } from '@/features/shared/utils/formatters'
 
@@ -140,64 +152,22 @@ const attendanceData = computed((): AttendanceListResponse | null => {
   return attendanceList.data.value || null
 })
 
-// ==================== 工具函数 ====================
-const getAttendanceStatusText = (status: number | undefined) => {
-  const statusMap: Record<number, string> = {
-    [ATTENDANCE_STATUS.NORMAL]: '正常签到',
-    [ATTENDANCE_STATUS.LATE]: '迟到',
-    [ATTENDANCE_STATUS.EXCUSED]: '请假',
-    [ATTENDANCE_STATUS.ABSENT]: '未签到',
-  }
-  return statusMap[status || ATTENDANCE_STATUS.ABSENT] || '未知'
-}
-
-const getAttendanceStatusSeverity = (status: number | undefined) => {
-  const severityMap: Record<number, string> = {
-    [ATTENDANCE_STATUS.NORMAL]: 'success',
-    [ATTENDANCE_STATUS.LATE]: 'warning',
-    [ATTENDANCE_STATUS.EXCUSED]: 'info',
-    [ATTENDANCE_STATUS.ABSENT]: 'danger',
-  }
-  return severityMap[status || ATTENDANCE_STATUS.ABSENT] || 'secondary'
-}
-
-const loadAttendance = () => {
-  if (!props.classCode) return
-  attendanceList.refetch()
-}
-
 // ==================== 操作处理 ====================
-const markAsPresent = (student: StudentAttendanceInfo) => {
+const updateAttendanceStatus = (student: StudentAttendanceInfo, status: number) => {
   if (!student.studentUsername) return
 
-  updateMutation.mutate(
-    {
-      classExperimentId: props.classExperimentId,
-      studentUsername: student.studentUsername,
-      attendanceStatus: ATTENDANCE_STATUS.NORMAL,
-    },
-    {
-      onSuccess: () => {
-        loadAttendance()
-      },
-    },
-  )
+  updateMutation.mutate({
+    classExperimentId: props.classExperimentId,
+    studentUsername: student.studentUsername,
+    attendanceStatus: status,
+  })
+}
+
+const markAsPresent = (student: StudentAttendanceInfo) => {
+  updateAttendanceStatus(student, ATTENDANCE_STATUS.NORMAL)
 }
 
 const markAsExcused = (student: StudentAttendanceInfo) => {
-  if (!student.studentUsername) return
-
-  updateMutation.mutate(
-    {
-      classExperimentId: props.classExperimentId,
-      studentUsername: student.studentUsername,
-      attendanceStatus: ATTENDANCE_STATUS.EXCUSED,
-    },
-    {
-      onSuccess: () => {
-        loadAttendance()
-      },
-    },
-  )
+  updateAttendanceStatus(student, ATTENDANCE_STATUS.EXCUSED)
 }
 </script>
