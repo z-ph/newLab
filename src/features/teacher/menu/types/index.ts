@@ -23,12 +23,23 @@ type TeacherRoutes = {
 type TeacherRoutePath = keyof TeacherRoutes
 
 /**
+ * 子路由元数据配置（包含路径）
+ */
+interface SubRouteMeta {
+  name: string
+  title: string
+  icon: PrimeIcon
+  path: TeacherRoutePath
+}
+
+/**
  * 路由元数据配置（为路由补充显示名称和图标）
  */
 interface RouteMeta {
   name: string
   title: string
   icon: PrimeIcon
+  children?: SubRouteMeta[] // 新增：支持二级菜单
 }
 
 /**
@@ -56,6 +67,7 @@ export interface MenuItem {
   name: string
   title: string
   icon: PrimeIcon
+  children?: MenuItem[] // 新增：支持二级菜单
 }
 
 /**
@@ -104,6 +116,20 @@ const ROUTE_META: Partial<Record<TeacherRoutePath, RouteMeta>> = {
     name: 'videos',
     title: '视频管理',
     icon: 'pi pi-video',
+    children: [
+      {
+        name: 'video-list',
+        title: '视频列表',
+        icon: 'pi pi-list',
+        path: '/teacher/videos/list',
+      },
+      {
+        name: 'video-upload',
+        title: '上传视频',
+        icon: 'pi pi-upload',
+        path: '/teacher/videos/upload',
+      },
+    ],
   },
   '/teacher/topics/': {
     name: 'topics',
@@ -136,6 +162,12 @@ export const MENU_ITEMS: TeacherMenuItem[] = Object.entries(ROUTE_META)
     name: meta!.name,
     title: meta!.title,
     icon: meta!.icon,
+    children: meta!.children?.map((child) => ({
+      path: child.path as TeacherRoutePath,
+      name: child.name,
+      title: child.title,
+      icon: child.icon,
+    })),
   }))
   .sort((a, b) => {
     // 自定义排序

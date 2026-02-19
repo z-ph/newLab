@@ -55,19 +55,13 @@
       </DataTable>
     </template>
   </Card>
-  <!-- 上传视频对话框 -->
-  <VideoUploadDialog ref="uploadDialogRef" :is-loading="uploadMutation.isPending.value"
-    @confirm="handleUploadConfirm" />
-
-  <!-- 视频详情对话框 -->
-  <VideoDetailDialog ref="detailDialogRef" />
-
   <!-- 视频播放对话框 -->
   <VideoPlayDialog ref="playDialogRef" />
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
 import Popover from 'primevue/popover'
 
@@ -79,11 +73,8 @@ import { useQueryVideoPage, useDeleteVideo } from '../hooks'
 import type { VideoUploadResponse, VideoQueryRequest } from "@/core/api/generated"
 
 import {
-  VideoUploadDialog,
-  VideoDetailDialog,
   VideoPlayDialog,
 } from "@/features/teacher/video"
-import { useUploadVideo } from "@/features/teacher/video/hooks"
 
 // ✅ 从 API 类型派生
 type VideoFilters = Pick<VideoQueryRequest, 'originalFileName'>
@@ -91,39 +82,23 @@ type VideoFilters = Pick<VideoQueryRequest, 'originalFileName'>
 // 筛选条件
 const filters = ref<VideoFilters>({})
 
-// 使用上传 mutation
-const uploadMutation = useUploadVideo()
+// 路由
+const router = useRouter()
 
 // ✅ 对话框 ref（不管理状态）
-const uploadDialogRef = ref<InstanceType<typeof VideoUploadDialog>>()
-const detailDialogRef = ref<InstanceType<typeof VideoDetailDialog>>()
 const playDialogRef = ref<InstanceType<typeof VideoPlayDialog>>()
 
-// ✅ 上传按钮点击 - 通过 ref 调用
+// ✅ 上传按钮点击 - 导航到上传页面
 const handleUploadClick = () => {
-  uploadDialogRef.value?.open()
+  router.push('/teacher/videos/upload')
 }
 
-// ✅ 上传确认
-const handleUploadConfirm = (data: any) => {
-  uploadMutation.mutate(
-    {
-      file: data.file!,
-      title: data.title,
-      description: data.description,
-    },
-    {
-      onSuccess: () => {
-        uploadDialogRef.value?.close()
-        query.refetch()
-      },
-    },
-  )
-}
-
-// 查看详情 - 通过 ref 调用
+// 查看详情 - 导航到详情页面
 const handleView = (video: VideoUploadResponse) => {
-  detailDialogRef.value?.open(video)
+  router.push({
+    path: `/teacher/videos/${video.id}/detail`,
+    query: { title: encodeURIComponent(video.originalFileName || '视频详情') }
+  })
 }
 
 // 播放视频 - 通过 ref 调用

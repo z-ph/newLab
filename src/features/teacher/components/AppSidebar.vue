@@ -18,21 +18,58 @@
 
     <!-- 菜单区域 -->
     <div class="flex-1 overflow-y-auto">
-      <PanelMenu :model="panelMenuItems" class="gap-0!">
-        <template #item="{ item, props }">
+      <div class="flex flex-col gap-1 p-2">
+        <template v-for="item in MENU_ITEMS" :key="item.path">
+          <!-- 有子菜单：可展开的一级菜单 -->
+          <div v-if="item.children" class="menu-group">
+            <div
+              @click="toggleSubmenu(item.name)"
+              class="flex items-center gap-3 rounded-lg px-4 py-3 font-medium cursor-pointer transition-colors select-none"
+              :class="route.path.startsWith(item.path) ? 'bg-emerald-500 text-white' : 'text-slate-700 hover:bg-slate-100'"
+            >
+              <i :class="item.icon" class="text-lg" />
+              <span class="flex-1">{{ item.title }}</span>
+              <i
+                class="pi pi-chevron-down text-sm transition-transform duration-200"
+                :class="{ 'rotate-180': isMenuExpanded(item.name) }"
+              />
+            </div>
+            <Transition
+              enter-active-class="transition-all duration-200 ease-out"
+              enter-from-class="opacity-0 -translate-y-2"
+              enter-to-class="opacity-100 translate-y-0"
+              leave-active-class="transition-all duration-150 ease-in"
+              leave-from-class="opacity-100 translate-y-0"
+              leave-to-class="opacity-0 -translate-y-2"
+            >
+              <div v-show="isMenuExpanded(item.name)" class="ml-4 mt-1 space-y-1">
+                <div
+                  v-for="child in item.children"
+                  :key="child.path"
+                  @click="handleSubmenuClick(child.path, child.title)"
+                  class="flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium cursor-pointer transition-colors"
+                  :class="route.path === child.path ? 'bg-emerald-500 text-white' : 'text-slate-600 hover:bg-slate-100'"
+                >
+                  <i :class="child.icon" class="text-base" />
+                  <span>{{ child.title }}</span>
+                </div>
+              </div>
+            </Transition>
+          </div>
+
+          <!-- 无子菜单：保持原样 -->
           <router-link
-            v-if="item.route"
+            v-else
             v-ripple
-            :to="item.route"
-            v-bind="props.action"
+            :to="item.path"
             class="flex items-center gap-3 rounded-lg px-4 py-3 font-medium transition-colors"
-            :class="route.path === item.route ? 'bg-emerald-500 text-white hover:bg-emerald-600' : 'text-slate-700 hover:bg-slate-100'"
+            :class="route.path === item.path ? 'bg-emerald-500 text-white hover:bg-emerald-600' : 'text-slate-700 hover:bg-slate-100'"
           >
             <i :class="item.icon" class="text-lg" />
-            <span>{{ item.label }}</span>
+            <span>{{ item.title }}</span>
           </router-link>
         </template>
-      </PanelMenu>
+      </div>
     </div>
 
     <!-- 底部用户信息 -->
@@ -80,23 +117,61 @@
           />
         </div>
 
-        <!-- 菜单区域 -->
-        <div class="flex-1 overflow-y-auto p-4">
-          <PanelMenu :model="panelMenuItems" class="gap-0!">
-            <template #item="{ item, props }">
+        <!-- 菜单区��� -->
+        <div class="flex-1 overflow-y-auto p-2">
+          <div class="flex flex-col gap-1">
+            <template v-for="item in MENU_ITEMS" :key="item.path">
+              <!-- 有子菜单：可展开的一级菜单 -->
+              <div v-if="item.children" class="menu-group">
+                <div
+                  @click="toggleSubmenu(item.name)"
+                  class="flex items-center gap-3 rounded-lg px-4 py-3 font-medium cursor-pointer transition-colors select-none"
+                  :class="route.path.startsWith(item.path) ? 'bg-emerald-500 text-white' : 'text-slate-700 hover:bg-slate-100'"
+                >
+                  <i :class="item.icon" class="text-lg" />
+                  <span class="flex-1">{{ item.title }}</span>
+                  <i
+                    class="pi pi-chevron-down text-sm transition-transform duration-200"
+                    :class="{ 'rotate-180': isMenuExpanded(item.name) }"
+                  />
+                </div>
+                <Transition
+                  enter-active-class="transition-all duration-200 ease-out"
+                  enter-from-class="opacity-0 -translate-y-2"
+                  enter-to-class="opacity-100 translate-y-0"
+                  leave-active-class="transition-all duration-150 ease-in"
+                  leave-from-class="opacity-100 translate-y-0"
+                  leave-to-class="opacity-0 -translate-y-2"
+                >
+                  <div v-show="isMenuExpanded(item.name)" class="ml-4 mt-1 space-y-1">
+                    <div
+                      v-for="child in item.children"
+                      :key="child.path"
+                      @click="handleSubmenuClick(child.path, child.title)"
+                      class="flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium cursor-pointer transition-colors"
+                      :class="route.path === child.path ? 'bg-emerald-500 text-white' : 'text-slate-600 hover:bg-slate-100'"
+                    >
+                      <i :class="child.icon" class="text-base" />
+                      <span>{{ child.title }}</span>
+                    </div>
+                  </div>
+                </Transition>
+              </div>
+
+              <!-- 无子菜单：保持原样 -->
               <router-link
-                v-if="item.route"
+                v-else
                 v-ripple
-                :to="item.route"
-                v-bind="props.action"
+                :to="item.path"
+                @click="closeDrawer"
                 class="flex items-center gap-3 rounded-lg px-4 py-3 font-medium transition-colors"
-                :class="route.path === item.route ? 'bg-emerald-500 text-white hover:bg-emerald-600' : 'text-slate-700 hover:bg-slate-100'"
+                :class="route.path === item.path ? 'bg-emerald-500 text-white hover:bg-emerald-600' : 'text-slate-700 hover:bg-slate-100'"
               >
                 <i :class="item.icon" class="text-lg" />
-                <span>{{ item.label }}</span>
+                <span>{{ item.title }}</span>
               </router-link>
             </template>
-          </PanelMenu>
+          </div>
         </div>
 
         <!-- 底部用户信息 -->
@@ -125,10 +200,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useBreakpoints } from '@vueuse/core'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import Button from 'primevue/button'
-import PanelMenu from 'primevue/panelmenu'
-import type { MenuItem } from 'primevue/menuitem'
 import { MENU_ITEMS } from '@/features/teacher/constants'
 import UserInfo from './UserInfo.vue'
 
@@ -204,16 +277,41 @@ function closeDrawer() {
 
 // ==================== 路由相关 ====================
 const route = useRoute()
+const router = useRouter()
+
+// 二级菜单展开状态管理
+const expandedMenus = ref<Set<string>>(new Set())
 
 /**
- * 将自定义菜单项转换为 PrimeVue MenuItem 格式
+ * 切换二级菜单展开/折叠
  */
-const panelMenuItems: MenuItem[] = MENU_ITEMS.map((item) => ({
-  label: item.title,
-  icon: item.icon,
-  route: item.path,
-  class:'border-0!',
-}))
+function toggleSubmenu(name: string) {
+  if (expandedMenus.value.has(name)) {
+    expandedMenus.value.delete(name)
+  } else {
+    expandedMenus.value.add(name)
+  }
+  // 触发响应式更新
+  expandedMenus.value = new Set(expandedMenus.value)
+}
+
+/**
+ * 判断菜单是否展开
+ */
+function isMenuExpanded(name: string): boolean {
+  return expandedMenus.value.has(name)
+}
+
+/**
+ * 处理二级菜单点击
+ */
+async function handleSubmenuClick(path: string, _title: string) {
+  await router.push(path)
+  // 移动端点击后关闭抽屉
+  if (isMobile.value) {
+    closeDrawer()
+  }
+}
 
 const handleLogout = () => {
   // 桌面端登出，无需额外操作
