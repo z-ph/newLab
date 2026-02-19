@@ -108,7 +108,7 @@
                         <Column header="操作">
                           <template #body="slotProps">
                             <div class="flex gap-2">
-                              <Button label="管理" outlined size="small"
+                              <Button label="查看" outlined size="small"
                                 @click="navigateToExperimentDetail(slotProps.data)" />
                               <Button icon="pi pi-trash" outlined severity="danger" size="small" v-tooltip.top="'删除'"
                                 @click="handleDeleteExperiment(slotProps.data)" :loading="deleteExperimentMutation.isPending.value" />
