@@ -18,14 +18,18 @@
             ref="videoRef"
             :src="videoUrl"
             controls
-            controlsList="nodownload noremoteplayback noplaybackrate"
+            controlsList="nodownload noremoteplayback noplaybackrate noplaybackstatus"
             disablePictureInPicture
             class="w-full h-full"
             @loadedmetadata="handleVideoLoaded"
             @timeupdate="handleTimeUpdate"
             @seeking="handleSeeking"
+            @seeked="handleSeeked"
             @ratechange="handleRateChange"
             @ended="handleVideoEnded"
+            @keydown.prevent="handleKeyDown"
+            @wheel.prevent
+            @contextmenu.prevent
           >
             您的浏览器不支持视频播放
           </video>
@@ -66,6 +70,7 @@
 import { ref, computed } from 'vue'
 import { useQueryVideoPlayKey } from '@/features/teacher/video/hooks'
 import { useQueryProcedureDetail, useMarkVideoViewed, useQueryStudentExperimentDetail } from '../hooks'
+import { VIDEO_CONFIG } from '../constants/config'
 import { baseURL } from '@/core/api/config'
 import { toast } from '@/core/utils/toast'
 
@@ -147,28 +152,48 @@ function handleTimeUpdate() {
 }
 
 /**
- * 防止拖动进度条
+ * 防止拖动进度条（静默强制执行）
  */
 function handleSeeking() {
   if (!videoRef.value) return
 
-  // 如果用户尝试拖动，立即恢复到合法位置
-  if (Math.abs(videoRef.value.currentTime - lastValidTime.value) > 0.5) {
+  // 静默恢复到合法位置，不显示提示
+  if (Math.abs(videoRef.value.currentTime - lastValidTime.value) > VIDEO_CONFIG.SEEK_TOLERANCE) {
     videoRef.value.currentTime = lastValidTime.value
-    toast.warn('不允许拖动进度条，请完整观看视频')
   }
 }
 
 /**
- * 防止倍速播放
+ * 拖动完成后再次确认位置
+ */
+function handleSeeked() {
+  if (!videoRef.value) return
+
+  // 双重保险：确保恢复到合法位置
+  if (Math.abs(videoRef.value.currentTime - lastValidTime.value) > VIDEO_CONFIG.SEEK_TOLERANCE) {
+    videoRef.value.currentTime = lastValidTime.value
+  }
+}
+
+/**
+ * 禁用所有键盘快捷键（静默阻止）
+ */
+function handleKeyDown(event: KeyboardEvent) {
+  // 阻止所有键盘操作：空格、方向键、Home/End、数字键等
+  event.preventDefault()
+  event.stopPropagation()
+  return false
+}
+
+/**
+ * 防止倍速播放（静默强制执行）
  */
 function handleRateChange() {
   if (!videoRef.value) return
 
-  // 强制保持 1x 倍速
+  // 静默强制保持 1x 倍速，不显示提示
   if (videoRef.value.playbackRate !== 1) {
     videoRef.value.playbackRate = 1
-    toast.warn('不允许倍速播放')
   }
 }
 
