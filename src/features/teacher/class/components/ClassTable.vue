@@ -8,9 +8,9 @@
           <div class="flex items-center justify-between">
             <h1 class="text-xl font-bold text-slate-900">班级管理</h1>
             <div class="flex gap-2">
-              <Button label="绑定实验" icon="pi pi-link" outlined severity="secondary" @click="openBindDialog" />
-              <Button label="批量导入" icon="pi pi-upload" outlined severity="secondary" @click="openImportDialog" />
-              <Button label="新建班级" icon="pi pi-plus" @click="openCreateDialog" />
+              <Button label="绑定实验" icon="pi pi-link" outlined severity="secondary" @click="navigateToBind" />
+              <Button label="批量导入" icon="pi pi-upload" outlined severity="secondary" @click="navigateToImport" />
+              <Button label="新建班级" icon="pi pi-plus" @click="navigateToCreate" />
             </div>
           </div>
 
@@ -21,7 +21,7 @@
         <Column key="actions" header="操作">
           <template #body="slotProps">
             <div class="flex gap-2">
-              <Button icon="pi pi-pencil" outlined size="small" @click="openEditDialog(slotProps.data)" />
+              <Button icon="pi-pencil" outlined size="small" @click="navigateToEdit(slotProps.data)" />
               <Button icon="pi pi-trash" outlined severity="danger" size="small" @click="handleDelete(slotProps.data)"
                 :loading="deleteMutation.isPending.value" />
             </div>
@@ -30,52 +30,40 @@
       </DataTable>
     </template>
   </Card>
-  <!-- 对话框组件 -->
-  <ClassCreateDialog ref="createDialogRef" />
-  <ClassEditDialog ref="editDialogRef" />
-  <ClassImportDialog ref="importDialogRef" />
-  <BindClassExperimentDialog ref="bindDialogRef" />
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
 import { useQueryClassPage } from '../hooks/useQueryClass'
 import { useDeleteClass } from '../hooks/useMutateClassDelete'
-import {
-  ClassImportDialog,
-  ClassCreateDialog,
-  ClassEditDialog,
-} from '@/features/teacher/class'
-import BindClassExperimentDialog from '@/features/teacher/class-experiment/components/BindClassExperimentDialog.vue'
 import type { Class } from '@/core/api/generated'
 import type { DataTablePageEvent } from 'primevue/datatable'
 
-// ==================== 对话框 Ref ====================
-const createDialogRef = ref<InstanceType<typeof ClassCreateDialog>>()
-const editDialogRef = ref<InstanceType<typeof ClassEditDialog>>()
-const importDialogRef = ref<InstanceType<typeof ClassImportDialog>>()
-const bindDialogRef = ref<InstanceType<typeof BindClassExperimentDialog>>()
+const router = useRouter()
 
-// ==================== 对话框操作 ====================
-const openCreateDialog = () => {
-  createDialogRef.value?.open()
+// ==================== 路由跳转 ====================
+const navigateToCreate = () => {
+  router.push('/teacher/classes/create')
 }
 
-const openEditDialog = (classItem: Class) => {
-  editDialogRef.value?.open({
-    id: classItem.id,
-    classCode: classItem.classCode,
-    className: classItem.className,
+const navigateToImport = () => {
+  router.push('/teacher/classes/import')
+}
+
+const navigateToBind = () => {
+  router.push('/teacher/classes/bind')
+}
+
+const navigateToEdit = (classItem: Class) => {
+  router.push({
+    path: `/teacher/classes/${classItem.classCode}/edit`,
+    query: {
+      title: encodeURIComponent(classItem.className || '编辑班级'),
+      ...(classItem.id ? { id: classItem.id.toString() } : {})
+    }
   })
-}
-
-const openImportDialog = () => {
-  importDialogRef.value?.open()
-}
-
-const openBindDialog = () => {
-  bindDialogRef.value?.open()
 }
 
 // ✅ 表格内部调用 hook 获取数据
@@ -83,10 +71,12 @@ const { current, size, query } = useQueryClassPage({
   current: 1,
   size: 10,
 })
+
 // 分页逻辑
 const onPageChange = (event: DataTablePageEvent) => {
   current.value = event.page + 1
 }
+
 // ✅ 表格内部调用 mutation
 const deleteMutation = useDeleteClass()
 const confirm = useConfirm()

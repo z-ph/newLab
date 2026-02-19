@@ -6,6 +6,7 @@
 export { default as StudentListDialog } from './components/StudentListDialog.vue'
 export { default as ClassTable } from './components/ClassTable.vue'
 export { default as ClassImportDialog } from './components/ClassImportDialog.vue'
+export { default as ClassImportForm } from './components/ClassImportForm.vue'
 export { default as ClassCreateDialog } from './components/ClassCreateDialog.vue'
 export { default as ClassEditDialog } from './components/ClassEditDialog.vue'
 export { default as ClassExperimentDialog } from './components/ClassExperimentDialog.vue'
