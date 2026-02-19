@@ -33,10 +33,16 @@ export function useTabManager() {
     '/teacher/courses': '课程管理',
     '/teacher/classes/': '班级管理',
     '/teacher/classes': '班级管理',
+    '/teacher/classes/list': '班级列表',
+    '/teacher/classes/create': '创建班级',
     '/teacher/experiments/': '实验模版管理',
     '/teacher/experiments': '实验模版管理',
+    '/teacher/experiments/list': '实验列表',
+    '/teacher/experiments/create': '创建实验',
     '/teacher/topics/': '题目管理',
     '/teacher/topics': '题目管理',
+    '/teacher/topics/list': '题目列表',
+    '/teacher/topics/create': '创建题目',
   }
 
   // 所有打开的标签页
