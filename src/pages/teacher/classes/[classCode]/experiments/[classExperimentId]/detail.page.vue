@@ -149,7 +149,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Card from 'primevue/card'
 import type { StudentAttendanceInfo, AttendanceListResponse } from '@/core/api/generated'
@@ -173,11 +173,28 @@ const pageTitle = computed(() => {
 const activeTab = ref('attendance')
 
 // ==================== 签到管理 ====================
+// 调试信息
+console.log('=== 调试信息 ===')
+console.log('classCode:', classCode.value)
+console.log('classExperimentId:', classExperimentId.value)
+console.log('route.query:', route.query)
+console.log('route.query.experimentId:', route.query.experimentId)
+console.log('==================')
+
 const attendanceList = useQueryAttendanceList({
   classCode,
-  experimentId: computed(() => route.query.experimentId as string || ''),
+  experimentId: computed(() => {
+    const id = route.query.experimentId
+    console.log('experimentId computed:', id, 'type:', typeof id)
+    return id ? String(id) : ''
+  }),
   enable: computed(() => Boolean(classCode.value && route.query.experimentId)),
 })
+
+// 监听查询结果
+watch(() => attendanceList.data.value, (data) => {
+  console.log('attendanceList.data.value:', data)
+}, { immediate: true })
 
 const updateMutation = useUpdateAttendanceSuccess()
 
