@@ -114,6 +114,18 @@ const ROUTE_META: Partial<Record<TeacherRoutePath, RouteMeta>> = {
         icon: 'pi pi-plus',
         path: '/teacher/classes/create',
       },
+      {
+        name: 'class-import',
+        title: '批量导入',
+        icon: 'pi pi-upload',
+        path: '/teacher/classes/import',
+      },
+      {
+        name: 'class-bind',
+        title: '绑定实验',
+        icon: 'pi pi-link',
+        path: '/teacher/classes/bind',
+      },
     ],
   },
   '/teacher/experiments/': {

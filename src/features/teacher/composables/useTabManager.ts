@@ -35,6 +35,8 @@ export function useTabManager() {
     '/teacher/classes': '班级管理',
     '/teacher/classes/list': '班级列表',
     '/teacher/classes/create': '创建班级',
+    '/teacher/classes/import': '批量导入',
+    '/teacher/classes/bind': '绑定实验',
     '/teacher/experiments/': '实验模版管理',
     '/teacher/experiments': '实验模版管理',
     '/teacher/experiments/list': '实验列表',
