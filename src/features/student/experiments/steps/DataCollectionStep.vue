@@ -1,31 +1,19 @@
 <template>
   <div class="space-y-4">
-    <!-- 步骤信息 -->
-    <Card>
-      <template #content>
-        <div class="space-y-2">
-          <h3 class="text-base font-medium text-gray-900">{{ stepInfo?.remark || '数据采集' }}</h3>
-          <p class="text-sm text-gray-600">请按照实验要求完成数据采集</p>
-        </div>
-      </template>
-    </Card>
-
-    <!-- 数据采集表单 -->
-    <Card>
-      <template #content>
-        <div class="text-center py-8">
-          <i class="pi pi-database text-4xl text-gray-300 mb-3" />
-          <p class="text-sm text-gray-500 mb-4">数据采集功能开发中...</p>
-          <Button label="上传数据" outlined disabled />
-        </div>
-      </template>
-    </Card>
+    <!-- 未提交状态 - 显示表单 -->
+    <DataCollectionForm
+      :step-id="stepId"
+      :class-code="classCode"
+      :step-info="stepInfoForForm"
+      @submitted="handleSubmitted"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useQueryProcedureDetail } from '../hooks'
+import { useQueryProcedureDetail, useQueryStudentExperimentDetail } from '../hooks'
+import DataCollectionForm from './components/DataCollectionForm.vue'
 
 interface Props {
   stepId: number
@@ -36,7 +24,7 @@ interface Props {
 
 const props = defineProps<Props>()
 
-// 获取步骤详情
+// 获取步骤详情（从实验详情的步骤列表中查找）
 const { procedureDetail: stepInfo } = useQueryProcedureDetail(
   computed(() => props.stepId),
   {
@@ -44,4 +32,24 @@ const { procedureDetail: stepInfo } = useQueryProcedureDetail(
     classCode: computed(() => props.classCode),
   }
 )
+
+// 获取实验详情（用于刷新数据）
+const { query: experimentQuery } = useQueryStudentExperimentDetail(
+  computed(() => props.experimentId),
+  computed(() => props.classCode)
+)
+
+// 用于表单的步骤信息
+const stepInfoForForm = computed(() => {
+  return {
+    remark: stepInfo.value?.remark,
+    dataCollectionDetail: undefined, // TODO: 需要调用 API 获取详细的数据采集配置
+  }
+})
+
+// 处理提交成功
+function handleSubmitted() {
+  // 刷新数据
+  experimentQuery.refetch()
+}
 </script>
