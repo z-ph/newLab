@@ -45,8 +45,7 @@
         <Column header="操作">
           <template #body="slotProps">
             <div class="flex gap-2">
-              <Button icon="pi pi-eye" outlined size="small" v-tooltip="'查看详情'" @click="handleView(slotProps.data)" />
-              <Button icon="pi pi-play" outlined size="small" v-tooltip="'播放视频'" @click="handlePlay(slotProps.data)" />
+              <Button icon="pi pi-eye" outlined size="small" v-tooltip="'查看详情/播放'" @click="handleView(slotProps.data)" />
               <Button icon="pi pi-trash" outlined severity="danger" size="small" v-tooltip="'删除'"
                 @click="handleDelete(slotProps.data)" :loading="deleteMutation.isPending.value" />
             </div>
@@ -55,8 +54,6 @@
       </DataTable>
     </template>
   </Card>
-  <!-- 视频播放对话框 -->
-  <VideoPlayDialog ref="playDialogRef" />
 </template>
 
 <script setup lang="ts">
@@ -72,10 +69,6 @@ import { useQueryVideoPage, useDeleteVideo } from '../hooks'
 
 import type { VideoUploadResponse, VideoQueryRequest } from "@/core/api/generated"
 
-import {
-  VideoPlayDialog,
-} from "@/features/teacher/video"
-
 // ✅ 从 API 类型派生
 type VideoFilters = Pick<VideoQueryRequest, 'originalFileName'>
 
@@ -84,9 +77,6 @@ const filters = ref<VideoFilters>({})
 
 // 路由
 const router = useRouter()
-
-// ✅ 对话框 ref（不管理状态）
-const playDialogRef = ref<InstanceType<typeof VideoPlayDialog>>()
 
 // ✅ 上传按钮点击 - 导航到上传页面
 const handleUploadClick = () => {
@@ -99,11 +89,6 @@ const handleView = (video: VideoUploadResponse) => {
     path: `/teacher/videos/${video.id}/detail`,
     query: { title: encodeURIComponent(video.originalFileName || '视频详情') }
   })
-}
-
-// 播放视频 - 通过 ref 调用
-const handlePlay = (video: VideoUploadResponse) => {
-  playDialogRef.value?.open(video.id!)
 }
 
 // ✅ 表格内部调用 hook 获取数据

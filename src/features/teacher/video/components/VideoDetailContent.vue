@@ -1,5 +1,9 @@
 <template>
-  <div v-if="video" class="space-y-4">
+  <div v-if="video" class="space-y-6">
+    <!-- 视频播放器 -->
+    <VideoPlayer :videoId="video.id" />
+
+    <!-- 视频信息 -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
         <label class="block text-sm font-medium text-slate-700 mb-1">视频 ID</label>
@@ -36,6 +40,7 @@
 import { formatDuration } from '../utils/formatters'
 import { formatDateTime } from '@/features/shared/utils/formatters'
 import type { VideoUploadResponse } from '@/core/api/generated'
+import VideoPlayer from './VideoPlayer.vue'
 
 defineProps<{
   video?: VideoUploadResponse
