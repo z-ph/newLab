@@ -109,11 +109,11 @@
                           <template #body="slotProps">
                             <div class="flex gap-2">
                               <Button icon="pi pi-check-circle" outlined size="small" v-tooltip.top="'签到管理'"
-                                @click="openAttendanceDialog(slotProps.data)" />
+                                @click="navigateToExperimentDetail(slotProps.data, 'attendance')" />
                               <Button icon="pi pi-pencil" outlined size="small" v-tooltip.top="'学生批改'"
-                                @click="openGradingDialog(slotProps.data)" />
+                                @click="navigateToExperimentDetail(slotProps.data, 'grading')" />
                               <Button icon="pi pi-chart-bar" outlined size="small" v-tooltip.top="'统计信息'"
-                                @click="openStatisticsDialog(slotProps.data)" />
+                                @click="navigateToExperimentDetail(slotProps.data, 'statistics')" />
                               <Button icon="pi pi-trash" outlined severity="danger" size="small" v-tooltip.top="'删除'"
                                 @click="handleDeleteExperiment(slotProps.data)" :loading="deleteExperimentMutation.isPending.value" />
                             </div>
@@ -151,11 +151,8 @@
           </div>
         </Dialog>
 
-        <!-- 实验管理子对话框 -->
+        <!-- 绑定实验对话框 -->
         <BindClassExperimentDialog ref="bindExperimentDialogRef" />
-        <AttendanceManagementDialog ref="attendanceDialogRef" :class-code="classCode" :class-experiment-id="classExperimentId" />
-        <StudentGradingDialog ref="gradingDialogRef" />
-        <ClassExperimentStatisticsDialog ref="statisticsDialogRef" />
 
         <!-- 确认对话框 -->
         <ConfirmDialog />
@@ -176,11 +173,8 @@ import { useBindStudents, useUnbindStudents } from '@/features/teacher/class/hoo
 import { useQueryClassExperimentsGroupedByCourse, toCourseGroups } from '@/features/teacher/class/hooks/useQueryClassExperimentsGroupedByCourse'
 import { useUnbindExperiment } from '@/features/teacher/class/hooks/useMutateClassExperiment'
 import { formatDateTime } from '@/features/shared/utils/formatters'
-import type { StudentClassRelation, ExperimentInfo, ExperimentDetailItem } from '@/core/api/generated'
+import type { StudentClassRelation, ExperimentDetailItem } from '@/core/api/generated'
 import BindClassExperimentDialog from '@/features/teacher/class-experiment/components/BindClassExperimentDialog.vue'
-import AttendanceManagementDialog from '@/features/teacher/class-experiment/components/AttendanceManagementDialog.vue'
-import StudentGradingDialog from '@/features/teacher/class-experiment/components/StudentGradingDialog.vue'
-import ClassExperimentStatisticsDialog from '@/features/teacher/class-experiment/components/ClassExperimentStatisticsDialog.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -330,20 +324,6 @@ const courseGroups = computed(() => toCourseGroups(experimentQuery.data.value))
 // 删除实验
 const deleteExperimentMutation = useUnbindExperiment()
 
-// 将 ExperimentDetailItem 转换为 ExperimentInfo
-function toExperimentInfo(item: ExperimentDetailItem): ExperimentInfo {
-  return {
-    classExperimentId: item.classExperimentId,
-    experimentId: item.experimentId?.toString(),
-    experimentName: item.experimentName,
-    courseTime: item.courseTime,
-    startTime: item.startTime,
-    endTime: item.endTime,
-    experimentLocation: item.experimentLocation,
-    userName: item.userName,
-  }
-}
-
 // 删除实验
 const handleDeleteExperiment = (experiment: ExperimentDetailItem) => {
   const experimentId = experiment.experimentId?.toString()
@@ -368,26 +348,21 @@ const handleDeleteExperiment = (experiment: ExperimentDetailItem) => {
 
 // ==================== 实验管理子对话框 ====================
 const bindExperimentDialogRef = ref<InstanceType<typeof BindClassExperimentDialog>>()
-const attendanceDialogRef = ref<InstanceType<typeof AttendanceManagementDialog>>()
-const gradingDialogRef = ref<InstanceType<typeof StudentGradingDialog>>()
-const statisticsDialogRef = ref<InstanceType<typeof ClassExperimentStatisticsDialog>>()
-const classExperimentId = ref<number>()
 
 const openBindExperimentDialog = () => {
   bindExperimentDialogRef.value?.open({ classCodes: [classCode.value] })
 }
 
-const openAttendanceDialog = (experiment: ExperimentDetailItem) => {
-  attendanceDialogRef.value?.open({ classExperiment: toExperimentInfo(experiment) })
-  classExperimentId.value = experiment.classExperimentId
-}
-
-const openGradingDialog = (experiment: ExperimentDetailItem) => {
-  gradingDialogRef.value?.open({ classExperiment: toExperimentInfo(experiment) })
-}
-
-const openStatisticsDialog = (experiment: ExperimentDetailItem) => {
-  statisticsDialogRef.value?.open({ classExperiment: toExperimentInfo(experiment) })
+// 跳转到实验详情页面
+const navigateToExperimentDetail = (experiment: ExperimentDetailItem, tab: 'attendance' | 'grading' | 'statistics') => {
+  router.push({
+    path: `/teacher/classes/${classCode.value}/experiments/${experiment.classExperimentId}/detail`,
+    query: {
+      title: encodeURIComponent(experiment.experimentName || '实验详情'),
+      experimentId: experiment.experimentId,
+      tab,
+    },
+  })
 }
 
 const handleBack = () => {
