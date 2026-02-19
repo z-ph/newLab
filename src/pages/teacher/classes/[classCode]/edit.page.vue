@@ -108,12 +108,8 @@
                         <Column header="操作">
                           <template #body="slotProps">
                             <div class="flex gap-2">
-                              <Button icon="pi pi-check-circle" outlined size="small" v-tooltip.top="'签到管理'"
-                                @click="navigateToExperimentDetail(slotProps.data, 'attendance')" />
-                              <Button icon="pi pi-pencil" outlined size="small" v-tooltip.top="'学生批改'"
-                                @click="navigateToExperimentDetail(slotProps.data, 'grading')" />
-                              <Button icon="pi pi-chart-bar" outlined size="small" v-tooltip.top="'统计信息'"
-                                @click="navigateToExperimentDetail(slotProps.data, 'statistics')" />
+                              <Button label="管理" outlined size="small"
+                                @click="navigateToExperimentDetail(slotProps.data)" />
                               <Button icon="pi pi-trash" outlined severity="danger" size="small" v-tooltip.top="'删除'"
                                 @click="handleDeleteExperiment(slotProps.data)" :loading="deleteExperimentMutation.isPending.value" />
                             </div>
@@ -354,13 +350,12 @@ const openBindExperimentDialog = () => {
 }
 
 // 跳转到实验详情页面
-const navigateToExperimentDetail = (experiment: ExperimentDetailItem, tab: 'attendance' | 'grading' | 'statistics') => {
+const navigateToExperimentDetail = (experiment: ExperimentDetailItem) => {
   router.push({
     path: `/teacher/classes/${classCode.value}/experiments/${experiment.classExperimentId}/detail`,
     query: {
       title: encodeURIComponent(experiment.experimentName || '实验详情'),
       experimentId: experiment.experimentId,
-      tab,
     },
   })
 }

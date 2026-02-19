@@ -170,10 +170,7 @@ const pageTitle = computed(() => {
   return title ? decodeURIComponent(title) : '实验详情'
 })
 
-// 从 query 获取 tab 参数，用于切换到指定 tab
-const tabParam = computed(() => route.query.tab as string | undefined)
-
-const activeTab = ref(tabParam.value || 'attendance')
+const activeTab = ref('attendance')
 
 // ==================== 签到管理 ====================
 const attendanceList = useQueryAttendanceList({
