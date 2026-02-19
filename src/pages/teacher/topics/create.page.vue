@@ -2,31 +2,25 @@
   <div class="p-1">
     <Card>
       <template #content>
-        <div class="mb-4">
-          <h1 class="text-xl font-bold text-slate-900">创建题目</h1>
+        <div class="text-center py-8">
+          <i class="pi pi-info-circle text-4xl text-slate-400 mb-4"></i>
+          <h2 class="text-xl font-semibold text-slate-700 mb-2">创建题目</h2>
+          <p class="text-slate-500 mb-6">请返回题目列表页面，点击"新增"按钮创建题目</p>
+          <Button label="返回题目列表" icon="pi pi-arrow-left" @click="goToList" />
         </div>
-        <TopicFormDialog ref="formDialogRef" @refresh="handleRefresh" />
       </template>
     </Card>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Card from 'primevue/card'
-import { TopicFormDialog } from '@/features/teacher/topic'
+import Button from 'primevue/button'
 
 const router = useRouter()
-const formDialogRef = ref<InstanceType<typeof TopicFormDialog>>()
 
-onMounted(() => {
-  // 自动打开创建表单
-  formDialogRef.value?.open()
-})
-
-const handleRefresh = () => {
-  // 创建成功后跳转到列表页
+const goToList = () => {
   router.push('/teacher/topics/list')
 }
 </script>
