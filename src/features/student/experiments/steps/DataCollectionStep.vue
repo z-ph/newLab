@@ -1,12 +1,27 @@
 <template>
   <div class="space-y-4">
-    <!-- 未提交状态 - 显示表单 -->
-    <DataCollectionForm
-      :step-id="stepId"
-      :class-code="classCode"
-      :step-info="stepInfoForForm"
-      @submitted="handleSubmitted"
-    />
+    <!-- 不可访问状态 -->
+    <template v-if="!isAccessible && !isCompleted">
+      <Card>
+        <template #content>
+          <div class="text-center py-8">
+            <i class="pi pi-lock text-4xl text-orange-400 mb-3" />
+            <h3 class="text-base font-medium text-gray-900 mb-2">暂不可提交数据</h3>
+            <p class="text-sm text-gray-500">{{ inaccessibleReason || '请先完成前置步骤' }}</p>
+          </div>
+        </template>
+      </Card>
+    </template>
+
+    <!-- 可访问状态 - 显示表单 -->
+    <template v-else>
+      <DataCollectionForm
+        :step-id="stepId"
+        :class-code="classCode"
+        :step-info="stepInfoForForm"
+        @submitted="handleSubmitted"
+      />
+    </template>
   </div>
 </template>
 
@@ -39,11 +54,26 @@ const { query: experimentQuery } = useQueryStudentExperimentDetail(
   computed(() => props.classCode)
 )
 
+// 是否已完成
+const isCompleted = computed(() => stepInfo.value?.isCompleted ?? false)
+
+// 是否可访问
+const isAccessible = computed(() => stepInfo.value?.isAccessible ?? true)
+
+// 不可访问原因
+const inaccessibleReason = computed(() => stepInfo.value?.inaccessibleReason)
+
 // 用于表单的步骤信息
 const stepInfoForForm = computed(() => {
   return {
     remark: stepInfo.value?.remark,
-    dataCollectionDetail: undefined, // TODO: 需要调用 API 获取详细的数据采集配置
+    dataCollectionDetail: stepInfo.value ? {
+      type: stepInfo.value.dataCollectionType,
+      needPhoto: stepInfo.value.dataNeedPhoto,
+      needDoc: stepInfo.value.dataNeedDoc,
+      remark: stepInfo.value.dataRemark,
+    } : null,
+    submissionTime: stepInfo.value?.submissionTime,
   }
 })
 

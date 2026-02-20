@@ -1,19 +1,11 @@
 /**
  * 实验步骤相关类型定义
+ * 所有类型从 API 类型派生
  */
 
+import type { StudentProcedureDetailResponse } from '@/core/api/generated'
+
 /**
- * 实验步骤接口
+ * 实验步骤类型（从 API 类型派生）
  */
-export interface ProcedureStep {
-  id: number
-  stepType: number
-  procedureName?: string
-  videoUrl?: string
-  topicContent?: string
-  dataCollectionInstruction?: string
-  isCompleted: boolean
-  // 时间配置字段
-  offsetMinutes?: number
-  durationMinutes?: number
-}
+export type ProcedureStep = StudentProcedureDetailResponse

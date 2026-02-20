@@ -2,9 +2,7 @@
  * 实验相关格式化函数
  */
 
-import type { ProcedureStep } from './types'
-import { stepTimeValidation } from './validators'
-import type { StepTimeConfig } from './validators'
+import { stepTimeValidation, type StepTimeConfig } from './validators'
 import { formatTime } from '@/features/shared/utils/formatters'
 
 /**
@@ -27,12 +25,12 @@ export function getSubmissionTypeSeverity(
 /**
  * 获取时间窗口文本
  *
- * @param step - 实验步骤
- * @param baseTime - 基准时间（班级实验开始时间��
+ * @param step - 实验步骤（包含 offsetMinutes/durationMinutes 字段）
+ * @param baseTime - 基准时间（班级实验开始时间）
  * @returns 时间窗口文本，格式如 "14:30 - 16:00"
  */
 export function getTimeWindowText(
-  step: ProcedureStep | StepTimeConfig,
+  step: StepTimeConfig,
   baseTime?: Date | string
 ): string {
   const validation = stepTimeValidation(step, baseTime)
@@ -40,4 +38,3 @@ export function getTimeWindowText(
 
   return `${formatTime(validation.startTime)} - ${formatTime(validation.endTime)}`
 }
-

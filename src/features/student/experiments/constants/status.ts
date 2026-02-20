@@ -43,3 +43,38 @@ export const SUBMISSION_STATUS_SEVERITY: Record<
  * 从 API 类型派生的提交状态
  */
 export type SubmissionStatusFromAPI = ProcedureSubmissionResponse['submissionStatus']
+
+/**
+ * 步骤状态常量
+ */
+export const STEP_STATUS = {
+  /** 已完成 */
+  COMPLETED: 'completed',
+  /** 进行中 */
+  IN_PROGRESS: 'in_progress',
+  /** 不可访问（统一处理：未开始、已结束、前置未完成等） */
+  INACCESSIBLE: 'inaccessible',
+} as const
+
+/**
+ * 步骤状态类型
+ */
+export type StepStatus = typeof STEP_STATUS[keyof typeof STEP_STATUS]
+
+/**
+ * 步骤状态文本映射
+ */
+export const STEP_STATUS_TEXT: Record<StepStatus, string> = {
+  [STEP_STATUS.COMPLETED]: '已完成',
+  [STEP_STATUS.IN_PROGRESS]: '进行中',
+  [STEP_STATUS.INACCESSIBLE]: '不可访问',
+}
+
+/**
+ * 步骤状态严重程度映射
+ */
+export const STEP_STATUS_SEVERITY: Record<StepStatus, 'success' | 'info' | 'warning' | 'danger'> = {
+  [STEP_STATUS.COMPLETED]: 'success',
+  [STEP_STATUS.IN_PROGRESS]: 'warning',
+  [STEP_STATUS.INACCESSIBLE]: 'danger',
+}

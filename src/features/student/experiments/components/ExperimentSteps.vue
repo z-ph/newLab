@@ -4,7 +4,7 @@
     <Card
       v-for="(step, index) in procedureSteps"
       :key="step.id"
-      :class="{ 'opacity-50': !isStepUnlocked(step, index), 'cursor-pointer': isStepClickable(step) }"
+      :class="{ 'cursor-pointer': isStepClickable(step) }"
       @click="handleStepClick(step)"
     >
       <template #title>
@@ -12,16 +12,16 @@
           <div class="flex items-center gap-2">
             <div
               class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium"
-              :class="getStepClass(step, index)"
+              :class="getStepClass(step)"
             >
               {{ index + 1 }}
             </div>
             <span class="text-sm">{{ getStepName(step, index) }}</span>
             <i v-if="isStepClickable(step)" class="pi pi-chevron-right text-xs text-gray-400 ml-auto" />
           </div>
-          <!-- 时间状态 -->
+          <!-- 时间状态：仅在进行中且剩余时间大于0时显示 -->
           <Tag
-            v-if="getTimeValidation(step)"
+            v-if="shouldShowTimeTag(step)"
             :value="getTimeValidation(step)?.statusText"
             :severity="getStepTimeSeverity(step)"
             class="text-xs"
@@ -30,16 +30,7 @@
       </template>
 
       <template #content>
-        <!-- 步骤未在时间窗口内 -->
-        <div v-if="!isStepAvailable(step)" class="py-4">
-          <p class="text-xs text-gray-500">
-            <i class="pi pi-clock mr-1" />
-            {{ getTimeWindowText(step) }}
-          </p>
-        </div>
-
-        <!-- 步骤在时间窗口内 -->
-        <div v-else class="py-4">
+        <div class="py-4">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
               <i :class="getStepIcon(step.type)" class="text-gray-500" />
@@ -51,7 +42,13 @@
               class="text-xs"
             />
           </div>
-          <p v-if="step.remark" class="text-xs text-gray-500 mt-2 line-clamp-2">{{ step.remark }}</p>
+          <!-- 不可访问原因 -->
+          <p v-if="getStepStatus(step) === STEP_STATUS.INACCESSIBLE" class="text-xs text-red-500 mt-2">
+            <i class="pi pi-lock mr-1" />
+            {{ getInaccessibleReason(step) }}
+          </p>
+          <!-- 步骤描述 -->
+          <p v-else-if="step.remark" class="text-xs text-gray-500 mt-2 line-clamp-2">{{ step.remark }}</p>
         </div>
       </template>
     </Card>
@@ -67,10 +64,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { getTimeWindowText, stepTimeValidation } from '@/features/student/experiments/utils'
+import { stepTimeValidation, getStepStatusText, getStepStatusSeverity, getInaccessibleReason } from '@/features/student/experiments/utils'
 import { useQueryStudentExperimentDetail } from '../hooks'
 import type { StudentProcedureDetailResponse } from '@/core/api/generated'
-import { WARNING_THRESHOLD_MINUTES } from '@/features/student/experiments/constants'
+import { WARNING_THRESHOLD_MINUTES, STEP_STATUS } from '@/features/student/experiments/constants'
+import { getStepStatus } from '@/features/student/experiments/utils/stepStatus'
 
 interface Props {
   courseId: string
@@ -100,28 +98,30 @@ function getTimeValidation(step: StudentProcedureDetailResponse) {
 }
 
 /**
- * 判断步骤是否在可用时间窗口内
+ * 判断是否应该显示时间标签
+ * 仅在：进行中状态 且 有时间配置 且 剩余时间大于0 时显示
  */
-function isStepAvailable(step: StudentProcedureDetailResponse): boolean {
+function shouldShowTimeTag(step: StudentProcedureDetailResponse): boolean {
+  // 非进行中状态不显示
+  if (getStepStatus(step) !== STEP_STATUS.IN_PROGRESS) return false
+  // 没有时间配置不显示
   const validation = getTimeValidation(step)
-  if (!validation) return true
-  return validation.isAvailable
+  if (!validation) return false
+  // 剩余时间为0或未定义不显示
+  if (!validation.remainingMinutes || validation.remainingMinutes <= 0) return false
+  return true
 }
 
 /**
- * 判断步骤是否解锁（前序步骤完成）
- */
-function isStepUnlocked(_step: StudentProcedureDetailResponse, index: number): boolean {
-  if (index === 0) return true
-  const prevStep = procedureSteps.value[index - 1]
-  return !!prevStep
-}
-
-/**
- * 判断步骤是否可点击（在时间窗口内且未锁定）
+ * 判断步骤是否可点击
+ * - 已完成的步骤可以点击查看提交情况
+ * - 未完成的步骤需要可访问
  */
 function isStepClickable(step: StudentProcedureDetailResponse): boolean {
-  return isStepAvailable(step) && !step.isLocked
+  // 已完成的步骤可以点击查看提交情况
+  if (step.isCompleted) return true
+  // 未完成的步骤需要可访问
+  return step.isAccessible ?? true
 }
 
 /**
@@ -154,11 +154,11 @@ function getStepName(step: StudentProcedureDetailResponse, index: number): strin
 /**
  * 获取步骤样式类
  */
-function getStepClass(step: StudentProcedureDetailResponse, index: number): string {
-  if (!isStepUnlocked(step, index)) return 'bg-gray-200 text-gray-400'
-  if (!isStepAvailable(step)) return 'bg-yellow-100 text-yellow-600'
-  if (step.isCompleted) return 'bg-green-100 text-green-600'
-  return 'bg-blue-100 text-blue-600'
+function getStepClass(step: StudentProcedureDetailResponse): string {
+  const status = getStepStatus(step)
+  if (status === STEP_STATUS.COMPLETED) return 'bg-green-100 text-green-600'
+  if (status === STEP_STATUS.IN_PROGRESS) return 'bg-blue-100 text-blue-600'
+  return 'bg-gray-200 text-gray-400'
 }
 
 /**
@@ -199,19 +199,5 @@ function getStepTypeName(type: number | undefined): string {
     5: '限时答题',
   }
   return typeMap[type] || '其他'
-}
-
-function getStepStatusText(step: StudentProcedureDetailResponse): string {
-  if (step.isCompleted) return '已完成'
-  const index = procedureSteps.value.indexOf(step)
-  if (isStepUnlocked(step, index) && isStepAvailable(step)) return '进行中'
-  return '未解锁'
-}
-
-function getStepStatusSeverity(step: StudentProcedureDetailResponse): 'success' | 'info' | 'warning' | 'danger' {
-  if (step.isCompleted) return 'success'
-  const index = procedureSteps.value.indexOf(step)
-  if (isStepUnlocked(step, index) && isStepAvailable(step)) return 'warning'
-  return 'info'
 }
 </script>
