@@ -9,6 +9,8 @@ export { useQueryStudentProcedureDetail } from './useQueryStudentProcedureDetail
 export { useQuerySubmissionDetail } from './useQuerySubmissionDetail'
 export { useGradeSubmission } from './useGradeSubmission'
 export { useStudentList } from './useStudentList'
+export { useQueryStatistics } from './useQueryStatistics'
 export type { ProcedureType, ProcedureStatus } from './useQueryStudentProcedureDetail'
 export type { StudentSummary } from './useStudentList'
+export type { StatisticsData } from './useQueryStatistics'
 

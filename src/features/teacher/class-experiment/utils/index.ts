@@ -3,3 +3,4 @@
  */
 
 export * from './submission'
+export * from './statistics'

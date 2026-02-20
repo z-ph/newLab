@@ -11,6 +11,7 @@
           <TabList>
             <Tab value="attendance">签到管理</Tab>
             <Tab value="grading">学生批改</Tab>
+            <Tab value="statistics">步骤统计</Tab>
           </TabList>
           <TabPanels>
             <!-- 签到管理 -->
@@ -230,6 +231,131 @@
                 </div>
               </div>
             </TabPanel>
+
+            <!-- 步骤统计 -->
+            <TabPanel value="statistics">
+              <div v-if="statisticsQuery.isLoading.value" class="flex justify-center p-8">
+                <ProgressSpinner style="width: 50px; height: 50px" strokeWidth="4" />
+              </div>
+              <div v-else-if="statisticsData" class="space-y-6">
+                <!-- 概览统计 -->
+                <Card>
+                  <template #title>实验概览</template>
+                  <template #content>
+                    <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+                      <div class="rounded-lg bg-blue-50 p-4 text-center">
+                        <p class="text-2xl font-bold text-blue-600">{{ statisticsData.totalStudents ?? 0 }}</p>
+                        <p class="text-sm text-slate-600">班级总人数</p>
+                      </div>
+                      <div class="rounded-lg bg-green-50 p-4 text-center">
+                        <p class="text-2xl font-bold text-green-600">{{ statisticsData.submittedCount ?? 0 }}</p>
+                        <p class="text-sm text-slate-600">已提交人数</p>
+                      </div>
+                      <div class="rounded-lg bg-purple-50 p-4 text-center">
+                        <p class="text-2xl font-bold text-purple-600">{{ formatCompletionRate(statisticsData.completionRate) }}</p>
+                        <p class="text-sm text-slate-600">完成率</p>
+                      </div>
+                      <div class="rounded-lg bg-orange-50 p-4 text-center">
+                        <p class="text-2xl font-bold text-orange-600">{{ statisticsData.averageScore?.toFixed(1) ?? '-' }}</p>
+                        <p class="text-sm text-slate-600">平均分</p>
+                      </div>
+                    </div>
+                  </template>
+                </Card>
+
+                <!-- 步骤完成统计 -->
+                <Card>
+                  <template #title>步骤完成统计</template>
+                  <template #content>
+                    <DataTable
+                      :value="statisticsData.procedureStatistics"
+                      :paginator="true"
+                      :rows="10"
+                      responsiveLayout="scroll"
+                    >
+                      <Column field="number" header="步骤序号" style="width: 100px" />
+                      <Column field="type" header="步骤类型">
+                        <template #body="slotProps">
+                          {{ getProcedureTypeText(slotProps.data.type) }}
+                        </template>
+                      </Column>
+                      <Column field="remark" header="步骤描述" />
+                      <Column field="completedCount" header="完成人数" style="width: 100px">
+                        <template #body="slotProps">
+                          <Badge :value="slotProps.data.completedCount ?? 0" severity="success" />
+                        </template>
+                      </Column>
+                      <Column field="notCompletedCount" header="未完成人数" style="width: 120px">
+                        <template #body="slotProps">
+                          <Badge :value="slotProps.data.notCompletedCount ?? 0" severity="warn" />
+                        </template>
+                      </Column>
+                      <Column field="completionRate" header="完成率" style="width: 120px">
+                        <template #body="slotProps">
+                          <div class="flex items-center gap-2">
+                            <ProgressBar
+                              :value="(slotProps.data.completionRate ?? 0) * 100"
+                              :showValue="false"
+                              style="width: 60px; height: 8px"
+                            />
+                            <span class="text-sm">{{ formatCompletionRate(slotProps.data.completionRate) }}</span>
+                          </div>
+                        </template>
+                      </Column>
+                    </DataTable>
+                  </template>
+                </Card>
+
+                <!-- 学生完成情况 -->
+                <Card>
+                  <template #title>学生完成情况</template>
+                  <template #content>
+                    <DataTable
+                      :value="statisticsData.studentCompletions"
+                      :paginator="true"
+                      :rows="10"
+                      responsiveLayout="scroll"
+                    >
+                      <Column field="studentName" header="学生姓名" sortable />
+                      <Column field="studentUsername" header="学号" sortable />
+                      <Column field="progress" header="进度" sortable>
+                        <template #body="slotProps">
+                          <div class="flex items-center gap-2">
+                            <ProgressBar
+                              :value="parseFloat(slotProps.data.progress?.replace('%', '') || '0')"
+                              :showValue="false"
+                              style="width: 80px; height: 8px"
+                            />
+                            <span class="text-sm">{{ slotProps.data.progress ?? '0%' }}</span>
+                          </div>
+                        </template>
+                      </Column>
+                      <Column field="completedCount" header="已完成步骤" sortable>
+                        <template #body="slotProps">
+                          {{ slotProps.data.completedCount ?? 0 }} / {{ slotProps.data.totalCount ?? 0 }}
+                        </template>
+                      </Column>
+                      <Column field="totalScore" header="总得分" sortable>
+                        <template #body="slotProps">
+                          <Tag
+                            :value="slotProps.data.totalScore ?? '-'"
+                            :severity="slotProps.data.totalScore !== undefined ? 'success' : 'secondary'"
+                          />
+                        </template>
+                      </Column>
+                      <Column field="lastSubmissionTime" header="最后提交时间" sortable>
+                        <template #body="slotProps">
+                          {{ formatDateTime(slotProps.data.lastSubmissionTime) }}
+                        </template>
+                      </Column>
+                    </DataTable>
+                  </template>
+                </Card>
+              </div>
+              <div v-else class="text-center p-8 text-slate-500">
+                暂无统计数据
+              </div>
+            </TabPanel>
           </TabPanels>
         </Tabs>
       </template>
@@ -247,15 +373,19 @@
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Card from 'primevue/card'
+import Badge from 'primevue/badge'
+import ProgressBar from 'primevue/progressbar'
+import Tag from 'primevue/tag'
 import type { StudentAttendanceInfo, AttendanceListResponse } from '@/core/api/generated'
 import { useQueryAttendanceList } from '@/features/teacher/experiment/attendance/hooks/useQueryAttendanceList'
 import { useUpdateAttendanceSuccess } from '@/features/teacher/experiment/attendance/hooks/useMutateAttendanceUpdate'
 import { ATTENDANCE_STATUS, ATTENDANCE_STATUS_OPTIONS } from '@/features/teacher/experiment/attendance/constants'
 import { formatDateTime } from '@/features/shared/utils/formatters'
 import { useQueryClassExperimentDetail } from '@/features/teacher/class/hooks/useQueryClassExperimentDetail'
-import { useQueryStudentSubmissions, useStudentList } from '@/features/teacher/class-experiment/hooks'
+import { useQueryStudentSubmissions, useStudentList, useQueryStatistics } from '@/features/teacher/class-experiment/hooks'
 import type { StudentSummary } from '@/features/teacher/class-experiment/hooks'
 import { getSubmissionStatusText, getSubmissionStatusSeverity } from '@/features/teacher/class-experiment/utils/submission'
+import { getProcedureTypeText, formatCompletionRate } from '@/features/teacher/class-experiment/utils/statistics'
 import { SUBMISSION_STATUS } from '@/features/teacher/class-experiment/constants/submission'
 import {
   LOADING_MESSAGE,
@@ -302,6 +432,18 @@ const updateMutation = useUpdateAttendanceSuccess()
 const attendanceData = computed((): AttendanceListResponse | null => {
   return attendanceList.data.value || null
 })
+
+// ==================== 步骤统计 ====================
+const experimentIdForStats = computed(() => {
+  const id = route.query.experimentId
+  return id ? Number(id) : undefined
+})
+
+const statisticsQuery = useQueryStatistics(classCode, experimentIdForStats, {
+  enable: computed(() => Boolean(classCode.value && experimentIdForStats.value)),
+})
+
+const statisticsData = computed(() => statisticsQuery.data.value)
 
 // ==================== 学生批改 ====================
 // 查询实验详情获取courseId
