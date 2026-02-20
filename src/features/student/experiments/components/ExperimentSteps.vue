@@ -157,7 +157,7 @@ function getStepName(step: StudentProcedureDetailResponse, index: number): strin
 function getStepClass(step: StudentProcedureDetailResponse, index: number): string {
   if (!isStepUnlocked(step, index)) return 'bg-gray-200 text-gray-400'
   if (!isStepAvailable(step)) return 'bg-yellow-100 text-yellow-600'
-  if (step.isLocked) return 'bg-green-100 text-green-600'
+  if (step.isCompleted) return 'bg-green-100 text-green-600'
   return 'bg-blue-100 text-blue-600'
 }
 
@@ -202,14 +202,14 @@ function getStepTypeName(type: number | undefined): string {
 }
 
 function getStepStatusText(step: StudentProcedureDetailResponse): string {
-  if (step.isLocked) return '已完成'
+  if (step.isCompleted) return '已完成'
   const index = procedureSteps.value.indexOf(step)
   if (isStepUnlocked(step, index) && isStepAvailable(step)) return '进行中'
   return '未解锁'
 }
 
 function getStepStatusSeverity(step: StudentProcedureDetailResponse): 'success' | 'info' | 'warning' | 'danger' {
-  if (step.isLocked) return 'success'
+  if (step.isCompleted) return 'success'
   const index = procedureSteps.value.indexOf(step)
   if (isStepUnlocked(step, index) && isStepAvailable(step)) return 'warning'
   return 'info'
