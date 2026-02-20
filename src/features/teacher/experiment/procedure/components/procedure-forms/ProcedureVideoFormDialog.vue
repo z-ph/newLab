@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-model:visible="visible" header="添加视频步骤" :modal="true" :style="{ maxWidth: '100vw' }">
+  <Dialog v-model:visible="visible" :header="dialogTitle" :modal="true" :style="{ maxWidth: '100vw' }">
     <form @submit.prevent="handleSubmit">
       <div class="mb-4 flex flex-col gap-3">
         <!-- 步骤描述 -->
@@ -37,18 +37,19 @@
 
       <div class="flex justify-end gap-2">
         <Button label="取消" outlined @click="handleCancel" />
-        <Button label="添加" type="submit" :loading="mutation.isPending.value" />
+        <Button :label="isEditing ? '更新' : '添加'" type="submit" :loading="mutation.isPending.value" />
       </div>
     </form>
   </Dialog>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useToast } from 'primevue/usetoast'
-import { useCreateVideoProcedure } from '@/features/teacher/experiment/procedure/hooks'
+import { useCreateVideoProcedure, useUpdateVideoProcedure } from '@/features/teacher/experiment/procedure/hooks'
 import { DEFAULT_VALUES } from '@/features/teacher/experiment/procedure/constants'
 import type { BaseProcedureFields } from '@/features/teacher/experiment/procedure/types'
+import type { TeacherProcedureDetailResponse } from '@/core/api/generated'
 import ProcedureVideoForm from './ProcedureVideoForm.vue'
 import ProcedureTimeConfig from './ProcedureTimeConfig.vue'
 
@@ -56,17 +57,33 @@ interface Props {
   experimentId: number
 }
 
-
 const props = defineProps<Props>()
 
 const visible = ref<boolean>(false)
 const toast = useToast()
-const mutation = useCreateVideoProcedure()
+const createMutation = useCreateVideoProcedure()
+const updateMutation = useUpdateVideoProcedure()
+
+// 是否为编辑模式
+const isEditing = ref(false)
+const editingProcedureId = ref<number | null>(null)
+
+// 当前使用的 mutation
+const mutation = computed(() => isEditing.value ? updateMutation : createMutation)
+
+// 对话框标题
+const dialogTitle = computed(() => isEditing.value ? '编辑视频步骤' : '添加视频步骤')
+
 interface Emit {
   (e: 'refresh'): void
 }
 const emit = defineEmits<Emit>()
-const formData = ref<BaseProcedureFields & { videoId: number | null }>({
+
+interface FormData extends BaseProcedureFields {
+  videoId: number | null
+}
+
+const formData = ref<FormData>({
   type: 1, // PROCEDURE_TYPE.VIDEO
   remark: '',
   proportion: DEFAULT_VALUES.PROPORTION,
@@ -75,8 +92,6 @@ const formData = ref<BaseProcedureFields & { videoId: number | null }>({
   durationMinutes: DEFAULT_VALUES.DURATION_MINUTES,
   videoId: null,
 })
-
-
 
 const resetForm = () => {
   formData.value = {
@@ -88,6 +103,34 @@ const resetForm = () => {
     durationMinutes: DEFAULT_VALUES.DURATION_MINUTES,
     videoId: null,
   }
+  isEditing.value = false
+  editingProcedureId.value = null
+}
+
+// 打开添加对话框
+function open() {
+  resetForm()
+  visible.value = true
+}
+
+// 打开编辑对话框
+function openEdit(procedure: TeacherProcedureDetailResponse) {
+  resetForm()
+  isEditing.value = true
+  editingProcedureId.value = procedure.id ?? null
+
+  // 填充表单数据
+  formData.value = {
+    type: 1,
+    remark: procedure.remark ?? '',
+    proportion: procedure.proportion ?? DEFAULT_VALUES.PROPORTION,
+    isSkip: procedure.isSkip ?? false,
+    offsetMinutes: procedure.offsetMinutes ?? DEFAULT_VALUES.OFFSET_MINUTES,
+    durationMinutes: procedure.durationMinutes ?? DEFAULT_VALUES.DURATION_MINUTES,
+    videoId: procedure.videoId ?? null,
+  }
+
+  visible.value = true
 }
 
 const handleSubmit = async () => {
@@ -102,32 +145,48 @@ const handleSubmit = async () => {
     return
   }
 
-  await mutation.mutateAsync({
-    body: {
-      experimentId: props.experimentId,
-      remark: formData.value.remark,
-      proportion: formData.value.proportion,
-      isSkip: formData.value.isSkip,
-      offsetMinutes: formData.value.offsetMinutes,
-      durationMinutes: formData.value.durationMinutes,
-      videoId: formData.value.videoId,
-    },
-  })
+  const body = {
+    remark: formData.value.remark,
+    proportion: formData.value.proportion,
+    isSkip: formData.value.isSkip,
+    offsetMinutes: formData.value.offsetMinutes,
+    durationMinutes: formData.value.durationMinutes,
+    videoId: formData.value.videoId,
+  }
 
-  toast.add({ severity: 'success', summary: '成功', detail: '步骤添加成功', life: 3000 })
+  if (isEditing.value) {
+    // 编辑模式
+    await updateMutation.mutateAsync({
+      body: {
+        id: editingProcedureId.value!,
+        ...body,
+      },
+    })
+    toast.add({ severity: 'success', summary: '成功', detail: '步骤更新成功', life: 3000 })
+  } else {
+    // 添加模式
+    await createMutation.mutateAsync({
+      body: {
+        ...body,
+        experimentId: props.experimentId,
+      },
+    })
+    toast.add({ severity: 'success', summary: '成功', detail: '步骤添加成功', life: 3000 })
+  }
+
   visible.value = false
   resetForm()
   emit('refresh')
 }
-function open() {
-  visible.value = true
-}
+
 function handleCancel() {
   visible.value = false
   resetForm()
 }
+
 defineExpose({
   open,
+  openEdit,
   handleCancel
 })
 </script>

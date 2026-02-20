@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-model:visible="visible" header="添加题库答题步骤" :modal="true" :style="{ maxWidth: '100vw' }">
+  <Dialog v-model:visible="visible" :header="dialogTitle" :modal="true" :style="{ maxWidth: '100vw' }">
     <form @submit.prevent="handleSubmit">
       <div class="mb-4 flex flex-col gap-3">
         <!-- 步骤描述 -->
@@ -39,19 +39,20 @@
 
       <div class="flex justify-end gap-2">
         <Button label="取消" outlined @click="handleCancel" />
-        <Button label="添加" type="submit" :loading="mutation.isPending.value" />
+        <Button :label="isEditing ? '更新' : '添加'" type="submit" :loading="mutation.isPending.value" />
       </div>
     </form>
   </Dialog>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useToast } from 'primevue/usetoast'
-import { useCreateTopicProcedure } from '@/features/teacher/experiment/procedure/hooks'
+import { useCreateTopicProcedure, useUpdateTopicProcedure } from '@/features/teacher/experiment/procedure/hooks'
 import { PROCEDURE_TYPE, DEFAULT_VALUES } from '@/features/teacher/experiment/procedure/constants'
-import { parseArray } from '@/features/teacher/experiment/procedure/utils'
+import { parseArray, stringifyArray } from '@/features/teacher/experiment/procedure/utils'
 import type { BaseProcedureFields } from '@/features/teacher/experiment/procedure/types'
+import type { TeacherProcedureDetailResponse } from '@/core/api/generated'
 import ProcedureTopicForm from './ProcedureTopicForm.vue'
 import ProcedureTimeConfig from './ProcedureTimeConfig.vue'
 
@@ -65,16 +66,28 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 const visible = ref<boolean>(false)
 const toast = useToast()
-const mutation = useCreateTopicProcedure()
 
-const formData = ref<
-  BaseProcedureFields & {
-    isRandom: boolean
-    topicNumber: number | null
-    topicTags: string[]
-    teacherSelectedTopicIdsStr: string
-  }
->({
+const createMutation = useCreateTopicProcedure()
+const updateMutation = useUpdateTopicProcedure()
+
+// 是否为编辑模式
+const isEditing = ref(false)
+const editingProcedureId = ref<number | null>(null)
+
+// 当前使用的 mutation
+const mutation = computed(() => isEditing.value ? updateMutation : createMutation)
+
+// 对话框标题
+const dialogTitle = computed(() => isEditing.value ? '编辑题库答题步骤' : '添加题库答题步骤')
+
+interface FormData extends BaseProcedureFields {
+  isRandom: boolean
+  topicNumber: number | null
+  topicTags: string[]
+  teacherSelectedTopicIdsStr: string
+}
+
+const formData = ref<FormData>({
   type: PROCEDURE_TYPE.TOPIC,
   remark: '',
   proportion: DEFAULT_VALUES.PROPORTION,
@@ -100,6 +113,37 @@ const resetForm = () => {
     topicTags: [],
     teacherSelectedTopicIdsStr: '',
   }
+  isEditing.value = false
+  editingProcedureId.value = null
+}
+
+// 打开添加对话框
+function open() {
+  resetForm()
+  visible.value = true
+}
+
+// 打开编辑对话框
+function openEdit(procedure: TeacherProcedureDetailResponse) {
+  resetForm()
+  isEditing.value = true
+  editingProcedureId.value = procedure.id ?? null
+
+  // 填充表单数据
+  formData.value = {
+    type: PROCEDURE_TYPE.TOPIC,
+    remark: procedure.remark ?? '',
+    proportion: procedure.proportion ?? DEFAULT_VALUES.PROPORTION,
+    isSkip: procedure.isSkip ?? false,
+    offsetMinutes: procedure.offsetMinutes ?? DEFAULT_VALUES.OFFSET_MINUTES,
+    durationMinutes: procedure.durationMinutes ?? DEFAULT_VALUES.DURATION_MINUTES,
+    isRandom: procedure.topicIsRandom ?? false,
+    topicNumber: procedure.topicNumber ?? null,
+    topicTags: procedure.topicTags ? procedure.topicTags.split(',').filter(Boolean) : [],
+    teacherSelectedTopicIdsStr: stringifyArray(procedure.topicIds),
+  }
+
+  visible.value = true
 }
 
 const handleSubmit = async () => {
@@ -109,8 +153,7 @@ const handleSubmit = async () => {
     return
   }
 
-  const body: any = {
-    experimentId: props.experimentId,
+  const body: Record<string, unknown> = {
     remark: formData.value.remark,
     proportion: formData.value.proportion,
     isSkip: formData.value.isSkip,
@@ -138,16 +181,29 @@ const handleSubmit = async () => {
     body.teacherSelectedTopicIds = ids.map(Number)
   }
 
-  await mutation.mutateAsync({ body })
+  if (isEditing.value) {
+    // 编辑模式
+    await updateMutation.mutateAsync({
+      body: {
+        id: editingProcedureId.value!,
+        ...body,
+      },
+    })
+    toast.add({ severity: 'success', summary: '成功', detail: '步骤更新成功', life: 3000 })
+  } else {
+    // 添加模式
+    await createMutation.mutateAsync({
+      body: {
+        ...body,
+        experimentId: props.experimentId,
+      },
+    })
+    toast.add({ severity: 'success', summary: '成功', detail: '步骤添加成功', life: 3000 })
+  }
 
-  toast.add({ severity: 'success', summary: '成功', detail: '步骤添加成功', life: 3000 })
   visible.value = false
   resetForm()
   emit('refresh')
-}
-
-function open() {
-  visible.value = true
 }
 
 function handleCancel() {
@@ -157,6 +213,7 @@ function handleCancel() {
 
 defineExpose({
   open,
+  openEdit,
   handleCancel,
 })
 </script>

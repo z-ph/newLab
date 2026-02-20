@@ -103,13 +103,8 @@ const handleOpenAddDialog = () => {
   proceduresQuery.refetch()
 }
 
-const handleEdit = (_procedure: TeacherProcedureDetailResponse) => {
-  toast.add({
-    severity: 'info',
-    summary: '提示',
-    detail: '编辑步骤功能开发中',
-    life: 3000,
-  })
+const handleEdit = (procedure: TeacherProcedureDetailResponse) => {
+  procedureFormDialogRef.value?.openEdit(procedure)
 }
 
 const handleDelete = (procedure: TeacherProcedureDetailResponse) => {

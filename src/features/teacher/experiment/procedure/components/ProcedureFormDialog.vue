@@ -68,6 +68,7 @@ import { PROCEDURE_TYPE_OPTIONS, PROCEDURE_TYPE } from '@/features/teacher/exper
 import ProcedureVideoFormDialog from './procedure-forms/ProcedureVideoFormDialog.vue'
 import ProcedureDataCollectionFormDialog from './procedure-forms/ProcedureDataCollectionFormDialog.vue'
 import ProcedureTopicFormDialog from './procedure-forms/ProcedureTopicFormDialog.vue'
+import type { TeacherProcedureDetailResponse } from '@/core/api/generated'
 
 interface Props {
   experimentId: number
@@ -94,10 +95,33 @@ const topicDialogRef = ref<InstanceType<typeof ProcedureTopicFormDialog>>()
 // 类型选择对话框的可见性
 const typeSelectVisible = ref(false)
 
-// 打开对话框
+// 打开添加对话框
 function open() {
   procedureType.value = undefined
   typeSelectVisible.value = true
+}
+
+// 打开编辑对话框
+function openEdit(procedure: TeacherProcedureDetailResponse) {
+  // 根据步骤类型打开对应的对话框
+  const type = procedure.type
+
+  if (type === PROCEDURE_TYPE.VIDEO) {
+    procedureType.value = PROCEDURE_TYPE.VIDEO
+    setTimeout(() => {
+      videoDialogRef.value?.openEdit(procedure)
+    }, 0)
+  } else if (type === PROCEDURE_TYPE.DATA_COLLECTION) {
+    procedureType.value = PROCEDURE_TYPE.DATA_COLLECTION
+    setTimeout(() => {
+      dataCollectionDialogRef.value?.openEdit(procedure)
+    }, 0)
+  } else if (type === PROCEDURE_TYPE.TOPIC) {
+    procedureType.value = PROCEDURE_TYPE.TOPIC
+    setTimeout(() => {
+      topicDialogRef.value?.openEdit(procedure)
+    }, 0)
+  }
 }
 
 // 选择步骤类型
@@ -125,5 +149,6 @@ function handleCancel() {
 
 defineExpose({
   open,
+  openEdit,
 })
 </script>

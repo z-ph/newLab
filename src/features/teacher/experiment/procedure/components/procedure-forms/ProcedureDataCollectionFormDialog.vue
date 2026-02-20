@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-model:visible="visible" header="添加数据收集步骤" :modal="true" :style="{ maxWidth: '100vw' }">
+  <Dialog v-model:visible="visible" :header="dialogTitle" :modal="true" :style="{ maxWidth: '100vw' }">
     <form @submit.prevent="handleSubmit">
       <div class="mb-4 flex flex-col gap-3">
         <!-- 步骤描述 -->
@@ -74,19 +74,20 @@
 
       <div class="flex justify-end gap-2">
         <Button label="取消" outlined @click="handleCancel" />
-        <Button label="添加" type="submit" :loading="mutation.isPending.value" />
+        <Button :label="isEditing ? '更新' : '添加'" type="submit" :loading="mutation.isPending.value" />
       </div>
     </form>
   </Dialog>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useToast } from 'primevue/usetoast'
-import { useCreateDataCollectionProcedure } from '@/features/teacher/experiment/procedure/hooks'
+import { useCreateDataCollectionProcedure, useUpdateDataCollectionProcedure } from '@/features/teacher/experiment/procedure/hooks'
 import { PROCEDURE_TYPE, DEFAULT_VALUES } from '@/features/teacher/experiment/procedure/constants'
 import { parseJson, parseArray } from '@/features/teacher/experiment/procedure/utils'
 import type { BaseProcedureFields } from '@/features/teacher/experiment/procedure/types'
+import type { TeacherProcedureDetailResponse } from '@/core/api/generated'
 import ProcedureDataCollectionForm from './ProcedureDataCollectionForm.vue'
 import ProcedureTimeConfig from './ProcedureTimeConfig.vue'
 
@@ -100,20 +101,31 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 const visible = ref<boolean>(false)
 const toast = useToast()
-const mutation = useCreateDataCollectionProcedure()
+const createMutation = useCreateDataCollectionProcedure()
+const updateMutation = useUpdateDataCollectionProcedure()
 
-const formData = ref<
-  BaseProcedureFields & {
-    dataType: number | null
-    dataFieldsJson: string
-    tableRowHeadersStr: string
-    tableColumnHeadersStr: string
-    tableCellAnswersStr: string
-    tolerance: number | null
-    needPhoto: boolean
-    needDoc: boolean
-  }
->({
+// 是否为编辑模式
+const isEditing = ref(false)
+const editingProcedureId = ref<number | null>(null)
+
+// 当前使用的 mutation
+const mutation = computed(() => isEditing.value ? updateMutation : createMutation)
+
+// 对话框标题
+const dialogTitle = computed(() => isEditing.value ? '编辑数据收集步骤' : '添加数据收集步骤')
+
+interface FormData extends BaseProcedureFields {
+  dataType: number | null
+  dataFieldsJson: string
+  tableRowHeadersStr: string
+  tableColumnHeadersStr: string
+  tableCellAnswersStr: string
+  tolerance: number | null
+  needPhoto: boolean
+  needDoc: boolean
+}
+
+const formData = ref<FormData>({
   type: PROCEDURE_TYPE.DATA_COLLECTION,
   remark: '',
   proportion: DEFAULT_VALUES.PROPORTION,
@@ -147,6 +159,41 @@ const resetForm = () => {
     needPhoto: false,
     needDoc: false,
   }
+  isEditing.value = false
+  editingProcedureId.value = null
+}
+
+// 打开添加对话框
+function open() {
+  resetForm()
+  visible.value = true
+}
+
+// 打开编辑对话框
+function openEdit(procedure: TeacherProcedureDetailResponse) {
+  resetForm()
+  isEditing.value = true
+  editingProcedureId.value = procedure.id ?? null
+
+  // 填充表单数据（只填充基本字段，详细配置需要重新设置）
+  formData.value = {
+    type: PROCEDURE_TYPE.DATA_COLLECTION,
+    remark: procedure.remark ?? '',
+    proportion: procedure.proportion ?? DEFAULT_VALUES.PROPORTION,
+    isSkip: procedure.isSkip ?? false,
+    offsetMinutes: procedure.offsetMinutes ?? DEFAULT_VALUES.OFFSET_MINUTES,
+    durationMinutes: procedure.durationMinutes ?? DEFAULT_VALUES.DURATION_MINUTES,
+    dataType: procedure.dataCollectionType ?? null,
+    dataFieldsJson: '',
+    tableRowHeadersStr: '',
+    tableColumnHeadersStr: '',
+    tableCellAnswersStr: '',
+    tolerance: null,
+    needPhoto: procedure.dataNeedPhoto ?? false,
+    needDoc: procedure.dataNeedDoc ?? false,
+  }
+
+  visible.value = true
 }
 
 const handleSubmit = async () => {
@@ -161,8 +208,7 @@ const handleSubmit = async () => {
     return
   }
 
-  const body: any = {
-    experimentId: props.experimentId,
+  const body: Record<string, unknown> = {
     remark: formData.value.remark,
     proportion: formData.value.proportion,
     isSkip: formData.value.isSkip,
@@ -193,16 +239,29 @@ const handleSubmit = async () => {
     body.needDoc = true
   }
 
-  await mutation.mutateAsync({ body })
+  if (isEditing.value) {
+    // 编辑模式
+    await updateMutation.mutateAsync({
+      body: {
+        id: editingProcedureId.value!,
+        ...body,
+      },
+    })
+    toast.add({ severity: 'success', summary: '成功', detail: '步骤更新成功', life: 3000 })
+  } else {
+    // 添加模式
+    await createMutation.mutateAsync({
+      body: {
+        ...body,
+        experimentId: props.experimentId,
+      },
+    })
+    toast.add({ severity: 'success', summary: '成功', detail: '步骤添加成功', life: 3000 })
+  }
 
-  toast.add({ severity: 'success', summary: '成功', detail: '步骤添加成功', life: 3000 })
   visible.value = false
   resetForm()
   emit('refresh')
-}
-
-function open() {
-  visible.value = true
 }
 
 function handleCancel() {
@@ -212,6 +271,7 @@ function handleCancel() {
 
 defineExpose({
   open,
+  openEdit,
   handleCancel,
 })
 </script>

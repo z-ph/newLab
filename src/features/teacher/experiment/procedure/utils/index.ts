@@ -42,6 +42,16 @@ export function parseArray(str: string): string[] | undefined {
   return str.split(',').map(s => s.trim()).filter(Boolean)
 }
 
+/**
+ * 将数组转换为逗号分隔的字符串
+ * @param arr 数组
+ * @returns 逗号分隔的字符串
+ */
+export function stringifyArray(arr?: number[] | string[] | null): string {
+  if (!arr || arr.length === 0) return ''
+  return arr.map(String).join(',')
+}
+
 // 导出时间计算工具类
 export { ProcedureTimeCalculator } from './timeCalculator'
 export type { ProcedureTimeConfig, ProcedureTimeWindow } from './timeCalculator'
