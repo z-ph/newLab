@@ -25,8 +25,7 @@
       :experiments="experiments"
       :is-loading="query.isLoading.value"
       :is-deleting="deleteMutation.isPending.value"
-      @edit="openEdit"
-      @manage="openDetail"
+      @edit="navigateToDetail"
       @refresh="query.refetch()"
     >
       <template #header>
@@ -37,29 +36,25 @@
       </template>
     </ExperimentTable>
 
-    <!-- 创建/编辑实验对话框 -->
+    <!-- 创建实验对话框 -->
     <ExperimentFormDialog v-model:visible="showCreateDialog" @success="handleCreateSuccess" />
-
-    <ExperimentFormDialog v-model:visible="showEditDialog" :experiment="editingExperiment"
-      @success="handleEditSuccess" />
-
-    <!-- 实验详情对框 -->
-    <ExperimentDetailDialog v-model:visible="showDetailDialog" :experiment="selectedExperiment" />
 
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import {
   useQueryExperimentAll,
   useDeleteExperiment,
   ExperimentTable,
   ExperimentFormDialog,
-  ExperimentDetailDialog,
 } from '@/features/teacher/experiment'
 import { useQueryCourseAll } from '@/features/teacher/course'
 import type { ExperimentResponse } from '@/core/api/generated'
+
+const router = useRouter()
 
 // 查询实验列表
 const query = useQueryExperimentAll()
@@ -109,10 +104,6 @@ const experiments = computed(() => {
 
 // 对话框状态
 const showCreateDialog = ref(false)
-const showEditDialog = ref(false)
-const showDetailDialog = ref(false)
-const editingExperiment = ref<ExperimentResponse>()
-const selectedExperiment = ref<ExperimentResponse>()
 
 // 删除实验 mutation（用于 loading 状态）
 const deleteMutation = useDeleteExperiment()
@@ -121,24 +112,18 @@ const openCreateDialog = () => {
   showCreateDialog.value = true
 }
 
-const openEdit = (experiment: ExperimentResponse) => {
-  editingExperiment.value = experiment
-  showEditDialog.value = true
-}
-
-const openDetail = (experiment: ExperimentResponse) => {
-  selectedExperiment.value = experiment
-  showDetailDialog.value = true
+// 跳转到实验详情页面
+const navigateToDetail = (experiment: ExperimentResponse) => {
+  router.push({
+    path: `/teacher/experiments/${experiment.id}/edit`,
+    query: {
+      title: encodeURIComponent(experiment.experimentName || '实验详情'),
+    },
+  })
 }
 
 const handleCreateSuccess = () => {
   showCreateDialog.value = false
-  query.refetch()
-}
-
-const handleEditSuccess = () => {
-  showEditDialog.value = false
-  editingExperiment.value = undefined
   query.refetch()
 }
 </script>

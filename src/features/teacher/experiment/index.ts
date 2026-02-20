@@ -17,6 +17,7 @@ export { default as ProcedureTimeConfig } from './procedure/components/procedure
 // Hooks
 export {
   useQueryExperimentAll,
+  useQueryExperimentPage,
 } from './hooks/useQueryExperiment'
 
 export {

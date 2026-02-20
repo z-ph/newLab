@@ -22,9 +22,7 @@
         <Column key="actions" header="操作">
           <template #body="slotProps">
             <div class="flex gap-2">
-              <Button label="管理" outlined size="small" @click="emit('manage', slotProps.data)" />
-              <Button icon="pi pi-pencil" outlined severity="secondary" size="small"
-                @click="emit('edit', slotProps.data)" />
+              <Button icon="pi-pencil" outlined size="small" @click="emit('edit', slotProps.data)" />
               <Button icon="pi pi-trash" outlined severity="danger" size="small"
                 @click="handleDelete(slotProps.data)" :loading="isDeleting" />
             </div>
@@ -49,7 +47,6 @@ interface Props {
 
 interface Emits {
   (e: 'edit', experiment: ExperimentResponse): void
-  (e: 'manage', experiment: ExperimentResponse): void
   (e: 'refresh'): void
 }
 
