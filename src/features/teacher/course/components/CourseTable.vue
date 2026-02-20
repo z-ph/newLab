@@ -31,7 +31,7 @@
       </DataTable>
     </template>
   </Card>
-  <CourseFormDialog v-on:refresh="query.refetch"/>
+  <CourseFormDialog ref="dialogRef" v-on:refresh="query.refetch"/>
 </template>
 
 <script setup lang="ts">

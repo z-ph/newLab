@@ -38,16 +38,19 @@ export function useQueryClassPage(initial: {
 }) {
   const current = ref(initial.current || 1);
   const size = ref(initial.size || 20);
-  const query = useQueryClassBase(
-    {
-      pageable: true,
-      current: current.value,
-      size: size.value,
-    },
-    {
-      queryKey: computed(() => ["classes-page", current.value, size.value]),
-    },
-  );
+  const query = useQuery({
+    queryKey: computed(() => ["classes-page", current.value, size.value]),
+    queryFn: () =>
+      postApiTeacherClassQuery({
+        body: {
+          pageable: true,
+          current: current.value,
+          size: size.value,
+        },
+        client,
+      }),
+    select: (res) => res.data?.data,
+  });
   return {
     current,
     size,
