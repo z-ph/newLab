@@ -194,6 +194,14 @@ const attendanceList = useQueryAttendanceList({
 // 监听查询结果
 watch(() => attendanceList.data.value, (data) => {
   console.log('attendanceList.data.value:', data)
+  if (data) {
+    console.log('normalAttendanceList:', data.normalAttendanceList)
+    console.log('crossClassAttendanceList:', data.crossClassAttendanceList)
+    console.log('notAttendanceList:', data.notAttendanceList)
+    console.log('normalAttendanceList length:', data.normalAttendanceList?.length)
+    console.log('crossClassAttendanceList length:', data.crossClassAttendanceList?.length)
+    console.log('notAttendanceList length:', data.notAttendanceList?.length)
+  }
 }, { immediate: true })
 
 const updateMutation = useUpdateAttendanceSuccess()

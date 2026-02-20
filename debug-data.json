@@ -1,0 +1,13 @@
+Total messages: 11 (Errors: 0, Warnings: 0)
+
+[DEBUG] [vite] connecting... @ http://localhost:5173/signlab/@vite/client:732
+[DEBUG] [vite] connected. @ http://localhost:5173/signlab/@vite/client:826
+[LOG] === 调试信息 === @ http://localhost:5173/signlab/src/pages/teacher/classes/[classCode]/experiments/[classExperimentId]/detail.page.vue?t=1771517590662:30
+[LOG] classCode: CLASS000001 @ http://localhost:5173/signlab/src/pages/teacher/classes/[classCode]/experiments/[classExperimentId]/detail.page.vue?t=1771517590662:31
+[LOG] classExperimentId: 5 @ http://localhost:5173/signlab/src/pages/teacher/classes/[classCode]/experiments/[classExperimentId]/detail.page.vue?t=1771517590662:32
+[LOG] route.query: {title: %E7%94%B5%E5%AD%90%E5%AE%9E%E9%AA%8C, experimentId: 5} @ http://localhost:5173/signlab/src/pages/teacher/classes/[classCode]/experiments/[classExperimentId]/detail.page.vue?t=1771517590662:33
+[LOG] route.query.experimentId: 5 @ http://localhost:5173/signlab/src/pages/teacher/classes/[classCode]/experiments/[classExperimentId]/detail.page.vue?t=1771517590662:34
+[LOG] ================== @ http://localhost:5173/signlab/src/pages/teacher/classes/[classCode]/experiments/[classExperimentId]/detail.page.vue?t=1771517590662:35
+[LOG] experimentId computed: 5 type: string @ http://localhost:5173/signlab/src/pages/teacher/classes/[classCode]/experiments/[classExperimentId]/detail.page.vue?t=1771517590662:40
+[LOG] attendanceList.data.value: undefined @ http://localhost:5173/signlab/src/pages/teacher/classes/[classCode]/experiments/[classExperimentId]/detail.page.vue?t=1771517590662:46
+[LOG] attendanceList.data.value: Proxy(Object) @ http://localhost:5173/signlab/src/pages/teacher/classes/[classCode]/experiments/[classExperimentId]/detail.page.vue?t=1771517590662:46
