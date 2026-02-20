@@ -56,3 +56,7 @@ export {
   useQueryClassExperiments,
 } from './hooks/useQueryClassExperiments'
 
+export {
+  useQueryClassExperimentDetail,
+} from './hooks/useQueryClassExperimentDetail'
+
