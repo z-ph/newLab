@@ -74,7 +74,15 @@
 
               <!-- 实验标签页 -->
               <TabPanel value="experiments">
-                <div class="mb-4 flex justify-end">
+                <div class="mb-4 flex justify-between items-center">
+                  <Button
+                    :icon="allExpanded ? 'pi pi-minus' : 'pi pi-plus'"
+                    :label="allExpanded ? '全部折叠' : '全部展开'"
+                    outlined
+                    severity="secondary"
+                    @click="toggleAllExpanded"
+                    :disabled="courseGroups.length === 0"
+                  />
                   <Button label="绑定实验" icon="pi pi-plus" @click="openBindExperimentDialog" />
                 </div>
 
@@ -83,7 +91,7 @@
                   <ProgressSpinner />
                 </div>
 
-                <Accordion v-else :value="[]">
+                <Accordion v-else v-model:value="expandedPanels" multiple>
                   <AccordionPanel v-for="courseGroup in courseGroups" :key="courseGroup.courseId" :value="courseGroup.courseId">
                     <AccordionHeader>
                       <div class="flex items-center justify-between w-full">
@@ -316,6 +324,24 @@ const handleRemoveStudent = async (student: StudentClassRelation) => {
 // ==================== 实验管理 ====================
 const { query: experimentQuery } = useQueryClassExperimentsGroupedByCourse(classCode)
 const courseGroups = computed(() => toCourseGroups(experimentQuery.data.value))
+
+// 折叠面板状态
+const expandedPanels = ref<string[]>([])
+
+// 是否全部展开
+const allExpanded = computed(() => {
+  if (courseGroups.value.length === 0) return false
+  return courseGroups.value.every((group) => expandedPanels.value.includes(group.courseId))
+})
+
+// 一键展开/折叠
+const toggleAllExpanded = () => {
+  if (allExpanded.value) {
+    expandedPanels.value = []
+  } else {
+    expandedPanels.value = courseGroups.value.map((group) => group.courseId)
+  }
+}
 
 // 删除实验
 const deleteExperimentMutation = useUnbindExperiment()
