@@ -2,12 +2,20 @@ import type { TopicDetailResponse } from "@/core/api/generated"
 
 /**
  * 格式化选项内容
- * 输入: "A:选项A$B:选项B"
+ * 输入: JSON 字符串 '{"A":"选项A","B":"选项B"}'
  * 输出: ["A: 选项A", "B: 选项B"]
  */
 export function formatChoices(choices?: string): string[] {
   if (!choices) return []
-  return choices.split("$").map((choice) => choice.replace(/^([A-Z]):/, "$1: "))
+
+  try {
+    const parsed = JSON.parse(choices) as Record<string, string>
+    return Object.entries(parsed)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([label, content]) => `${label}: ${content}`)
+  } catch {
+    return []
+  }
 }
 
 /**

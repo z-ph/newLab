@@ -2,8 +2,8 @@
  * 学生端题目工具函数
  */
 
-import { TOPIC_TYPE, CHOICE_LABELS } from '../constants/topic'
-import type { TopicDetail5 } from '@/core/api/generated'
+import { TOPIC_TYPE } from '../constants/topic'
+import type { TopicItem1 } from '@/core/api/generated'
 
 /**
  * 解析后的选项结构
@@ -15,35 +15,23 @@ export interface ParsedChoice {
 
 /**
  * 解析题目选项
- * 支持格式: "A. 选项1\nB. 选项2\nC. 选项3\nD. 选项4"
+ * 格式: JSON 字符串 '{"A":"选项A","B":"选项B","C":"选项C","D":"选项D"}'
  */
 export function parseTopicChoices(choices?: string): ParsedChoice[] {
   if (!choices) return []
 
-  // 按换行符分割
-  const lines = choices.split('\n').filter(line => line.trim())
-  const result: ParsedChoice[] = []
-
-  for (const line of lines) {
-    // 匹配格式: "A. 内容" 或 "A、内容" 或 "A 内容"
-    const match = line.match(/^([A-H])[.、\s]+(.+)$/i)
-    if (match && match[1] && match[2]) {
-      result.push({
-        label: match[1].toUpperCase(),
-        content: match[2].trim(),
-      })
-    }
+  try {
+    const parsed = JSON.parse(choices) as Record<string, string>
+    return Object.entries(parsed)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([label, content]) => ({
+        label,
+        content: content.trim(),
+      }))
+      .filter(choice => choice.content)
+  } catch {
+    return []
   }
-
-  // 如果没有匹配到标准格式，尝试简单分割
-  if (result.length === 0 && lines.length > 0) {
-    return lines.map((line, index) => ({
-      label: CHOICE_LABELS[index] || String(index + 1),
-      content: line.trim(),
-    }))
-  }
-
-  return result
 }
 
 /**
@@ -153,7 +141,7 @@ export function buildAnswersPayload(
  * 检查是否所有必答题目都已作答
  */
 export function checkAllRequiredAnswered(
-  topics: TopicDetail5[],
+  topics: TopicItem1[],
   answers: Record<number, string>
 ): boolean {
   return topics.every(topic => {

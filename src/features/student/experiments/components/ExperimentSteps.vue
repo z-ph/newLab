@@ -1,60 +1,68 @@
 <template>
   <div class="space-y-3">
-    <!-- 实验步骤列表 -->
-    <Card
-      v-for="(step, index) in procedureSteps"
-      :key="step.id"
-      :class="{ 'cursor-pointer': isStepClickable(step) }"
-      @click="handleStepClick(step)"
-    >
-      <template #title>
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <div
-              class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium"
-              :class="getStepClass(step)"
-            >
-              {{ index + 1 }}
-            </div>
-            <span class="text-sm">{{ getStepName(step, index) }}</span>
-            <i v-if="isStepClickable(step)" class="pi pi-chevron-right text-xs text-gray-400 ml-auto" />
-          </div>
-          <!-- 时间状态：仅在进行中且剩余时间大于0时显示 -->
-          <Tag
-            v-if="shouldShowTimeTag(step)"
-            :value="getTimeValidation(step)?.statusText"
-            :severity="getStepTimeSeverity(step)"
-            class="text-xs"
-          />
-        </div>
-      </template>
+    <!-- 加载中状态 -->
+    <div v-if="isLoading" class="text-center py-12">
+      <i class="pi pi-spin pi-spinner text-4xl text-blue-500 mb-3" />
+      <p class="text-sm text-gray-500">正在加载实验步骤...</p>
+    </div>
 
-      <template #content>
-        <div class="py-4">
+    <!-- 实验步骤列表 -->
+    <template v-else-if="procedureSteps.length > 0">
+      <Card
+        v-for="(step, index) in procedureSteps"
+        :key="step.id"
+        :class="{ 'cursor-pointer': isStepClickable(step) }"
+        @click="handleStepClick(step)"
+      >
+        <template #title>
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
-              <i :class="getStepIcon(step.type)" class="text-gray-500" />
-              <span class="text-xs text-gray-600">{{ getStepTypeName(step.type) }}</span>
+              <div
+                class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium"
+                :class="getStepClass(step)"
+              >
+                {{ index + 1 }}
+              </div>
+              <span class="text-sm">{{ getStepName(step, index) }}</span>
+              <i v-if="isStepClickable(step)" class="pi pi-chevron-right text-xs text-gray-400 ml-auto" />
             </div>
+            <!-- 时间状态：仅在进行中且剩余时间大于0时显示 -->
             <Tag
-              :value="getStepStatusText(step)"
-              :severity="getStepStatusSeverity(step)"
+              v-if="shouldShowTimeTag(step)"
+              :value="getTimeValidation(step)?.statusText"
+              :severity="getStepTimeSeverity(step)"
               class="text-xs"
             />
           </div>
-          <!-- 不可访问原因 -->
-          <p v-if="getStepStatus(step) === STEP_STATUS.INACCESSIBLE" class="text-xs text-red-500 mt-2">
-            <i class="pi pi-lock mr-1" />
-            {{ getInaccessibleReason(step) }}
-          </p>
-          <!-- 步骤描述 -->
-          <p v-else-if="step.remark" class="text-xs text-gray-500 mt-2 line-clamp-2">{{ step.remark }}</p>
-        </div>
-      </template>
-    </Card>
+        </template>
+
+        <template #content>
+          <div class="py-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <i :class="getStepIcon(step.type)" class="text-gray-500" />
+                <span class="text-xs text-gray-600">{{ getStepTypeName(step.type) }}</span>
+              </div>
+              <Tag
+                :value="getStepStatusText(step)"
+                :severity="getStepStatusSeverity(step)"
+                class="text-xs"
+              />
+            </div>
+            <!-- 不可访问原因 -->
+            <p v-if="getStepStatus(step) === STEP_STATUS.INACCESSIBLE" class="text-xs text-red-500 mt-2">
+              <i class="pi pi-lock mr-1" />
+              {{ getInaccessibleReason(step) }}
+            </p>
+            <!-- 步骤描述 -->
+            <p v-else-if="step.remark" class="text-xs text-gray-500 mt-2 line-clamp-2">{{ step.remark }}</p>
+          </div>
+        </template>
+      </Card>
+    </template>
 
     <!-- 空状态 -->
-    <div v-if="procedureSteps.length === 0" class="text-center py-12">
+    <div v-else class="text-center py-12">
       <i class="pi pi-list text-4xl text-gray-300 mb-3" />
       <p class="text-sm text-gray-500">暂无实验步骤</p>
     </div>
@@ -82,10 +90,13 @@ const props = defineProps<Props>()
 const router = useRouter()
 
 // 获取实验详情（包含步骤列表）
-const { experimentDetail } = useQueryStudentExperimentDetail(
+const { experimentDetail, query } = useQueryStudentExperimentDetail(
   computed(() => Number(props.experimentId)),
   computed(() => props.classCode)
 )
+
+// 加载状态
+const isLoading = computed(() => query.isLoading.value)
 
 // 实验步骤列表
 const procedureSteps = computed(() => experimentDetail.value?.procedures || [])

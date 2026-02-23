@@ -90,7 +90,6 @@ import { useQueryProcedureDetail, useQueryStudentExperimentDetail, useSubmitTopi
 import { getDefaultAnswer, checkAllRequiredAnswered, buildAnswersPayload, parseSubmittedAnswer } from '../utils/topic'
 import TopicQuestion from './components/TopicQuestion.vue'
 import TopicSubmittedStatus from './components/TopicSubmittedStatus.vue'
-import type { TopicDetail5 } from '@/core/api/generated'
 
 interface Props {
   stepId: number
@@ -102,9 +101,10 @@ interface Props {
 const props = defineProps<Props>()
 
 // 获取步骤详情
-const { procedureDetail: stepInfo } = useQueryProcedureDetail(
+const { procedureDetail: stepInfo, topics } = useQueryProcedureDetail(
   computed(() => props.stepId),
   {
+    courseId: computed(() => props.courseId),
     experimentId: computed(() => props.experimentId),
     classCode: computed(() => props.classCode),
   }
@@ -133,9 +133,6 @@ const isAccessible = computed(() => stepInfo.value?.isAccessible ?? true)
 
 // 不可访问原因
 const inaccessibleReason = computed(() => stepInfo.value?.inaccessibleReason)
-
-// 题目列表
-const topics = computed<TopicDetail5[]>(() => stepInfo.value?.topics ?? [])
 
 // 题目数量
 const topicCount = computed(() => topics.value.length)

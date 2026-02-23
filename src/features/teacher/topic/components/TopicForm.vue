@@ -262,9 +262,16 @@ watch(() => props.topic, (newTopic) => {
       tagIds: newTopic.tags?.map((t) => t.tagId!).filter(Boolean),
     }
 
-    // 解析选项
+    // 解析选项（JSON 字符串格式）
     if (newTopic.choices) {
-      choiceList.value = newTopic.choices.split("$")
+      try {
+        const parsed = JSON.parse(newTopic.choices) as Record<string, string>
+        choiceList.value = Object.entries(parsed)
+          .sort(([a], [b]) => a.localeCompare(b))
+          .map(([, content]) => content)
+      } catch {
+        choiceList.value = ["", "", "", ""]
+      }
     } else {
       choiceList.value = ["", "", "", ""]
     }
@@ -434,14 +441,20 @@ async function handleSubmit() {
     return
   }
 
-  // 构建选项字符串
+  // 构建选项字符串（JSON 格式）
   if (showChoices.value) {
     const validOptions = choiceList.value.filter(Boolean)
     if (validOptions.length < 2) {
       toast.warn("请至少填写2个选项")
       return
     }
-    formData.value.choices = validOptions.join("$")
+    // 转换为 JSON 字符串格式 {"A":"选项A","B":"选项B",...}
+    const choicesObj: Record<string, string> = {}
+    validOptions.forEach((content, index) => {
+      const label = String.fromCharCode(65 + index) // A, B, C, ...
+      choicesObj[label] = content
+    })
+    formData.value.choices = JSON.stringify(choicesObj)
   } else {
     formData.value.choices = undefined
   }

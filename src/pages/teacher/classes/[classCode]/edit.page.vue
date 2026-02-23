@@ -348,7 +348,7 @@ const deleteExperimentMutation = useUnbindExperiment()
 
 // 删除实验
 const handleDeleteExperiment = (experiment: ExperimentDetailItem) => {
-  const experimentId = experiment.experimentId?.toString()
+  const experimentId = experiment.experimentId
   if (!experimentId || !classCode.value) return
 
   confirm.require({

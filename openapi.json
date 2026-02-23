@@ -1554,7 +1554,7 @@
             "description": "实验ID",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "integer"
             }
           }
         ],
@@ -4753,26 +4753,6 @@
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponsePageResponseClassResponse",
                   "description": "查询结果"
-                },
-                "example": {
-                  "code": 0,
-                  "message": "",
-                  "data": {
-                    "current": 0,
-                    "size": 0,
-                    "total": 0,
-                    "pages": 0,
-                    "records": [
-                      {
-                        "classCode": "",
-                        "className": "",
-                        "studentCount": 0,
-                        "creator": "",
-                        "createTime": "",
-                        "updateTime": ""
-                      }
-                    ]
-                  }
                 }
               }
             },
@@ -5525,96 +5505,6 @@
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponsePageResponseStudentClassRelationsResponse",
                   "description": "学生列表"
-                },
-                "examples": {
-                  "1": {
-                    "summary": "成功示例",
-                    "value": {
-                      "code": 0,
-                      "message": "",
-                      "data": {
-                        "current": 0,
-                        "size": 0,
-                        "total": 0,
-                        "pages": 0,
-                        "records": [
-                          {
-                            "id": 0,
-                            "studentUsername": "",
-                            "classCode": "",
-                            "bindTime": "",
-                            "isDeleted": 0
-                          }
-                        ]
-                      }
-                    }
-                  },
-                  "2": {
-                    "summary": "成功示例",
-                    "value": {
-                      "code": 0,
-                      "message": "",
-                      "data": {
-                        "current": 0,
-                        "size": 0,
-                        "total": 0,
-                        "pages": 0,
-                        "records": [
-                          {
-                            "id": 0,
-                            "studentUsername": "",
-                            "classCode": "",
-                            "bindTime": "",
-                            "isDeleted": 0
-                          }
-                        ]
-                      }
-                    }
-                  },
-                  "3": {
-                    "summary": "成功示例",
-                    "value": {
-                      "code": 0,
-                      "message": "",
-                      "data": {
-                        "current": 0,
-                        "size": 0,
-                        "total": 0,
-                        "pages": 0,
-                        "records": [
-                          {
-                            "id": 0,
-                            "studentUsername": "",
-                            "classCode": "",
-                            "bindTime": "",
-                            "studentName": ""
-                          }
-                        ]
-                      }
-                    }
-                  },
-                  "4": {
-                    "summary": "成功示例",
-                    "value": {
-                      "code": 0,
-                      "message": "",
-                      "data": {
-                        "current": 0,
-                        "size": 0,
-                        "total": 0,
-                        "pages": 0,
-                        "records": [
-                          {
-                            "id": 0,
-                            "studentUsername": "",
-                            "classCode": "",
-                            "bindTime": "",
-                            "studentName": ""
-                          }
-                        ]
-                      }
-                    }
-                  }
                 }
               }
             },
@@ -5917,32 +5807,6 @@
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseBatchBindClassesToExperimentResponse",
                   "description": "绑定结果"
-                },
-                "example": {
-                  "code": 0,
-                  "message": "",
-                  "data": {
-                    "courseId": "",
-                    "experimentId": "",
-                    "successCount": 0,
-                    "failCount": 0,
-                    "successList": [
-                      {
-                        "classCode": "",
-                        "className": "",
-                        "success": false,
-                        "message": ""
-                      }
-                    ],
-                    "failList": [
-                      {
-                        "classCode": "",
-                        "className": "",
-                        "success": false,
-                        "message": ""
-                      }
-                    ]
-                  }
                 }
               }
             },
@@ -6153,7 +6017,7 @@
             "description": "实验ID",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "integer"
             }
           }
         ],
@@ -6238,7 +6102,7 @@
             "description": "实验ID",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "integer"
             }
           }
         ],
@@ -9835,6 +9699,82 @@
         ]
       }
     },
+    "/api/teacher/export/course-experiment-grades": {
+      "post": {
+        "summary": "导出课程实验成绩表",
+        "deprecated": false,
+        "description": "包含班级、用户名、姓名、各实验成绩、课程总成绩",
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExportCourseDataRequest",
+                "description": "导出请求（包含课程ID和班级编号列表）"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/teacher/export/course-attendance": {
+      "post": {
+        "summary": "导出课程考勤表",
+        "deprecated": false,
+        "description": "包含班级、用户名、姓名、各实验考勤状态",
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExportCourseDataRequest",
+                "description": "导出请求（包含课程ID和班级编号列表）"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
     "/api/teacher/attendance/list": {
       "get": {
         "summary": "查询指定班级实验的签到情况",
@@ -9870,42 +9810,6 @@
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseAttendanceListResponse",
                   "description": "签到列表响应"
-                },
-                "example": {
-                  "code": 0,
-                  "message": "",
-                  "data": {
-                    "normalAttendanceList": [
-                      {
-                        "attendanceId": 0,
-                        "studentUsername": "",
-                        "studentName": "",
-                        "className": "",
-                        "attendanceStatus": 0,
-                        "attendanceTime": ""
-                      }
-                    ],
-                    "crossClassAttendanceList": [
-                      {
-                        "attendanceId": 0,
-                        "studentUsername": "",
-                        "studentName": "",
-                        "className": "",
-                        "attendanceStatus": 0,
-                        "attendanceTime": ""
-                      }
-                    ],
-                    "notAttendanceList": [
-                      {
-                        "attendanceId": 0,
-                        "studentUsername": "",
-                        "studentName": "",
-                        "className": "",
-                        "attendanceStatus": 0,
-                        "attendanceTime": ""
-                      }
-                    ]
-                  }
                 }
               }
             },
@@ -9949,40 +9853,6 @@
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseBoolean",
                   "description": "是否修改成功"
-                },
-                "examples": {
-                  "1": {
-                    "summary": "成功示例",
-                    "value": {
-                      "code": 0,
-                      "message": "",
-                      "data": false
-                    }
-                  },
-                  "2": {
-                    "summary": "成功示例",
-                    "value": {
-                      "code": 0,
-                      "message": "",
-                      "data": false
-                    }
-                  },
-                  "3": {
-                    "summary": "成功示例",
-                    "value": {
-                      "code": 0,
-                      "message": "",
-                      "data": false
-                    }
-                  },
-                  "4": {
-                    "summary": "成功示例",
-                    "value": {
-                      "code": 0,
-                      "message": "",
-                      "data": false
-                    }
-                  }
                 }
               }
             },
@@ -10489,11 +10359,6 @@
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseLong",
                   "description": "标签ID"
-                },
-                "example": {
-                  "code": 0,
-                  "message": "",
-                  "data": 0
                 }
               }
             },
@@ -10729,11 +10594,6 @@
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseVoid",
                   "description": "是否解绑成功"
-                },
-                "example": {
-                  "code": 0,
-                  "message": "",
-                  "data": null
                 }
               }
             },
@@ -10771,19 +10631,6 @@
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseExperimentResponse",
                   "description": "实验详情"
-                },
-                "example": {
-                  "code": 0,
-                  "message": "",
-                  "data": {
-                    "id": 0,
-                    "courseId": "",
-                    "experimentName": "",
-                    "percentage": 0,
-                    "createdTime": "",
-                    "endTime": "",
-                    "updatedTime": ""
-                  }
                 }
               }
             },
@@ -10823,21 +10670,6 @@
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseListExperimentResponse",
                   "description": "实验列表"
-                },
-                "example": {
-                  "code": 0,
-                  "message": "",
-                  "data": [
-                    {
-                      "id": 0,
-                      "courseId": "",
-                      "experimentName": "",
-                      "percentage": 0,
-                      "createdTime": "",
-                      "endTime": "",
-                      "updatedTime": ""
-                    }
-                  ]
                 }
               }
             },
@@ -16446,6 +16278,7 @@
             "in": "query",
             "description": "课程ID",
             "required": true,
+            "example": "COURSE000001",
             "schema": {
               "type": "string"
             }
@@ -16455,6 +16288,7 @@
             "in": "query",
             "description": "实验ID",
             "required": true,
+            "example": 5,
             "schema": {
               "type": "integer"
             }
@@ -16464,6 +16298,7 @@
             "in": "query",
             "description": "步骤ID",
             "required": true,
+            "example": 16,
             "schema": {
               "type": "integer"
             }
@@ -16477,260 +16312,6 @@
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseStudentProcedureDetailWithoutAnswerResponse",
                   "description": "步骤详情（不含答案）"
-                },
-                "examples": {
-                  "1": {
-                    "summary": "成功示例",
-                    "value": {
-                      "code": 0,
-                      "message": "",
-                      "data": {
-                        "id": 0,
-                        "number": 0,
-                        "type": 0,
-                        "remark": "",
-                        "proportion": 0,
-                        "videoDetail": {
-                          "id": 0,
-                          "title": "",
-                          "seconds": 0,
-                          "playKey": ""
-                        },
-                        "dataCollectionDetail": {
-                          "id": 0,
-                          "type": 0,
-                          "remark": "",
-                          "needPhoto": false,
-                          "needDoc": false
-                        },
-                        "topicDetail": {
-                          "id": 0,
-                          "isRandom": false,
-                          "number": 0,
-                          "tags": "",
-                          "topics": [
-                            {
-                              "id": 0,
-                              "number": 0,
-                              "type": 0,
-                              "content": "",
-                              "choices": {
-                                "": ""
-                              }
-                            }
-                          ]
-                        },
-                        "timedQuizDetail": {
-                          "id": 0,
-                          "isRandom": false,
-                          "number": 0,
-                          "quizTimeLimit": 0,
-                          "secretKey": "",
-                          "remainingTime": 0,
-                          "topics": [
-                            {
-                              "id": 0,
-                              "number": 0,
-                              "type": 0,
-                              "content": "",
-                              "choices": {
-                                "": ""
-                              }
-                            }
-                          ]
-                        }
-                      }
-                    }
-                  },
-                  "2": {
-                    "summary": "成功示例",
-                    "value": {
-                      "code": 0,
-                      "message": "",
-                      "data": {
-                        "id": 0,
-                        "number": 0,
-                        "type": 0,
-                        "remark": "",
-                        "proportion": 0,
-                        "videoDetail": {
-                          "id": 0,
-                          "title": "",
-                          "seconds": 0,
-                          "playKey": ""
-                        },
-                        "dataCollectionDetail": {
-                          "id": 0,
-                          "type": 0,
-                          "remark": "",
-                          "needPhoto": false,
-                          "needDoc": false
-                        },
-                        "topicDetail": {
-                          "id": 0,
-                          "isRandom": false,
-                          "number": 0,
-                          "tags": "",
-                          "topics": [
-                            {
-                              "id": 0,
-                              "number": 0,
-                              "type": 0,
-                              "content": "",
-                              "choices": {
-                                "": ""
-                              }
-                            }
-                          ]
-                        },
-                        "timedQuizDetail": {
-                          "id": 0,
-                          "isRandom": false,
-                          "number": 0,
-                          "quizTimeLimit": 0,
-                          "secretKey": "",
-                          "remainingTime": 0,
-                          "topics": [
-                            {
-                              "id": 0,
-                              "number": 0,
-                              "type": 0,
-                              "content": "",
-                              "choices": {
-                                "": ""
-                              }
-                            }
-                          ]
-                        }
-                      }
-                    }
-                  },
-                  "3": {
-                    "summary": "成功示例",
-                    "value": {
-                      "code": 0,
-                      "message": "",
-                      "data": {
-                        "id": 0,
-                        "number": 0,
-                        "type": 0,
-                        "remark": "",
-                        "proportion": 0,
-                        "videoDetail": {
-                          "id": 0,
-                          "title": "",
-                          "seconds": 0,
-                          "playKey": ""
-                        },
-                        "dataCollectionDetail": {
-                          "id": 0,
-                          "type": 0,
-                          "remark": "",
-                          "needPhoto": false,
-                          "needDoc": false
-                        },
-                        "topicDetail": {
-                          "id": 0,
-                          "isRandom": false,
-                          "number": 0,
-                          "tags": "",
-                          "topics": [
-                            {
-                              "id": 0,
-                              "number": 0,
-                              "type": 0,
-                              "content": "",
-                              "choices": {
-                                "": ""
-                              }
-                            }
-                          ]
-                        },
-                        "timedQuizDetail": {
-                          "id": 0,
-                          "isRandom": false,
-                          "number": 0,
-                          "quizTimeLimit": 0,
-                          "secretKey": "",
-                          "remainingTime": 0,
-                          "topics": [
-                            {
-                              "id": 0,
-                              "number": 0,
-                              "type": 0,
-                              "content": "",
-                              "choices": {
-                                "": ""
-                              }
-                            }
-                          ]
-                        }
-                      }
-                    }
-                  },
-                  "4": {
-                    "summary": "成功示例",
-                    "value": {
-                      "code": 0,
-                      "message": "",
-                      "data": {
-                        "id": 0,
-                        "number": 0,
-                        "type": 0,
-                        "remark": "",
-                        "proportion": 0,
-                        "videoDetail": {
-                          "id": 0,
-                          "title": "",
-                          "seconds": 0,
-                          "playKey": ""
-                        },
-                        "dataCollectionDetail": {
-                          "id": 0,
-                          "type": 0,
-                          "remark": "",
-                          "needPhoto": false,
-                          "needDoc": false
-                        },
-                        "topicDetail": {
-                          "id": 0,
-                          "isRandom": false,
-                          "number": 0,
-                          "tags": "",
-                          "topics": [
-                            {
-                              "id": 0,
-                              "number": 0,
-                              "type": 0,
-                              "content": "",
-                              "choices": {
-                                "": ""
-                              }
-                            }
-                          ]
-                        },
-                        "timedQuizDetail": {
-                          "id": 0,
-                          "isRandom": false,
-                          "number": 0,
-                          "quizTimeLimit": 0,
-                          "secretKey": "",
-                          "remainingTime": 0,
-                          "topics": [
-                            {
-                              "id": 0,
-                              "number": 0,
-                              "type": 0,
-                              "content": "",
-                              "choices": {
-                                "": ""
-                              }
-                            }
-                          ]
-                        }
-                      }
-                    }
-                  }
                 }
               }
             },
@@ -23145,20 +22726,7 @@
       },
       "key": {
         "type": "object",
-        "properties": {
-          "courseInfo": {
-            "$ref": "#/components/schemas/CourseInfo",
-            "description": "课程信息"
-          },
-          "experiments": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ExperimentDetailItem",
-              "description": "实验详情项"
-            },
-            "description": "该课程下的实验列表"
-          }
-        }
+        "properties": {}
       },
       "ApiResponseListMapObject": {
         "type": "object",
@@ -24005,8 +23573,8 @@
             "description": "题目内容"
           },
           "choices": {
-            "$ref": "#/components/schemas/MapString",
-            "description": "自定义模板数据（可选）\nkey: 模板变量名，如 first, keyword1, keyword2, remark\nvalue: 变量值"
+            "type": "string",
+            "description": "选项内容（key: 选项字母如A、B、C、D，value: 选项内容）"
           },
           "studentAnswer": {
             "type": "string",
@@ -24322,7 +23890,7 @@
           "topicTags": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "integer"
             },
             "description": "标签限制（仅在随机抽取时有效，格式 id1,id2）"
           },
@@ -24540,7 +24108,7 @@
           "topicTags": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "integer"
             },
             "description": "标签限制（仅在随机抽取时有效，格式 id1,id2）"
           },
@@ -24999,8 +24567,8 @@
             "description": "题目内容"
           },
           "choices": {
-            "$ref": "#/components/schemas/MapString",
-            "description": "自定义模板数据（可选）\nkey: 模板变量名，如 first, keyword1, keyword2, remark\nvalue: 变量值"
+            "type": "string",
+            "description": "选项内容"
           },
           "studentAnswer": {
             "type": "string",
@@ -25146,8 +24714,8 @@
             "description": "题目内容"
           },
           "choices": {
-            "$ref": "#/components/schemas/MapString",
-            "description": "自定义模板数据（可选）\nkey: 模板变量名，如 first, keyword1, keyword2, remark\nvalue: 变量值"
+            "type": "string",
+            "description": "选项内容"
           }
         }
       },
@@ -26772,8 +26340,8 @@
             "description": "题目内容"
           },
           "choices": {
-            "$ref": "#/components/schemas/MapString",
-            "description": "自定义模板数据（可选）\nkey: 模板变量名，如 first, keyword1, keyword2, remark\nvalue: 变量值"
+            "type": "string",
+            "description": "选项内容（key: 选项字母如A、B、C、D，value: 选项内容）"
           },
           "studentAnswer": {
             "type": "string",
@@ -26869,8 +26437,8 @@
             "description": "题目内容"
           },
           "choices": {
-            "$ref": "#/components/schemas/MapString",
-            "description": "自定义模板数据（可选）\nkey: 模板变量名，如 first, keyword1, keyword2, remark\nvalue: 变量值"
+            "type": "string",
+            "description": "选项内容（key: 选项字母如A、B、C、D，value: 选项内容）"
           },
           "studentAnswer": {
             "type": "string",
@@ -27010,7 +26578,7 @@
           "topicTags": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "integer"
             },
             "description": "标签列表（仅在随机抽取时有效）"
           },
@@ -27073,7 +26641,7 @@
           "topicTags": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "integer"
             },
             "description": "标签列表"
           },
@@ -27140,7 +26708,7 @@
           "topicTags": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "integer"
             },
             "description": "标签列表（仅在随机抽取时有效）"
           },
@@ -27912,7 +27480,7 @@
         "type": "object",
         "properties": {
           "key": {
-            "$ref": "#/components/schemas/key"
+            "$ref": "#/components/schemas/key1"
           }
         }
       },
@@ -28106,6 +27674,26 @@
             "description": "响应数据"
           }
         }
+      },
+      "ExportCourseDataRequest": {
+        "type": "object",
+        "properties": {
+          "courseId": {
+            "type": "string",
+            "description": "课程ID"
+          },
+          "classCodes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "班级编号列表（支持多选）"
+          }
+        },
+        "required": [
+          "courseId",
+          "classCodes"
+        ]
       }
     },
     "securitySchemes": {

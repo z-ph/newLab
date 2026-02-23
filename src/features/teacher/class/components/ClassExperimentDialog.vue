@@ -112,7 +112,7 @@ const deleteMutation = useUnbindExperiment()
 const confirm = useConfirm()
 
 const handleDelete = (experiment: ExperimentDetailItem) => {
-  const experimentId = experiment.experimentId?.toString()
+  const experimentId = experiment.experimentId
   if (!experimentId || !classCode.value) return
 
   confirm.require({

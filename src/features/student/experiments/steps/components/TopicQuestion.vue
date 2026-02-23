@@ -130,10 +130,10 @@ import {
   getTopicTypeSeverity,
 } from '../../constants/topic'
 import { parseTopicChoices, parseMultipleChoiceAnswer, sortMultipleChoiceAnswer } from '../../utils/topic'
-import type { TopicDetail5 } from '@/core/api/generated'
+import type { TopicItem1 } from '@/core/api/generated'
 
 interface Props {
-  topic: TopicDetail5
+  topic: TopicItem1
 }
 
 const props = defineProps<Props>()

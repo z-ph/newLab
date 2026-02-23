@@ -40,6 +40,7 @@ const props = defineProps<Props>()
 const { procedureDetail: stepInfo } = useQueryProcedureDetail(
   computed(() => props.stepId),
   {
+    courseId: computed(() => props.courseId),
     experimentId: computed(() => props.experimentId),
     classCode: computed(() => props.classCode),
   }

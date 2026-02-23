@@ -92,13 +92,17 @@ function getChoiceLabel(index: number): string {
   return String.fromCharCode(CHOICE_LABEL_START_CHAR_CODE + index)
 }
 
-// 获取选项列表（纯文本，去掉可能存在的前缀）
+// 获取选项列表（从 JSON 字符串解析）
 function getChoicesList(choices?: string): string[] {
   if (!choices) return []
-  return choices.split("$").map((choice) => {
-    // 去掉可能存在的字母前缀（如 "A:", "B:" 等）
-    return choice.replace(/^[A-Z]:\s*/, "").trim()
-  }).filter(Boolean)
+  try {
+    const parsed = JSON.parse(choices) as Record<string, string>
+    return Object.entries(parsed)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([, content]) => content)
+  } catch {
+    return []
+  }
 }
 
 // 获取标签颜色

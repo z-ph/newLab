@@ -362,17 +362,16 @@ function openEdit(topic: { id?: number; type?: number; content?: string; choices
   isEdit.value = true
   editTopicId.value = topic.id
 
-  formData.value = {
-    type: topic.type,
-    content: topic.content,
-    choices: topic.choices,
-    correctAnswer: topic.correctAnswer,
-    tagIds: topic.tags?.map((tagggggg) => tagggggg.tagId!).filter(Boolean),
-  }
-
-  // 解析选项
+  // 先解析选项（JSON 字符串格式），避免 watch 在 formData.type 变化时重置 choiceList
   if (topic.choices) {
-    choiceList.value = topic.choices.split("$")
+    try {
+      const parsed = JSON.parse(topic.choices) as Record<string, string>
+      choiceList.value = Object.entries(parsed)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([, content]) => content)
+    } catch {
+      choiceList.value = ["", "", "", ""]
+    }
   } else {
     choiceList.value = ["", "", "", ""]
   }
@@ -401,6 +400,15 @@ function openEdit(topic: { id?: number; type?: number; content?: string; choices
     }
   })
 
+  // 最后设置 formData，这会触发 watch，但此时 choiceList 已经被正确设置
+  formData.value = {
+    type: topic.type,
+    content: topic.content,
+    choices: topic.choices,
+    correctAnswer: topic.correctAnswer,
+    tagIds: topic.tags?.map((tagggggg) => tagggggg.tagId!).filter(Boolean),
+  }
+
   visible.value = true
 }
 
@@ -422,14 +430,20 @@ async function handleSubmit() {
     return
   }
 
-  // 构建选项字符串
+  // 构建选项字符串（JSON 格式）
   if (showChoices.value) {
     const validOptions = choiceList.value.filter(Boolean)
     if (validOptions.length < 2) {
       toast.warn("请至少填写2个选项")
       return
     }
-    formData.value.choices = validOptions.join("$")
+    // 转换为 JSON 字符串格式 {"A":"选项A","B":"选项B",...}
+    const choicesObj: Record<string, string> = {}
+    validOptions.forEach((content, index) => {
+      const label = String.fromCharCode(65 + index) // A, B, C, ...
+      choicesObj[label] = content
+    })
+    formData.value.choices = JSON.stringify(choicesObj)
   } else {
     formData.value.choices = undefined
   }
@@ -487,8 +501,10 @@ async function handleSubmit() {
   emit("refresh")
 }
 
-// 监听类型变化，重置选项和答案
+// 监听类型变化，重置选项和答案（仅在新增模式下）
 watch(() => formData.value.type, () => {
+  // 编辑模式下不重置，避免覆盖已加载的数据
+  if (isEdit.value) return
   choiceList.value = ["", "", "", ""]
   selectedChoices.value = []
 })
