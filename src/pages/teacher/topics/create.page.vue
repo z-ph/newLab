@@ -2,11 +2,10 @@
   <div class="p-1 space-y-4">
     <Card>
       <template #content>
-        <div class="flex items-center justify-between mb-4">
+        <div class="mb-4">
           <h1 class="text-xl font-bold text-slate-900">创建题目</h1>
-          <Button label="新增题目" icon="pi pi-plus" @click="openCreateDialog" />
         </div>
-        <p class="text-slate-500 mb-4">点击上方按钮创建新题目，下方列表实时显示已有题目</p>
+        <TopicForm @success="handleSuccess" />
       </template>
     </Card>
 
@@ -72,6 +71,7 @@ import Button from 'primevue/button'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Tag from 'primevue/tag'
+import TopicForm from '@/features/teacher/topic/components/TopicForm.vue'
 import TopicFormDialog from '@/features/teacher/topic/components/TopicFormDialog.vue'
 import { useQueryTopicPage, useDeleteTopic } from '@/features/teacher/topic/hooks'
 import { getTopicTypeName, getTopicTypeSeverity } from '@/features/teacher/topic/constants'
@@ -90,8 +90,8 @@ const { current, size, total, topics, query } = useQueryTopicPage({
 const deleteMutation = useDeleteTopic()
 const formDialogRef = ref<InstanceType<typeof TopicFormDialog>>()
 
-const openCreateDialog = () => {
-  formDialogRef.value?.open()
+const handleSuccess = () => {
+  query.refetch()
 }
 
 const handleRefresh = () => {
@@ -103,6 +103,7 @@ const onPage = (event: DataTablePageEvent) => {
 }
 
 const handleEdit = (topic: TopicDetailResponse) => {
+  // 编辑仍使用弹窗
   formDialogRef.value?.openEdit(topic)
 }
 
