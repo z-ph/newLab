@@ -7,8 +7,11 @@
           <h3 class="text-base font-medium text-gray-900">
             {{ DATA_COLLECTION_TYPE_LABELS[dataCollectionType as keyof typeof DATA_COLLECTION_TYPE_LABELS] }}
           </h3>
-          <p class="text-sm text-gray-600">
-            {{ stepRemark || '请按照实验要求完成数据采集' }}
+          <p v-if="isLoading" class="text-sm text-gray-400">
+            <i class="pi pi-spin pi-spinner mr-1" />正在加载...
+          </p>
+          <p v-else-if="stepRemark" class="text-sm text-gray-600">
+            {{ stepRemark }}
           </p>
         </div>
       </template>
@@ -17,9 +20,15 @@
     <!-- 数据表单 -->
     <Card>
       <template #content>
+        <!-- 加载状态 -->
+        <div v-if="isLoading" class="text-center py-8">
+          <i class="pi pi-spin pi-spinner text-primary text-3xl mb-2" />
+          <p class="text-sm text-gray-500">正在加载数据字段...</p>
+        </div>
+
         <!-- 关键数据表单 -->
         <KeyDataForm
-          v-if="dataCollectionType === DATA_COLLECTION_TYPE.KEY_DATA"
+          v-else-if="dataCollectionType === DATA_COLLECTION_TYPE.KEY_DATA"
           v-model="formData.fillBlankAnswers"
           :data-fields="dataFields"
         />
@@ -40,30 +49,25 @@
       </template>
     </Card>
 
-    <!-- 文件上传 -->
-    <Card>
-      <template #title>附件上传</template>
+    <!-- 照片上传（仅在需要时显示） -->
+    <Card v-if="needPhoto">
+      <template #title>照片上传</template>
       <template #content>
-        <div class="space-y-4">
-          <!-- 照片上传 -->
-          <PhotoUpload
-            v-if="needPhoto"
-            v-model="formData.photo"
-            :required="needPhoto"
-          />
+        <PhotoUpload
+          v-model="formData.photo"
+          :required="needPhoto"
+        />
+      </template>
+    </Card>
 
-          <!-- 文档上传 -->
-          <DocumentUpload
-            v-if="needDoc"
-            v-model="formData.document"
-            :required="needDoc"
-          />
-
-          <!-- 无需上传附件 -->
-          <div v-if="!needPhoto && !needDoc" class="text-center py-4 bg-gray-50 rounded border border-gray-200">
-            <p class="text-sm text-gray-500">无需上传附件</p>
-          </div>
-        </div>
+    <!-- 文档上传（仅在需要时显示） -->
+    <Card v-if="needDoc">
+      <template #title>文档上传</template>
+      <template #content>
+        <DocumentUpload
+          v-model="formData.document"
+          :required="needDoc"
+        />
       </template>
     </Card>
 
@@ -102,6 +106,7 @@ interface Props {
   stepId: number
   classCode: string
   stepInfo?: StepInfo | null
+  isLoading?: boolean
 }
 
 const props = defineProps<Props>()
@@ -141,8 +146,10 @@ const needDoc = computed(() => {
   return props.stepInfo?.dataCollectionDetail?.needDoc ?? false
 })
 
-// 解析数据配置
-const { dataFields, tableData } = dataCollectionToFormData(props.stepInfo?.dataCollectionDetail)
+// 解析数据配置（使用 computed 保持响应式）
+const parsedData = computed(() => dataCollectionToFormData(props.stepInfo?.dataCollectionDetail))
+const dataFields = computed(() => parsedData.value.dataFields)
+const tableData = computed(() => parsedData.value.tableData)
 
 // 提交中状态
 const isSubmitting = computed(() => submitDataCollection.isPending.value)

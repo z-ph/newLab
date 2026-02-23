@@ -19,6 +19,7 @@
         :step-id="stepId"
         :class-code="classCode"
         :step-info="stepInfoForForm"
+        :is-loading="isLoadingDetail"
         @submitted="handleSubmitted"
       />
     </template>
@@ -40,7 +41,7 @@ interface Props {
 const props = defineProps<Props>()
 
 // 获取步骤详情（从实验详情的步骤列表中查找）
-const { procedureDetail: stepInfo } = useQueryProcedureDetail(
+const { procedureDetail: stepInfo, isLoadingDetail } = useQueryProcedureDetail(
   computed(() => props.stepId),
   {
     courseId: computed(() => props.courseId),
@@ -66,15 +67,11 @@ const inaccessibleReason = computed(() => stepInfo.value?.inaccessibleReason)
 
 // 用于表单的步骤信息
 const stepInfoForForm = computed(() => {
+  if (!stepInfo.value) return null
   return {
-    remark: stepInfo.value?.remark,
-    dataCollectionDetail: stepInfo.value ? {
-      type: stepInfo.value.dataCollectionType,
-      needPhoto: stepInfo.value.dataNeedPhoto,
-      needDoc: stepInfo.value.dataNeedDoc,
-      remark: stepInfo.value.dataRemark,
-    } : null,
-    submissionTime: stepInfo.value?.submissionTime,
+    remark: stepInfo.value.remark,
+    dataCollectionDetail: stepInfo.value.dataCollectionDetail,
+    submissionTime: stepInfo.value.submissionTime,
   }
 })
 

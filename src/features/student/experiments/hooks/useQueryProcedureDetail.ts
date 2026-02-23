@@ -43,12 +43,12 @@ export function useQueryProcedureDetail(
   }
 ) {
   // 获取实验详情（基本信息，包含 isCompleted, isAccessible 等）
-  const { experimentDetail } = options?.experimentId && options?.classCode
+  const { experimentDetail, query: experimentQuery } = options?.experimentId && options?.classCode
     ? useQueryStudentExperimentDetail(
         options.experimentId as Ref<number>,
         options.classCode as Ref<string>
       )
-    : { experimentDetail: ref<StudentExperimentDetailResponse | undefined>(undefined) }
+    : { experimentDetail: ref<StudentExperimentDetailResponse | undefined>(undefined), query: { isLoading: ref(false) } }
 
   // 从步骤列表中查找对应的步骤基本信息
   const basicProcedureDetail = computed(() => {
@@ -186,9 +186,9 @@ export function useQueryProcedureDetail(
     procedureDetail,
     experimentDetail,
     topics,
-    // 暴露查询状态
+    // 暴露查询状态（综合加载状态：实验详情加载中 或 步骤详情加载中）
     isLoadingDetail: computed(
-      () => uncompletedQuery.isLoading.value || completedQuery.isLoading.value
+      () => experimentQuery.isLoading.value || uncompletedQuery.isLoading.value || completedQuery.isLoading.value
     ),
   }
 }
