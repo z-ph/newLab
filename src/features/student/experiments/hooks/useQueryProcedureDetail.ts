@@ -59,11 +59,14 @@ export function useQueryProcedureDetail(
     )
   })
 
-  // 是否已完成
+  // 是否已完成（必须在 basicProcedureDetail 存在时才能确定）
   const isCompleted = computed(() => basicProcedureDetail.value?.isCompleted ?? false)
 
   // 是否可访问
   const isAccessible = computed(() => basicProcedureDetail.value?.isAccessible ?? true)
+
+  // 是否已获取到步骤基本信息（确保 experimentDetail 已加载且能找到对应步骤）
+  const hasBasicDetail = computed(() => basicProcedureDetail.value !== undefined)
 
   // 查询未完成的步骤详情
   const uncompletedQuery = useQuery({
@@ -88,6 +91,7 @@ export function useQueryProcedureDetail(
         !!unref(options?.courseId) &&
         !!unref(options?.experimentId) &&
         !!unref(stepId) &&
+        hasBasicDetail.value &&
         isAccessible.value &&
         !isCompleted.value
     ),
@@ -116,6 +120,7 @@ export function useQueryProcedureDetail(
         !!unref(options?.courseId) &&
         !!unref(options?.experimentId) &&
         !!unref(stepId) &&
+        hasBasicDetail.value &&
         isAccessible.value &&
         isCompleted.value
     ),
