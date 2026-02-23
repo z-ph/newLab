@@ -17,6 +17,7 @@
           <TabList>
             <Tab value="attendance">签到管理</Tab>
             <Tab value="grading">学生批改</Tab>
+            <Tab value="procedures">步骤列表</Tab>
             <Tab value="statistics">步骤统计</Tab>
           </TabList>
           <TabPanels>
@@ -238,6 +239,43 @@
               </div>
             </TabPanel>
 
+            <!-- 步骤列表 -->
+            <TabPanel value="procedures">
+              <div v-if="proceduresQuery.isLoading.value" class="flex justify-center p-8">
+                <ProgressSpinner style="width: 50px; height: 50px" strokeWidth="4" />
+              </div>
+              <div v-else-if="proceduresList.length === 0" class="text-center p-8 text-slate-500">
+                暂无步骤数据
+              </div>
+              <div v-else class="space-y-4">
+                <DataTable :value="proceduresList" :paginator="true" :rows="10">
+                  <Column field="number" header="步骤序号" style="width: 100px" />
+                  <Column field="type" header="步骤类型">
+                    <template #body="slotProps">
+                      {{ getProcedureTypeText(slotProps.data.type) }}
+                    </template>
+                  </Column>
+                  <Column field="remark" header="步骤描述" />
+                  <Column field="timeLimit" header="时间限制">
+                    <template #body="slotProps">
+                      {{ slotProps.data.timeLimit ? `${slotProps.data.timeLimit} 分钟` : '无限制' }}
+                    </template>
+                  </Column>
+                  <Column header="操作" style="width: 120px">
+                    <template #body="slotProps">
+                      <Button
+                        label="延长时间"
+                        size="small"
+                        outlined
+                        icon="pi pi-clock"
+                        @click="openExtendDialogForProcedure(slotProps.data)"
+                      />
+                    </template>
+                  </Column>
+                </DataTable>
+              </div>
+            </TabPanel>
+
             <!-- 步骤统计 -->
             <TabPanel value="statistics">
               <div v-if="statisticsQuery.isLoading.value" class="flex justify-center p-8">
@@ -401,7 +439,7 @@ import Card from 'primevue/card'
 import Badge from 'primevue/badge'
 import ProgressBar from 'primevue/progressbar'
 import Tag from 'primevue/tag'
-import type { StudentAttendanceInfo, AttendanceListResponse } from '@/core/api/generated'
+import type { StudentAttendanceInfo, AttendanceListResponse, ProcedureSubmissionResponse, StudentCompletionInfo, ProcedureStatistics, TeacherProcedureDetailResponse } from '@/core/api/generated'
 import { useQueryAttendanceList } from '@/features/teacher/experiment/attendance/hooks/useQueryAttendanceList'
 import { useUpdateAttendanceSuccess } from '@/features/teacher/experiment/attendance/hooks/useMutateAttendanceUpdate'
 import { ATTENDANCE_STATUS, ATTENDANCE_STATUS_OPTIONS } from '@/features/teacher/experiment/attendance/constants'
@@ -428,6 +466,7 @@ import {
 import GradeDialog from '@/features/teacher/class-experiment/components/GradeDialog.vue'
 import ProcedureDetailDialog from '@/features/teacher/class-experiment/components/ProcedureDetailDialog.vue'
 import ExtendTimeDialog from '@/features/teacher/class-experiment/components/ExtendTimeDialog.vue'
+import { useQueryProceduresByExperiment } from '@/features/teacher/experiment/procedure/hooks/useQueryProcedure'
 
 const router = useRouter()
 const route = useRoute()
@@ -481,6 +520,15 @@ const statisticsQuery = useQueryStatistics(classCode, experimentIdForStats, {
 
 const statisticsData = computed(() => statisticsQuery.data.value)
 
+// ==================== 步骤列表 ====================
+const proceduresQuery = useQueryProceduresByExperiment(experimentIdForStats as any)
+
+const proceduresList = computed(() => {
+  const data = proceduresQuery.data.value
+  if (!data) return []
+  return Array.isArray(data) ? data : []
+})
+
 // ==================== 学生批改 ====================
 // 查询实验详情获取courseId
 const experimentDetailQuery = useQueryClassExperimentDetail(
@@ -517,33 +565,81 @@ const gradeDialogRef = ref<InstanceType<typeof GradeDialog>>()
 const detailDialogRef = ref<InstanceType<typeof ProcedureDetailDialog>>()
 const extendTimeDialogRef = ref<InstanceType<typeof ExtendTimeDialog>>()
 
-const openGradeDialog = (submission: any) => {
+const openGradeDialog = (submission: ProcedureSubmissionResponse) => {
   gradeDialogRef.value?.open(submission)
 }
 
-const viewSubmissionDetail = (submission: any) => {
+const viewSubmissionDetail = (submission: ProcedureSubmissionResponse) => {
   detailDialogRef.value?.open(submission.id!)
 }
 
 // 延长时间相关
-const selectedStudentsForExtend = ref<any[]>([])
+const selectedStudentsForExtend = ref<StudentCompletionInfo[]>([])
 
 const openExtendTimeDialog = () => {
   if (selectedStudentsForExtend.value.length === 0) return
 
   const students = selectedStudentsForExtend.value.map((s) => ({
-    studentUsername: s.studentUsername,
-    studentName: s.studentName,
+    studentUsername: s.studentUsername!,
+    studentName: s.studentName!,
   }))
 
-  const procedureList = (statisticsData.value?.procedureStatistics || []).map((p: any) => ({
-    id: p.procedureId,
-    number: p.number,
-    type: p.type,
+  const procedureList = (statisticsData.value?.procedureStatistics || []).map((p: ProcedureStatistics) => ({
+    id: p.id!,
+    number: p.number!,
+    type: p.type!,
     remark: p.remark,
   }))
 
   extendTimeDialogRef.value?.open(students, experimentIdForStats.value!, procedureList)
+}
+
+// 按步骤延长时间 - 从签到列表获取学生
+const openExtendDialogForProcedure = (procedure: TeacherProcedureDetailResponse) => {
+  // 从签到数据获取学生列表
+  const allStudents: { studentUsername: string; studentName: string }[] = []
+
+  // 添加已签到的学生
+  if (attendanceData.value?.normalAttendanceList) {
+    for (const s of attendanceData.value.normalAttendanceList) {
+      if (s.studentUsername && s.studentName) {
+        allStudents.push({ studentUsername: s.studentUsername, studentName: s.studentName })
+      }
+    }
+  }
+
+  // 添加跨班签到的学生
+  if (attendanceData.value?.crossClassAttendanceList) {
+    for (const s of attendanceData.value.crossClassAttendanceList) {
+      if (s.studentUsername && s.studentName) {
+        allStudents.push({ studentUsername: s.studentUsername, studentName: s.studentName })
+      }
+    }
+  }
+
+  // 添加未签到的学生
+  if (attendanceData.value?.notAttendanceList) {
+    for (const s of attendanceData.value.notAttendanceList) {
+      if (s.studentUsername && s.studentName) {
+        allStudents.push({ studentUsername: s.studentUsername, studentName: s.studentName })
+      }
+    }
+  }
+
+  // 如果没有学生数据，提示用户
+  if (allStudents.length === 0) {
+    return
+  }
+
+  // 打开延长时间对话框，预选该步骤
+  const procedureList = proceduresList.value.map((p: TeacherProcedureDetailResponse) => ({
+    id: p.id!,
+    number: p.number!,
+    type: p.type!,
+    remark: p.remark,
+  }))
+
+  extendTimeDialogRef.value?.open(allStudents, experimentIdForStats.value!, procedureList, procedure.id)
 }
 
 const updateAttendanceStatus = (student: StudentAttendanceInfo, status: number) => {

@@ -33,3 +33,11 @@ export {
 export {
   useQueryVideosAll,
 } from './useQueryVideos'
+
+export {
+  useQueryExtensions,
+  useBatchExtendByProcedure,
+  useBatchExtendByExperiment,
+  useUpdateExtension,
+  useDeleteExtension,
+} from './useExtension'
