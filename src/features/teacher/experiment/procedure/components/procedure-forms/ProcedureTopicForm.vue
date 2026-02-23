@@ -6,30 +6,64 @@
     </div>
 
     <!-- 随机模式 -->
-    <div v-if="isRandom">
-      <label class="mb-2 block text-sm font-medium text-slate-700">
-        题目数量 <span class="text-red-500">*</span>
-      </label>
-      <InputNumber
-        v-model="topicNumber"
-        :min="MIN_TOPIC_NUMBER"
-        class="w-full"
-        placeholder="请输入题目数量"
-      />
+    <div v-if="isRandom" class="space-y-3">
+      <div>
+        <label class="mb-2 block text-sm font-medium text-slate-700">
+          题目数量 <span class="text-red-500">*</span>
+        </label>
+        <InputNumber
+          v-model="topicNumber"
+          :min="MIN_TOPIC_NUMBER"
+          class="w-full"
+          placeholder="请输入题目数量"
+        />
+      </div>
 
-      <!-- 标签选择 -->
-      <label class="mb-2 block text-sm font-medium text-slate-700 mt-4">标签限制</label>
-
-      <Select
-        v-model="selectedTagId"
-        :options="tagOptions"
-        option-label="label"
-        option-value="value"
-        placeholder="请选择标签（可选）"
-        :loading="isLoadingTags"
-        class="w-full"
-        show-clear
-      />
+      <!-- 三类标签选择：学科、难度、题型各选一个 -->
+      <div class="grid grid-cols-3 gap-3">
+        <div>
+          <label class="mb-2 block text-sm font-medium text-slate-700">
+            学科标签 <span class="text-red-500">*</span>
+          </label>
+          <Select
+            v-model="selectedSubjectTagId"
+            :options="subjectTagOptions"
+            option-label="label"
+            option-value="value"
+            placeholder="请选择学科"
+            :loading="isLoadingTags"
+            class="w-full"
+          />
+        </div>
+        <div>
+          <label class="mb-2 block text-sm font-medium text-slate-700">
+            难度标签 <span class="text-red-500">*</span>
+          </label>
+          <Select
+            v-model="selectedDifficultyTagId"
+            :options="difficultyTagOptions"
+            option-label="label"
+            option-value="value"
+            placeholder="请选择难度"
+            :loading="isLoadingTags"
+            class="w-full"
+          />
+        </div>
+        <div>
+          <label class="mb-2 block text-sm font-medium text-slate-700">
+            自定义标签 <span class="text-red-500">*</span>
+          </label>
+          <Select
+            v-model="selectedCustomTagId"
+            :options="customTagOptions"
+            option-label="label"
+            option-value="value"
+            placeholder="请选择自定义标签"
+            :loading="isLoadingTags"
+            class="w-full"
+          />
+        </div>
+      </div>
     </div>
 
     <!-- 指定题目模式 -->
@@ -63,6 +97,7 @@
 import { ref, watch, computed } from 'vue'
 import { MIN_TOPIC_NUMBER } from '@/features/teacher/experiment/procedure/constants'
 import { useQueryAllTopics, useQueryTags } from '@/features/teacher/topic'
+import { TAG_TYPE } from '@/features/teacher/topic/constants'
 
 const isRandom = defineModel<boolean>('isRandom', { default: false })
 const topicNumber = defineModel<number | null>('topicNumber', { default: null })
@@ -98,58 +133,53 @@ watch(selectedTopics, (ids) => {
   teacherSelectedTopicIdsStr.value = ids.join(',')
 }, { deep: true })
 
-// 选中的标签 ID（单选）
-const selectedTagId = ref<number | null>(null)
+// 三类标签各选一个
+const selectedSubjectTagId = ref<number | null>(null)
+const selectedDifficultyTagId = ref<number | null>(null)
+const selectedCustomTagId = ref<number | null>(null)
 
-// 初始化选中标签
+// 初始化：从 topicTags 数组解析各类型标签
 watch(topicTags, (ids) => {
-  selectedTagId.value = ids.length > 0 ? (ids[0] ?? null) : null
+  if (ids.length === 0) return
+  // 根据 tags 数据确定每个 ID 对应的类型
+  ids.forEach(id => {
+    const tag = tags.value?.find(t => t.id === id)
+    if (tag) {
+      if (tag.type === TAG_TYPE.SUBJECT) selectedSubjectTagId.value = id
+      else if (tag.type === TAG_TYPE.DIFFICULTY) selectedDifficultyTagId.value = id
+      else if (tag.type === TAG_TYPE.CUSTOM) selectedCustomTagId.value = id
+    }
+  })
 }, { immediate: true })
 
-// 同步选中标签到父组件
-watch(selectedTagId, (id) => {
-  topicTags.value = id !== null ? [id] : []
+// 同步三类标签到父组件
+watch([selectedSubjectTagId, selectedDifficultyTagId, selectedCustomTagId], ([subject, difficulty, custom]) => {
+  const ids: number[] = []
+  if (subject !== null) ids.push(subject)
+  if (difficulty !== null) ids.push(difficulty)
+  if (custom !== null) ids.push(custom)
+  topicTags.value = ids
 })
 
-// 标签类型名称映射
-const TAG_TYPE_LABELS: Record<string, string> = {
-  '1': '学科标签',
-  '2': '难度标签',
-  '3': '题型标签',
-  '4': '自定义标签',
-}
-
-// 下拉选项：按类型分组
-const tagOptions = computed(() => {
+// 按类型过滤标签选项
+const subjectTagOptions = computed(() => {
   if (!tags.value) return []
+  return tags.value
+    .filter(tag => tag.type === TAG_TYPE.SUBJECT)
+    .map(tag => ({ label: tag.tagName || '', value: tag.id! }))
+})
 
-  const groups: Record<string, Array<{ label: string; value: number }>> = {}
+const difficultyTagOptions = computed(() => {
+  if (!tags.value) return []
+  return tags.value
+    .filter(tag => tag.type === TAG_TYPE.DIFFICULTY)
+    .map(tag => ({ label: tag.tagName || '', value: tag.id! }))
+})
 
-  tags.value.forEach(tag => {
-    const type = tag.type || '4'
-    if (!groups[type]) {
-      groups[type] = []
-    }
-    groups[type].push({
-      label: tag.tagName || '',
-      value: tag.id!,
-    })
-  })
-
-  // 按类型排序并生成选项列表
-  const options: Array<{ label: string; value: number }> = []
-  Object.entries(groups)
-    .sort((a, b) => parseInt(a[0]) - parseInt(b[0]))
-    .forEach(([type, typeTags]) => {
-      // 添加分组标题（作为不可选项，用前缀标识）
-      typeTags.forEach(tag => {
-        options.push({
-          label: `[${TAG_TYPE_LABELS[type] || '其他'}] ${tag.label}`,
-          value: tag.value,
-        })
-      })
-    })
-
-  return options
+const customTagOptions = computed(() => {
+  if (!tags.value) return []
+  return tags.value
+    .filter(tag => tag.type === TAG_TYPE.CUSTOM)
+    .map(tag => ({ label: tag.tagName || '', value: tag.id! }))
 })
 </script>
