@@ -5497,6 +5497,7 @@
             "in": "path",
             "description": "班级代码",
             "required": true,
+            "example": "CLASS000003",
             "schema": {
               "type": "string"
             }
@@ -5508,6 +5509,10 @@
               "schema": {
                 "$ref": "#/components/schemas/StudentQueryRequest",
                 "description": "查询请求"
+              },
+              "example": {
+                "current": 1,
+                "size": 10
               }
             }
           }
@@ -9927,6 +9932,11 @@
               "schema": {
                 "$ref": "#/components/schemas/UpdateAttendanceRequest",
                 "description": "修改签到状态请求"
+              },
+              "example": {
+                "classExperimentId": 2,
+                "studentUsername": "2021002",
+                "attendanceStatus": 3
               }
             }
           }
@@ -17260,6 +17270,408 @@
                     }
                   },
                   "4": {
+                    "summary": "成功示例",
+                    "value": {
+                      "code": 0,
+                      "message": "",
+                      "data": null
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/teacher/procedures/extensions": {
+      "post": {
+        "summary": "批量延长学生步骤时间",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchExtendProcedureTimeRequest",
+                "description": "延长请求"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid",
+                  "description": "是否解绑成功"
+                },
+                "examples": {
+                  "1": {
+                    "summary": "成功示例",
+                    "value": {
+                      "code": 0,
+                      "message": "",
+                      "data": null
+                    }
+                  },
+                  "2": {
+                    "summary": "成功示例",
+                    "value": {
+                      "code": 0,
+                      "message": "",
+                      "data": null
+                    }
+                  },
+                  "3": {
+                    "summary": "成功示例",
+                    "value": {
+                      "code": 0,
+                      "message": "",
+                      "data": null
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "get": {
+        "summary": "分页筛选查询延长记录",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "current",
+            "in": "query",
+            "description": "当前页码",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "每页条数",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "pageable",
+            "in": "query",
+            "description": "是否分页（true-分页，false-返回全部）",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "name": "studentUsername",
+            "in": "query",
+            "description": "学生用户名（模糊查询）",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "teacherUsername",
+            "in": "query",
+            "description": "教师用户名（模糊查询）",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "experimentalProcedureId",
+            "in": "query",
+            "description": "实验步骤ID",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageResponseStudentProcedureExtension",
+                  "description": "延长记录列表"
+                },
+                "examples": {
+                  "1": {
+                    "summary": "成功示例",
+                    "value": {
+                      "code": 0,
+                      "message": "",
+                      "data": [
+                        {
+                          "id": 0,
+                          "studentUsername": "",
+                          "experimentalProcedureId": 0,
+                          "extendedMinutes": 0,
+                          "teacherUsername": ""
+                        }
+                      ]
+                    }
+                  },
+                  "2": {
+                    "summary": "成功示例",
+                    "value": {
+                      "code": 0,
+                      "message": "",
+                      "data": {
+                        "current": 0,
+                        "size": 0,
+                        "total": 0,
+                        "pages": 0,
+                        "records": [
+                          {
+                            "id": 0,
+                            "studentUsername": "",
+                            "experimentalProcedureId": 0,
+                            "extendedMinutes": 0,
+                            "teacherUsername": ""
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "3": {
+                    "summary": "成功示例",
+                    "value": {
+                      "code": 0,
+                      "message": "",
+                      "data": {
+                        "current": 0,
+                        "size": 0,
+                        "total": 0,
+                        "pages": 0,
+                        "records": [
+                          {
+                            "id": 0,
+                            "studentUsername": "",
+                            "experimentalProcedureId": 0,
+                            "extendedMinutes": 0,
+                            "teacherUsername": ""
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/teacher/procedures/extensions/{id}": {
+      "put": {
+        "summary": "更新延长记录",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "延长记录ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "extendedMinutes",
+            "in": "query",
+            "description": "延长时间（分钟）",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid",
+                  "description": "是否解绑成功"
+                },
+                "examples": {
+                  "1": {
+                    "summary": "成功示例",
+                    "value": {
+                      "code": 0,
+                      "message": "",
+                      "data": null
+                    }
+                  },
+                  "2": {
+                    "summary": "成功示例",
+                    "value": {
+                      "code": 0,
+                      "message": "",
+                      "data": null
+                    }
+                  },
+                  "3": {
+                    "summary": "成功示例",
+                    "value": {
+                      "code": 0,
+                      "message": "",
+                      "data": null
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "delete": {
+        "summary": "删除延长记录",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "延长记录ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid",
+                  "description": "是否解绑成功"
+                },
+                "examples": {
+                  "1": {
+                    "summary": "成功示例",
+                    "value": {
+                      "code": 0,
+                      "message": "",
+                      "data": null
+                    }
+                  },
+                  "2": {
+                    "summary": "成功示例",
+                    "value": {
+                      "code": 0,
+                      "message": "",
+                      "data": null
+                    }
+                  },
+                  "3": {
+                    "summary": "成功示例",
+                    "value": {
+                      "code": 0,
+                      "message": "",
+                      "data": null
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/teacher/procedures/extensions/by-experiment": {
+      "post": {
+        "summary": "按实验ID批量延长（延长该实验下所有步骤）",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchExtendByExperimentRequest",
+                "description": "延长请求"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid",
+                  "description": "是否解绑成功"
+                },
+                "examples": {
+                  "1": {
+                    "summary": "成功示例",
+                    "value": {
+                      "code": 0,
+                      "message": "",
+                      "data": null
+                    }
+                  },
+                  "2": {
                     "summary": "成功示例",
                     "value": {
                       "code": 0,
@@ -27542,6 +27954,158 @@
         "required": [
           "classCode"
         ]
+      },
+      "BatchExtendProcedureTimeRequest": {
+        "type": "object",
+        "properties": {
+          "experimentalProcedureId": {
+            "type": "integer",
+            "description": "实验步骤ID",
+            "format": "int64"
+          },
+          "studentUsernames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "学生用户名列表"
+          },
+          "extendedMinutes": {
+            "type": "integer",
+            "description": "延长时间（分钟）",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "experimentalProcedureId",
+          "studentUsernames",
+          "extendedMinutes"
+        ]
+      },
+      "StudentProcedureExtension": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "主键ID",
+            "format": "int64"
+          },
+          "studentUsername": {
+            "type": "string",
+            "description": "学生用户名(学号)"
+          },
+          "experimentalProcedureId": {
+            "type": "integer",
+            "description": "实验步骤ID",
+            "format": "int64"
+          },
+          "extendedMinutes": {
+            "type": "integer",
+            "description": "延长时间（分钟）"
+          },
+          "teacherUsername": {
+            "type": "string",
+            "description": "开通教师用户名"
+          }
+        }
+      },
+      "ApiResponseListStudentProcedureExtension": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "响应状态码"
+          },
+          "message": {
+            "type": "string",
+            "description": "响应消息"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudentProcedureExtension",
+              "description": "学生步骤时间延长表\n记录教师为学生开通的步骤时间延长"
+            },
+            "description": "响应数据"
+          }
+        }
+      },
+      "BatchExtendByExperimentRequest": {
+        "type": "object",
+        "properties": {
+          "experimentId": {
+            "type": "integer",
+            "description": "实验ID",
+            "format": "int64"
+          },
+          "studentUsernames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "学生用户名列表"
+          },
+          "extendedMinutes": {
+            "type": "integer",
+            "description": "延长时间（分钟）",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "experimentId",
+          "studentUsernames",
+          "extendedMinutes"
+        ]
+      },
+      "PageResponseStudentProcedureExtension": {
+        "type": "object",
+        "properties": {
+          "current": {
+            "type": "integer",
+            "description": "当前页码",
+            "format": "int64"
+          },
+          "size": {
+            "type": "integer",
+            "description": "每页条数",
+            "format": "int64"
+          },
+          "total": {
+            "type": "integer",
+            "description": "总记录数",
+            "format": "int64"
+          },
+          "pages": {
+            "type": "integer",
+            "description": "总页数",
+            "format": "int64"
+          },
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudentProcedureExtension",
+              "description": "学生步骤时间延长表\n记录教师为学生开通的步骤时间延长"
+            },
+            "description": "数据列表"
+          }
+        }
+      },
+      "ApiResponsePageResponseStudentProcedureExtension": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "响应状态码"
+          },
+          "message": {
+            "type": "string",
+            "description": "响应消息"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageResponseStudentProcedureExtension",
+            "description": "响应数据"
+          }
+        }
       }
     },
     "securitySchemes": {

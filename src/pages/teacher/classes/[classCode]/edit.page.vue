@@ -117,7 +117,7 @@
                           <template #body="slotProps">
                             <div class="flex gap-2">
                               <Button label="查看" outlined size="small"
-                                @click="navigateToExperimentDetail(slotProps.data)" />
+                                @click="navigateToExperimentDetail(slotProps.data, courseGroup.courseInfo?.courseName)" />
                               <Button icon="pi pi-trash" outlined severity="danger" size="small" v-tooltip.top="'删除'"
                                 @click="handleDeleteExperiment(slotProps.data)" :loading="deleteExperimentMutation.isPending.value" />
                             </div>
@@ -376,12 +376,14 @@ const openBindExperimentDialog = () => {
 }
 
 // 跳转到实验详情页面
-const navigateToExperimentDetail = (experiment: ExperimentDetailItem) => {
+const navigateToExperimentDetail = (experiment: ExperimentDetailItem, courseName?: string) => {
   router.push({
     path: `/teacher/classes/${classCode.value}/experiments/${experiment.classExperimentId}/detail`,
     query: {
-      title: encodeURIComponent(experiment.experimentName || '实验详情'),
+      experimentName: encodeURIComponent(experiment.experimentName || '实验详情'),
       experimentId: experiment.experimentId,
+      courseName: courseName ? encodeURIComponent(courseName) : undefined,
+      className: encodeURIComponent(pageTitle.value),
     },
   })
 }

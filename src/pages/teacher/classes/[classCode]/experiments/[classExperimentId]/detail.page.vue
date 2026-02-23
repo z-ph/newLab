@@ -3,7 +3,13 @@
     <Card>
       <template #content>
         <div class="mb-4 flex items-center justify-between">
-          <h1 class="text-xl font-bold text-slate-900">{{ pageTitle }}</h1>
+          <div class="flex items-center gap-2 text-xl font-bold text-slate-900">
+            <span v-if="courseName">{{ courseName }}</span>
+            <i v-if="courseName" class="pi pi-chevron-right text-sm text-slate-400"></i>
+            <span v-if="experimentName">{{ experimentName }}</span>
+            <i v-if="experimentName" class="pi pi-chevron-right text-sm text-slate-400"></i>
+            <span>{{ className }}</span>
+          </div>
           <Button label="返回" icon="pi pi-arrow-left" severity="secondary" @click="handleBack" />
         </div>
 
@@ -308,14 +314,30 @@
 
                 <!-- 学生完成情况 -->
                 <Card>
-                  <template #title>学生完成情况</template>
+                  <template #title>
+                    <div class="flex items-center justify-between">
+                      <span>学生完成情况</span>
+                      <Button
+                        v-if="selectedStudentsForExtend.length > 0"
+                        :label="`延长时间 (${selectedStudentsForExtend.length}人)`"
+                        size="small"
+                        severity="info"
+                        outlined
+                        icon="pi pi-clock"
+                        @click="openExtendTimeDialog"
+                      />
+                    </div>
+                  </template>
                   <template #content>
                     <DataTable
+                      v-model:selection="selectedStudentsForExtend"
                       :value="statisticsData.studentCompletions"
                       :paginator="true"
                       :rows="10"
                       responsiveLayout="scroll"
+                      dataKey="studentUsername"
                     >
+                      <Column selectionMode="multiple" style="width: 3rem" />
                       <Column field="studentName" header="学生姓名" sortable />
                       <Column field="studentUsername" header="学号" sortable />
                       <Column field="progress" header="进度" sortable>
@@ -366,6 +388,9 @@
 
     <!-- 步骤详情对话框 -->
     <ProcedureDetailDialog ref="detailDialogRef" />
+
+    <!-- 延长时间对话框 -->
+    <ExtendTimeDialog ref="extendTimeDialogRef" />
   </div>
 </template>
 
@@ -402,6 +427,7 @@ import {
 } from '@/features/teacher/class-experiment/constants/messages'
 import GradeDialog from '@/features/teacher/class-experiment/components/GradeDialog.vue'
 import ProcedureDetailDialog from '@/features/teacher/class-experiment/components/ProcedureDetailDialog.vue'
+import ExtendTimeDialog from '@/features/teacher/class-experiment/components/ExtendTimeDialog.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -409,10 +435,20 @@ const route = useRoute()
 const classCode = computed(() => (route.params as any).classCode as string)
 const classExperimentId = computed(() => Number((route.params as any).classExperimentId as string))
 
-// 从 query 获取标题和实验信息
-const pageTitle = computed(() => {
-  const title = route.query.title as string
-  return title ? decodeURIComponent(title) : '实验详情'
+// 从 query 获取三层级信息
+const courseName = computed(() => {
+  const name = route.query.courseName as string
+  return name ? decodeURIComponent(name) : ''
+})
+
+const experimentName = computed(() => {
+  const name = route.query.experimentName as string
+  return name ? decodeURIComponent(name) : ''
+})
+
+const className = computed(() => {
+  const name = route.query.className as string
+  return name ? decodeURIComponent(name) : '实验详情'
 })
 
 const activeTab = ref('attendance')
@@ -479,6 +515,7 @@ const selectedStudentSubmissions = computed(() => {
 // 批改对话框和详情对话框
 const gradeDialogRef = ref<InstanceType<typeof GradeDialog>>()
 const detailDialogRef = ref<InstanceType<typeof ProcedureDetailDialog>>()
+const extendTimeDialogRef = ref<InstanceType<typeof ExtendTimeDialog>>()
 
 const openGradeDialog = (submission: any) => {
   gradeDialogRef.value?.open(submission)
@@ -486,6 +523,27 @@ const openGradeDialog = (submission: any) => {
 
 const viewSubmissionDetail = (submission: any) => {
   detailDialogRef.value?.open(submission.id!)
+}
+
+// 延长时间相关
+const selectedStudentsForExtend = ref<any[]>([])
+
+const openExtendTimeDialog = () => {
+  if (selectedStudentsForExtend.value.length === 0) return
+
+  const students = selectedStudentsForExtend.value.map((s) => ({
+    studentUsername: s.studentUsername,
+    studentName: s.studentName,
+  }))
+
+  const procedureList = (statisticsData.value?.procedureStatistics || []).map((p: any) => ({
+    id: p.procedureId,
+    number: p.number,
+    type: p.type,
+    remark: p.remark,
+  }))
+
+  extendTimeDialogRef.value?.open(students, experimentIdForStats.value!, procedureList)
 }
 
 const updateAttendanceStatus = (student: StudentAttendanceInfo, status: number) => {
