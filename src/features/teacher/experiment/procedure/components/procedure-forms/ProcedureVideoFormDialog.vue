@@ -46,7 +46,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useToast } from 'primevue/usetoast'
-import { useCreateVideoProcedure, useUpdateVideoProcedure } from '@/features/teacher/experiment/procedure/hooks'
+import { useCreateVideoProcedure, useUpdateVideoProcedure, useInsertVideoProcedure } from '@/features/teacher/experiment/procedure/hooks'
 import { DEFAULT_VALUES } from '@/features/teacher/experiment/procedure/constants'
 import type { BaseProcedureFields } from '@/features/teacher/experiment/procedure/types'
 import type { TeacherProcedureDetailResponse } from '@/core/api/generated'
@@ -63,16 +63,29 @@ const visible = ref<boolean>(false)
 const toast = useToast()
 const createMutation = useCreateVideoProcedure()
 const updateMutation = useUpdateVideoProcedure()
+const insertMutation = useInsertVideoProcedure()
 
 // 是否为编辑模式
 const isEditing = ref(false)
+// 是否为插入模式
+const isInserting = ref(false)
 const editingProcedureId = ref<number | null>(null)
+// 插入位置
+const afterNumber = ref<number>(0)
 
 // 当前使用的 mutation
-const mutation = computed(() => isEditing.value ? updateMutation : createMutation)
+const mutation = computed(() => {
+  if (isEditing.value) return updateMutation
+  if (isInserting.value) return insertMutation
+  return createMutation
+})
 
 // 对话框标题
-const dialogTitle = computed(() => isEditing.value ? '编辑视频步骤' : '添加视频步骤')
+const dialogTitle = computed(() => {
+  if (isEditing.value) return '编辑视频步骤'
+  if (isInserting.value) return `插入视频步骤 (在第 ${afterNumber.value} 步后)`
+  return '添加视频步骤'
+})
 
 interface Emit {
   (e: 'refresh'): void
@@ -104,7 +117,9 @@ const resetForm = () => {
     videoId: null,
   }
   isEditing.value = false
+  isInserting.value = false
   editingProcedureId.value = null
+  afterNumber.value = 0
 }
 
 // 打开添加对话框
@@ -130,6 +145,14 @@ function openEdit(procedure: TeacherProcedureDetailResponse) {
     videoId: procedure.videoId ?? null,
   }
 
+  visible.value = true
+}
+
+// 打开插入对话框
+function openInsert(after: number) {
+  resetForm()
+  isInserting.value = true
+  afterNumber.value = after
   visible.value = true
 }
 
@@ -163,6 +186,16 @@ const handleSubmit = async () => {
       },
     })
     toast.add({ severity: 'success', summary: '成功', detail: '步骤更新成功', life: 3000 })
+  } else if (isInserting.value) {
+    // 插入模式
+    await insertMutation.mutateAsync({
+      body: {
+        ...body,
+        experimentId: props.experimentId,
+        afterNumber: afterNumber.value,
+      },
+    })
+    toast.add({ severity: 'success', summary: '成功', detail: '步骤插入成功', life: 3000 })
   } else {
     // 添加模式
     await createMutation.mutateAsync({
@@ -187,6 +220,7 @@ function handleCancel() {
 defineExpose({
   open,
   openEdit,
+  openInsert,
   handleCancel
 })
 </script>

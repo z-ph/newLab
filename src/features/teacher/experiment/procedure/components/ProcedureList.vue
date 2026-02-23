@@ -55,6 +55,8 @@
       <Column key="actions" header="操作" frozen align-right>
         <template #body="slotProps">
           <div class="flex gap-2">
+            <Button icon="pi pi-plus" outlined severity="success" size="small"
+              @click="handleInsert(slotProps.data)" v-tooltip="'在此步骤后插入'" />
             <Button icon="pi pi-pencil" outlined size="small" @click="handleEdit(slotProps.data)" />
             <Button icon="pi pi-trash" outlined severity="danger" size="small"
               @click="handleDelete(slotProps.data)" :loading="deleteMutation.isPending.value" />
@@ -105,6 +107,10 @@ const handleOpenAddDialog = () => {
 
 const handleEdit = (procedure: TeacherProcedureDetailResponse) => {
   procedureFormDialogRef.value?.openEdit(procedure)
+}
+
+const handleInsert = (procedure: TeacherProcedureDetailResponse) => {
+  procedureFormDialogRef.value?.openInsert(procedure.number ?? 0)
 }
 
 const handleDelete = (procedure: TeacherProcedureDetailResponse) => {

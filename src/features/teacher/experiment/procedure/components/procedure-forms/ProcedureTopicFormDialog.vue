@@ -48,7 +48,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useToast } from 'primevue/usetoast'
-import { useCreateTopicProcedure, useUpdateTopicProcedure } from '@/features/teacher/experiment/procedure/hooks'
+import { useCreateTopicProcedure, useUpdateTopicProcedure, useInsertTopicProcedure } from '@/features/teacher/experiment/procedure/hooks'
 import { PROCEDURE_TYPE, DEFAULT_VALUES } from '@/features/teacher/experiment/procedure/constants'
 import { parseArray, stringifyArray } from '@/features/teacher/experiment/procedure/utils'
 import type { BaseProcedureFields } from '@/features/teacher/experiment/procedure/types'
@@ -69,21 +69,34 @@ const toast = useToast()
 
 const createMutation = useCreateTopicProcedure()
 const updateMutation = useUpdateTopicProcedure()
+const insertMutation = useInsertTopicProcedure()
 
 // 是否为编辑模式
 const isEditing = ref(false)
+// 是否为插入模式
+const isInserting = ref(false)
 const editingProcedureId = ref<number | null>(null)
+// 插入位置
+const afterNumber = ref<number>(0)
 
 // 当前使用的 mutation
-const mutation = computed(() => isEditing.value ? updateMutation : createMutation)
+const mutation = computed(() => {
+  if (isEditing.value) return updateMutation
+  if (isInserting.value) return insertMutation
+  return createMutation
+})
 
 // 对话框标题
-const dialogTitle = computed(() => isEditing.value ? '编辑题库答题步骤' : '添加题库答题步骤')
+const dialogTitle = computed(() => {
+  if (isEditing.value) return '编辑题库答题步骤'
+  if (isInserting.value) return `插入题库答题步骤 (在第 ${afterNumber.value} 步后)`
+  return '添加题库答题步骤'
+})
 
 interface FormData extends BaseProcedureFields {
   isRandom: boolean
   topicNumber: number | null
-  topicTags: string[]
+  topicTags: number[]
   teacherSelectedTopicIdsStr: string
 }
 
@@ -114,7 +127,9 @@ const resetForm = () => {
     teacherSelectedTopicIdsStr: '',
   }
   isEditing.value = false
+  isInserting.value = false
   editingProcedureId.value = null
+  afterNumber.value = 0
 }
 
 // 打开添加对话框
@@ -139,10 +154,18 @@ function openEdit(procedure: TeacherProcedureDetailResponse) {
     durationMinutes: procedure.durationMinutes ?? DEFAULT_VALUES.DURATION_MINUTES,
     isRandom: procedure.topicIsRandom ?? false,
     topicNumber: procedure.topicNumber ?? null,
-    topicTags: procedure.topicTags ? procedure.topicTags.split(',').filter(Boolean) : [],
+    topicTags: procedure.topicTags ? procedure.topicTags.split(',').map(Number).filter(n => !isNaN(n)) : [],
     teacherSelectedTopicIdsStr: stringifyArray(procedure.topicIds),
   }
 
+  visible.value = true
+}
+
+// 打开插入对话框
+function openInsert(after: number) {
+  resetForm()
+  isInserting.value = true
+  afterNumber.value = after
   visible.value = true
 }
 
@@ -190,6 +213,16 @@ const handleSubmit = async () => {
       },
     })
     toast.add({ severity: 'success', summary: '成功', detail: '步骤更新成功', life: 3000 })
+  } else if (isInserting.value) {
+    // 插入模式
+    await insertMutation.mutateAsync({
+      body: {
+        ...body,
+        experimentId: props.experimentId,
+        afterNumber: afterNumber.value,
+      },
+    })
+    toast.add({ severity: 'success', summary: '成功', detail: '步骤插入成功', life: 3000 })
   } else {
     // 添加模式
     await createMutation.mutateAsync({
@@ -214,6 +247,7 @@ function handleCancel() {
 defineExpose({
   open,
   openEdit,
+  openInsert,
   handleCancel,
 })
 </script>

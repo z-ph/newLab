@@ -124,19 +124,44 @@ function openEdit(procedure: TeacherProcedureDetailResponse) {
   }
 }
 
+// 打开插入对话框
+function openInsert(afterNumber: number) {
+  procedureType.value = undefined
+  typeSelectVisible.value = true
+  // 存储 afterNumber，在选择类型后使用
+  pendingAfterNumber.value = afterNumber
+}
+
+// 待插入的位置
+const pendingAfterNumber = ref<number>(0)
+
 // 选择步骤类型
 function handleSelectType(type: ProcedureType) {
   procedureType.value = type
   typeSelectVisible.value = false
+  const afterNumber = pendingAfterNumber.value
+  pendingAfterNumber.value = 0
 
   // 延迟一帧，确保子组件已经渲染
   setTimeout(() => {
     if (type === PROCEDURE_TYPE.VIDEO) {
-      videoDialogRef.value?.open()
+      if (afterNumber > 0) {
+        videoDialogRef.value?.openInsert(afterNumber)
+      } else {
+        videoDialogRef.value?.open()
+      }
     } else if (type === PROCEDURE_TYPE.DATA_COLLECTION) {
-      dataCollectionDialogRef.value?.open()
+      if (afterNumber > 0) {
+        dataCollectionDialogRef.value?.openInsert(afterNumber)
+      } else {
+        dataCollectionDialogRef.value?.open()
+      }
     } else if (type === PROCEDURE_TYPE.TOPIC) {
-      topicDialogRef.value?.open()
+      if (afterNumber > 0) {
+        topicDialogRef.value?.openInsert(afterNumber)
+      } else {
+        topicDialogRef.value?.open()
+      }
     }
   }, 0)
 }
@@ -150,5 +175,6 @@ function handleCancel() {
 defineExpose({
   open,
   openEdit,
+  openInsert,
 })
 </script>
