@@ -7,16 +7,22 @@ import client from "@/core/api/config";
  * 查询指定实验的所有步骤
  */
 export function useQueryProceduresByExperiment(
-  experimentId: Ref<number>,
+  experimentId: Ref<number | undefined>,
+  options?: { enabled?: Ref<boolean> },
 ) {
   return useQuery({
     queryKey: computed(() => ["procedures", "experiment", unref(experimentId)]),
     queryFn: () =>
       getApiTeacherProceduresExperimentByExperimentId({
-        path: { experimentId: unref(experimentId) },
+        path: { experimentId: unref(experimentId)! },
         client,
       }),
     select: (res) => res.data?.data,
+    enabled: computed(() => {
+      const hasValidId = unref(experimentId) !== undefined
+      const explicitEnabled = options?.enabled ? unref(options.enabled) : true
+      return hasValidId && explicitEnabled
+    }),
   });
 }
 

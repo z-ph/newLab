@@ -18,6 +18,7 @@
             <Tab value="attendance">签到管理</Tab>
             <Tab value="grading">学生批改</Tab>
             <Tab value="procedures">步骤列表</Tab>
+            <Tab value="extensions">延长记录</Tab>
             <Tab value="statistics">步骤统计</Tab>
           </TabList>
           <TabPanels>
@@ -256,9 +257,14 @@
                     </template>
                   </Column>
                   <Column field="remark" header="步骤描述" />
-                  <Column field="timeLimit" header="时间限制">
+                  <Column field="durationMinutes" header="持续时间">
                     <template #body="slotProps">
-                      {{ slotProps.data.timeLimit ? `${slotProps.data.timeLimit} 分钟` : '无限制' }}
+                      {{ slotProps.data.durationMinutes ? `${slotProps.data.durationMinutes} 分钟` : '-' }}
+                    </template>
+                  </Column>
+                  <Column header="截止时间">
+                    <template #body="slotProps">
+                      {{ formatDeadline(calculateProcedureDeadline(slotProps.data)) }}
                     </template>
                   </Column>
                   <Column header="操作" style="width: 120px">
@@ -269,6 +275,50 @@
                         outlined
                         icon="pi pi-clock"
                         @click="openExtendDialogForProcedure(slotProps.data)"
+                      />
+                    </template>
+                  </Column>
+                </DataTable>
+              </div>
+            </TabPanel>
+
+            <!-- 延长记录 -->
+            <TabPanel value="extensions">
+              <div v-if="extensionsQuery.isLoading.value" class="flex justify-center p-8">
+                <ProgressSpinner style="width: 50px; height: 50px" strokeWidth="4" />
+              </div>
+              <div v-else-if="extensionsList.length === 0" class="text-center p-8 text-slate-500">
+                暂无延长记录
+              </div>
+              <div v-else>
+                <DataTable :value="extensionsList" :paginator="true" :rows="10">
+                  <Column field="studentUsername" header="学生学号" sortable />
+                  <Column header="步骤">
+                    <template #body="slotProps">
+                      {{ getProcedureLabel(slotProps.data.experimentalProcedureId) }}
+                    </template>
+                  </Column>
+                  <Column field="extendedMinutes" header="延长时间(分钟)" sortable>
+                    <template #body="slotProps">
+                      <Tag :value="slotProps.data.extendedMinutes" severity="info" />
+                    </template>
+                  </Column>
+                  <Column header="新截止时间">
+                    <template #body="slotProps">
+                      {{ getExtensionDeadline(slotProps.data) }}
+                    </template>
+                  </Column>
+                  <Column field="teacherUsername" header="操作教师" sortable />
+                  <Column header="操作" style="width: 100px">
+                    <template #body="slotProps">
+                      <Button
+                        icon="pi pi-trash"
+                        severity="danger"
+                        outlined
+                        size="small"
+                        v-tooltip.top="'删除记录'"
+                        :loading="deleteExtensionMutation.isPending.value"
+                        @click="confirmDeleteExtension(slotProps.data)"
                       />
                     </template>
                   </Column>
@@ -429,17 +479,23 @@
 
     <!-- 延长时间对话框 -->
     <ExtendTimeDialog ref="extendTimeDialogRef" />
+
+    <!-- 确认对话框 -->
+    <ConfirmDialog />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, reactive } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Card from 'primevue/card'
 import Badge from 'primevue/badge'
 import ProgressBar from 'primevue/progressbar'
 import Tag from 'primevue/tag'
-import type { StudentAttendanceInfo, AttendanceListResponse, ProcedureSubmissionResponse, StudentCompletionInfo, ProcedureStatistics, TeacherProcedureDetailResponse } from '@/core/api/generated'
+import ConfirmDialog from 'primevue/confirmdialog'
+import { useConfirm } from 'primevue/useconfirm'
+import { useToast } from 'primevue/usetoast'
+import type { StudentAttendanceInfo, AttendanceListResponse, ProcedureSubmissionResponse, StudentCompletionInfo, TeacherProcedureDetailResponse } from '@/core/api/generated'
 import { useQueryAttendanceList } from '@/features/teacher/experiment/attendance/hooks/useQueryAttendanceList'
 import { useUpdateAttendanceSuccess } from '@/features/teacher/experiment/attendance/hooks/useMutateAttendanceUpdate'
 import { ATTENDANCE_STATUS, ATTENDANCE_STATUS_OPTIONS } from '@/features/teacher/experiment/attendance/constants'
@@ -467,9 +523,13 @@ import GradeDialog from '@/features/teacher/class-experiment/components/GradeDia
 import ProcedureDetailDialog from '@/features/teacher/class-experiment/components/ProcedureDetailDialog.vue'
 import ExtendTimeDialog from '@/features/teacher/class-experiment/components/ExtendTimeDialog.vue'
 import { useQueryProceduresByExperiment } from '@/features/teacher/experiment/procedure/hooks/useQueryProcedure'
+import { useQueryExtensions, useDeleteExtension } from '@/features/teacher/experiment/procedure/hooks'
+import type { StudentProcedureExtension } from '@/core/api/generated'
 
 const router = useRouter()
 const route = useRoute()
+const confirm = useConfirm()
+const toast = useToast()
 
 const classCode = computed(() => (route.params as any).classCode as string)
 const classExperimentId = computed(() => Number((route.params as any).classExperimentId as string))
@@ -521,13 +581,73 @@ const statisticsQuery = useQueryStatistics(classCode, experimentIdForStats, {
 const statisticsData = computed(() => statisticsQuery.data.value)
 
 // ==================== 步骤列表 ====================
-const proceduresQuery = useQueryProceduresByExperiment(experimentIdForStats as any)
+const proceduresQuery = useQueryProceduresByExperiment(experimentIdForStats)
 
 const proceduresList = computed(() => {
   const data = proceduresQuery.data.value
   if (!data) return []
   return Array.isArray(data) ? data : []
 })
+
+// ==================== 延长记录 ====================
+const extensionParams = reactive({
+  current: 1,
+  size: 10,
+  pageable: true,
+})
+
+const extensionsQuery = useQueryExtensions(
+  computed(() => ({
+    ...extensionParams,
+  }))
+)
+
+const extensionsList = computed(() => {
+  const data = extensionsQuery.data.value
+  if (!data) return []
+  // 筛选出当前实验的延长记录
+  const procedureIds = proceduresList.value.map((p) => p.id)
+  const records = Array.isArray(data.records) ? data.records : (Array.isArray(data) ? data : [])
+  return records.filter((r: StudentProcedureExtension) => procedureIds.includes(r.experimentalProcedureId))
+})
+
+const deleteExtensionMutation = useDeleteExtension()
+
+// 根据步骤ID获取步骤标签
+const getProcedureLabel = (procedureId: number | undefined) => {
+  if (!procedureId) return '-'
+  const procedure = proceduresList.value.find((p) => p.id === procedureId)
+  if (!procedure) return `步骤 ${procedureId}`
+  return `步骤 ${procedure.number}${procedure.remark ? ` - ${procedure.remark}` : ''}`
+}
+
+// 获取延长记录的截止时间
+const getExtensionDeadline = (extension: StudentProcedureExtension) => {
+  const procedure = proceduresList.value.find((p) => p.id === extension.experimentalProcedureId)
+  if (!procedure) return '-'
+  const deadline = calculateProcedureDeadline(procedure, extension.extendedMinutes || 0)
+  return formatDeadline(deadline)
+}
+
+// 确认删除延长记录
+const confirmDeleteExtension = (extension: StudentProcedureExtension) => {
+  confirm.require({
+    message: `确定要删除该延长记录吗？学生 ${extension.studentUsername} 的 ${extension.extendedMinutes} 分钟延长时间将被取消。`,
+    header: '删除确认',
+    icon: 'pi pi-exclamation-triangle',
+    rejectLabel: '取消',
+    acceptLabel: '删除',
+    acceptClass: 'p-button-danger',
+    accept: () => handleDeleteExtension(extension),
+  })
+}
+
+const handleDeleteExtension = async (extension: StudentProcedureExtension) => {
+  if (!extension.id) return
+  await deleteExtensionMutation.mutateAsync(extension.id)
+  toast.add({ severity: 'success', summary: '成功', detail: '延长记录已删除', life: 3000 })
+  extensionsQuery.refetch()
+}
 
 // ==================== 学生批改 ====================
 // 查询实验详情获取courseId
@@ -537,6 +657,26 @@ const experimentDetailQuery = useQueryClassExperimentDetail(
 )
 
 const courseId = computed(() => experimentDetailQuery.data.value?.courseId)
+
+// 实验开始时间
+const experimentStartTime = computed(() => experimentDetailQuery.data.value?.startTime)
+
+// 计算步骤截止时间（实验开始时间 + 偏移量 + 持续时间）
+const calculateProcedureDeadline = (procedure: TeacherProcedureDetailResponse, extendedMinutes = 0) => {
+  if (!experimentStartTime.value) return null
+  const start = new Date(experimentStartTime.value)
+  const offsetMinutes = procedure.offsetMinutes || 0
+  const durationMinutes = procedure.durationMinutes || 0
+  const totalMinutes = offsetMinutes + durationMinutes + extendedMinutes
+  const deadline = new Date(start.getTime() + totalMinutes * 60 * 1000)
+  return deadline
+}
+
+// 格式化截止时间
+const formatDeadline = (deadline: Date | null) => {
+  if (!deadline) return '-'
+  return formatDateTime(deadline.toISOString())
+}
 
 // 查询学生提交
 const studentSubmissions = useQueryStudentSubmissions(courseId, {
@@ -578,24 +718,35 @@ const selectedStudentsForExtend = ref<StudentCompletionInfo[]>([])
 
 const openExtendTimeDialog = () => {
   if (selectedStudentsForExtend.value.length === 0) return
+  if (!experimentStartTime.value) {
+    toast.add({ severity: 'warn', summary: '提示', detail: '无法获取实验开始时间', life: 3000 })
+    return
+  }
 
   const students = selectedStudentsForExtend.value.map((s) => ({
     studentUsername: s.studentUsername!,
     studentName: s.studentName!,
   }))
 
-  const procedureList = (statisticsData.value?.procedureStatistics || []).map((p: ProcedureStatistics) => ({
+  const procedureList = proceduresList.value.map((p: TeacherProcedureDetailResponse) => ({
     id: p.id!,
     number: p.number!,
     type: p.type!,
     remark: p.remark,
+    offsetMinutes: p.offsetMinutes,
+    durationMinutes: p.durationMinutes,
   }))
 
-  extendTimeDialogRef.value?.open(students, experimentIdForStats.value!, procedureList)
+  extendTimeDialogRef.value?.open(students, experimentIdForStats.value!, procedureList, experimentStartTime.value)
 }
 
 // 按步骤延长时间 - 从签到列表获取学生
 const openExtendDialogForProcedure = (procedure: TeacherProcedureDetailResponse) => {
+  if (!experimentStartTime.value) {
+    toast.add({ severity: 'warn', summary: '提示', detail: '无法获取实验开始时间', life: 3000 })
+    return
+  }
+
   // 从签到数据获取学生列表
   const allStudents: { studentUsername: string; studentName: string }[] = []
 
@@ -628,6 +779,7 @@ const openExtendDialogForProcedure = (procedure: TeacherProcedureDetailResponse)
 
   // 如果没有学生数据，提示用户
   if (allStudents.length === 0) {
+    toast.add({ severity: 'warn', summary: '提示', detail: '暂无学生数据', life: 3000 })
     return
   }
 
@@ -637,9 +789,11 @@ const openExtendDialogForProcedure = (procedure: TeacherProcedureDetailResponse)
     number: p.number!,
     type: p.type!,
     remark: p.remark,
+    offsetMinutes: p.offsetMinutes,
+    durationMinutes: p.durationMinutes,
   }))
 
-  extendTimeDialogRef.value?.open(allStudents, experimentIdForStats.value!, procedureList, procedure.id)
+  extendTimeDialogRef.value?.open(allStudents, experimentIdForStats.value!, procedureList, experimentStartTime.value, procedure.id)
 }
 
 const updateAttendanceStatus = (student: StudentAttendanceInfo, status: number) => {

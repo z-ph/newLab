@@ -58,21 +58,43 @@
           option-value="value"
           placeholder="请选择步骤"
           class="w-full"
+          @change="updateOriginalDeadline"
         />
       </div>
 
-      <!-- 延长时间 -->
+      <!-- 原截止时间 -->
+      <div v-if="originalDeadline">
+        <label class="mb-2 block text-sm font-medium text-slate-700">
+          原截止时间
+        </label>
+        <div class="rounded border border-slate-200 bg-slate-50 p-2 text-sm text-slate-600">
+          {{ formatDateTime(originalDeadline.toISOString()) }}
+        </div>
+      </div>
+
+      <!-- 新截止时间 -->
       <div>
         <label class="mb-2 block text-sm font-medium text-slate-700">
-          延长时间（分钟） <span class="text-red-500">*</span>
+          新截止时间 <span class="text-red-500">*</span>
         </label>
-        <InputNumber
-          v-model="extendedMinutes"
-          :min="1"
-          :max="9999"
-          fluid
-          placeholder="请输入延长时间"
+        <DatePicker
+          v-model="newDeadline"
+          showTime
+          hourFormat="24"
+          :minDate="minDeadline"
+          placeholder="请选择新的截止时间"
+          class="w-full"
         />
+      </div>
+
+      <!-- 延长时间显示 -->
+      <div v-if="calculatedExtendedMinutes > 0">
+        <label class="mb-2 block text-sm font-medium text-slate-700">
+          需延长时间
+        </label>
+        <div class="rounded border border-blue-200 bg-blue-50 p-2 text-sm text-blue-600">
+          <span class="font-medium">{{ calculatedExtendedMinutes }}</span> 分钟
+        </div>
       </div>
     </div>
 
@@ -94,9 +116,10 @@ import Dialog from 'primevue/dialog'
 import Button from 'primevue/button'
 import RadioButton from 'primevue/radiobutton'
 import Select from 'primevue/select'
-import InputNumber from 'primevue/inputnumber'
+import DatePicker from 'primevue/datepicker'
 import { useBatchExtendByProcedure, useBatchExtendByExperiment } from '@/features/teacher/experiment/procedure/hooks'
 import { toast } from '@/core/utils/toast'
+import { formatDateTime } from '@/features/shared/utils/formatters'
 
 interface StudentInfo {
   studentUsername: string
@@ -108,16 +131,19 @@ interface ProcedureInfo {
   number: number
   type: number
   remark?: string
+  offsetMinutes?: number
+  durationMinutes?: number
 }
 
 const visible = ref(false)
 const experimentId = ref<number>()
+const experimentStartTime = ref<string>()
 const procedures = ref<ProcedureInfo[]>([])
 const selectedStudents = ref<StudentInfo[]>([])
 
 const extendMode = ref<'experiment' | 'procedure'>('experiment')
 const selectedProcedureId = ref<number | undefined>(undefined)
-const extendedMinutes = ref<number | null>(null)
+const newDeadline = ref<Date | null>(null)
 
 const extendByProcedure = useBatchExtendByProcedure()
 const extendByExperiment = useBatchExtendByExperiment()
@@ -131,20 +157,67 @@ const procedureOptions = computed(() => {
   }))
 })
 
+// 计算原截止时间
+const originalDeadline = computed(() => {
+  if (!experimentStartTime.value) return null
+
+  let procedure: ProcedureInfo | undefined
+  if (extendMode.value === 'procedure') {
+    procedure = procedures.value.find((p) => p.id === selectedProcedureId.value)
+  } else {
+    // 按实验延长时，取最后一个步骤的截止时间
+    procedure = procedures.value[procedures.value.length - 1]
+  }
+
+  if (!procedure) return null
+
+  const start = new Date(experimentStartTime.value)
+  const offsetMinutes = procedure.offsetMinutes || 0
+  const durationMinutes = procedure.durationMinutes || 0
+  const totalMinutes = offsetMinutes + durationMinutes
+  return new Date(start.getTime() + totalMinutes * 60 * 1000)
+})
+
+// 最小可选时间（原截止时间）
+const minDeadline = computed(() => {
+  return originalDeadline.value || new Date()
+})
+
+// 计算需要延长的分钟数
+const calculatedExtendedMinutes = computed(() => {
+  if (!newDeadline.value || !originalDeadline.value) return 0
+  const diffMs = newDeadline.value.getTime() - originalDeadline.value.getTime()
+  const diffMinutes = Math.ceil(diffMs / (1000 * 60))
+  return Math.max(0, diffMinutes)
+})
+
 const canSubmit = computed(() => {
-  if (extendedMinutes.value === null || extendedMinutes.value < 1) return false
+  if (newDeadline.value === null) return false
   if (selectedStudents.value.length === 0) return false
   if (extendMode.value === 'procedure' && selectedProcedureId.value === undefined) return false
+  if (calculatedExtendedMinutes.value <= 0) return false
   return true
 })
 
-async function open(students: StudentInfo[], expId: number, procedureList: ProcedureInfo[], preselectedProcedureId?: number) {
+// 更新原截止时间显示
+function updateOriginalDeadline() {
+  // 触发计算属性重新计算
+}
+
+async function open(
+  students: StudentInfo[],
+  expId: number,
+  procedureList: ProcedureInfo[],
+  startTime: string,
+  preselectedProcedureId?: number
+) {
   selectedStudents.value = students
   experimentId.value = expId
   procedures.value = procedureList
-  extendedMinutes.value = null
+  experimentStartTime.value = startTime
+  newDeadline.value = null
 
-  // 如果预选了步骤，则设置���按步骤延长模式
+  // 如果预选了步骤，则设置为按步骤延长模式
   if (preselectedProcedureId !== undefined) {
     extendMode.value = 'procedure'
     selectedProcedureId.value = preselectedProcedureId
@@ -167,7 +240,12 @@ function close() {
 }
 
 async function handleExtend() {
-  if (!experimentId.value || extendedMinutes.value === null || selectedStudents.value.length === 0) {
+  if (!experimentId.value || newDeadline.value === null || selectedStudents.value.length === 0) {
+    return
+  }
+
+  if (calculatedExtendedMinutes.value <= 0) {
+    toast.error('新截止时间必须晚于原截止时间')
     return
   }
 
@@ -178,14 +256,14 @@ async function handleExtend() {
       await extendByExperiment.mutateAsync({
         experimentId: experimentId.value,
         studentUsernames,
-        extendedMinutes: extendedMinutes.value,
+        extendedMinutes: calculatedExtendedMinutes.value,
       })
     } else {
       if (selectedProcedureId.value === undefined) return
       await extendByProcedure.mutateAsync({
         experimentalProcedureId: selectedProcedureId.value,
         studentUsernames,
-        extendedMinutes: extendedMinutes.value,
+        extendedMinutes: calculatedExtendedMinutes.value,
       })
     }
 
