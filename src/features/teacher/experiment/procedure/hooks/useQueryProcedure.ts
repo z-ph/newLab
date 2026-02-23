@@ -19,9 +19,10 @@ export function useQueryProceduresByExperiment(
       }),
     select: (res) => res.data?.data,
     enabled: computed(() => {
-      const hasValidId = unref(experimentId) !== undefined
+      const id = unref(experimentId)
+      const isValidId = id !== undefined && !Number.isNaN(id) && id > 0
       const explicitEnabled = options?.enabled ? unref(options.enabled) : true
-      return hasValidId && explicitEnabled
+      return isValidId && explicitEnabled
     }),
   });
 }
