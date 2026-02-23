@@ -31,13 +31,11 @@
       <template #header>
         <div class="flex items-center justify-between">
           <h1 class="text-xl font-bold text-slate-900">实验模版管理</h1>
-          <Button label="新建实验模版" icon="pi pi-plus" @click="openCreateDialog" />
+          <Button label="新建实验模版" icon="pi pi-plus"  @click="navToCreation()"/>
         </div>
       </template>
     </ExperimentTable>
 
-    <!-- 创建实验对话框 -->
-    <ExperimentFormDialog v-model:visible="showCreateDialog" @success="handleCreateSuccess" />
 
   </div>
 </template>
@@ -49,7 +47,6 @@ import {
   useQueryExperimentAll,
   useDeleteExperiment,
   ExperimentTable,
-  ExperimentFormDialog,
 } from '@/features/teacher/experiment'
 import { useQueryCourseAll } from '@/features/teacher/course'
 import type { ExperimentResponse } from '@/core/api/generated'
@@ -102,15 +99,8 @@ const experiments = computed(() => {
   return expWithCourse
 })
 
-// 对话框状态
-const showCreateDialog = ref(false)
-
 // 删除实验 mutation（用于 loading 状态）
 const deleteMutation = useDeleteExperiment()
-
-const openCreateDialog = () => {
-  showCreateDialog.value = true
-}
 
 // 跳转到实验详情页面
 const navigateToDetail = (experiment: ExperimentResponse) => {
@@ -121,9 +111,7 @@ const navigateToDetail = (experiment: ExperimentResponse) => {
     },
   })
 }
-
-const handleCreateSuccess = () => {
-  showCreateDialog.value = false
-  query.refetch()
+function navToCreation(){
+  router.push('/teacher/experiments/create')
 }
 </script>
