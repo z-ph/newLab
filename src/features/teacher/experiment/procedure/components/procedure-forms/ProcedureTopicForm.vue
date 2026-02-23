@@ -20,56 +20,16 @@
       <!-- 标签选择 -->
       <label class="mb-2 block text-sm font-medium text-slate-700 mt-4">标签限制</label>
 
-      <!-- 预定义标签 -->
-      <div class="mb-3">
-        <p class="text-xs text-slate-500 mb-2">选择预定义标签</p>
-        <div class="flex flex-wrap gap-2">
-          <div v-for="tag in PREDEFINED_TAGS" :key="tag" class="flex items-center gap-1">
-            <Checkbox
-              :input-id="`tag-${tag}`"
-              :model-value="selectedTagsMap[tag]"
-              :binary="true"
-              @update:model-value="val => updateTagMap(tag, val)"
-            />
-            <label :for="`tag-${tag}`" class="text-sm text-slate-700 cursor-pointer select-none">{{ tag }}</label>
-          </div>
-        </div>
-      </div>
-
-      <!-- 自定义标签输入 -->
-      <div class="mb-3">
-        <p class="text-xs text-slate-500 mb-2">或添加自定义标签</p>
-        <div class="flex gap-2">
-          <InputText
-            v-model="customTagInput"
-            :placeholder="CUSTOM_TAG_PLACEHOLDER"
-            class="flex-1"
-            @keydown.enter.prevent="addCustomTag"
-          />
-          <Button
-            :label="ADD_BUTTON_LABEL"
-            @click="addCustomTag"
-            :disabled="!customTagInput.trim()"
-          />
-        </div>
-      </div>
-
-      <!-- 已选标签列表 -->
-      <div v-if="topicTags.length > 0">
-        <p class="text-xs text-slate-500 mb-2">
-          已选择 {{ topicTags.length }} 个标签
-        </p>
-        <div class="flex flex-wrap gap-2">
-          <Chip
-            v-for="tag in topicTags"
-            :key="tag"
-            :label="tag"
-            removable
-            @remove="removeTag(tag)"
-            class="bg-blue-50 text-blue-700"
-          />
-        </div>
-      </div>
+      <Select
+        v-model="selectedTagId"
+        :options="tagOptions"
+        option-label="label"
+        option-value="value"
+        placeholder="请选择标签（可选）"
+        :loading="isLoadingTags"
+        class="w-full"
+        show-clear
+      />
     </div>
 
     <!-- 指定题目模式 -->
@@ -101,21 +61,19 @@
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
-import {
-  PREDEFINED_TAGS,
-  MIN_TOPIC_NUMBER,
-  CUSTOM_TAG_PLACEHOLDER,
-  ADD_BUTTON_LABEL,
-} from '@/features/teacher/experiment/procedure/constants'
-import { useQueryAllTopics } from '@/features/teacher/topic'
+import { MIN_TOPIC_NUMBER } from '@/features/teacher/experiment/procedure/constants'
+import { useQueryAllTopics, useQueryTags } from '@/features/teacher/topic'
 
 const isRandom = defineModel<boolean>('isRandom', { default: false })
 const topicNumber = defineModel<number | null>('topicNumber', { default: null })
-const topicTags = defineModel<string[]>('topicTags', { default: () => [] })
+const topicTags = defineModel<number[]>('topicTags', { default: () => [] })
 const teacherSelectedTopicIdsStr = defineModel<string>('teacherSelectedTopicIdsStr', { default: '' })
 
 // 获取所有题目列表（两次查询模式）
 const { topics, isLoading } = useQueryAllTopics()
+
+// 获取所有标签
+const { data: tags, isLoading: isLoadingTags } = useQueryTags()
 
 // 为题目添加显示标签
 const topicsWithLabel = computed(() => {
@@ -140,56 +98,58 @@ watch(selectedTopics, (ids) => {
   teacherSelectedTopicIdsStr.value = ids.join(',')
 }, { deep: true })
 
-// 预定义标签选中状态映射
-const selectedTagsMap = ref<Record<string, boolean>>({})
+// 选中的标签 ID（单选）
+const selectedTagId = ref<number | null>(null)
 
-// 自定义标签输入
-const customTagInput = ref('')
+// 初始化选中标签
+watch(topicTags, (ids) => {
+  selectedTagId.value = ids.length > 0 ? (ids[0] ?? null) : null
+}, { immediate: true })
 
-// 初始化标签映射
-watch(topicTags, (tags) => {
-  PREDEFINED_TAGS.forEach(tag => {
-    selectedTagsMap.value[tag] = tags.includes(tag)
+// 同步选中标签到父组件
+watch(selectedTagId, (id) => {
+  topicTags.value = id !== null ? [id] : []
+})
+
+// 标签类型名称映射
+const TAG_TYPE_LABELS: Record<string, string> = {
+  '1': '学科标签',
+  '2': '难度标签',
+  '3': '题型标签',
+  '4': '自定义标签',
+}
+
+// 下拉选项：按类型分组
+const tagOptions = computed(() => {
+  if (!tags.value) return []
+
+  const groups: Record<string, Array<{ label: string; value: number }>> = {}
+
+  tags.value.forEach(tag => {
+    const type = tag.type || '4'
+    if (!groups[type]) {
+      groups[type] = []
+    }
+    groups[type].push({
+      label: tag.tagName || '',
+      value: tag.id!,
+    })
   })
-}, { deep: true, immediate: true })
 
-// 更新标签映射
-const updateTagMap = (tag: string, value: boolean) => {
-  selectedTagsMap.value[tag] = value
-  const index = topicTags.value.indexOf(tag)
-  if (value && index === -1) {
-    topicTags.value = [...topicTags.value, tag]
-  } else if (!value && index > -1) {
-    const newTags = [...topicTags.value]
-    newTags.splice(index, 1)
-    topicTags.value = newTags
-  }
-}
+  // 按类型排序并生成选项列表
+  const options: Array<{ label: string; value: number }> = []
+  Object.entries(groups)
+    .sort((a, b) => parseInt(a[0]) - parseInt(b[0]))
+    .forEach(([type, typeTags]) => {
+      // 添加分组标题（作为不可选项，用前缀标识）
+      typeTags.forEach(tag => {
+        options.push({
+          label: `[${TAG_TYPE_LABELS[type] || '其他'}] ${tag.label}`,
+          value: tag.value,
+        })
+      })
+    })
 
-// 添加自定义标签
-const addCustomTag = () => {
-  const tag = customTagInput.value.trim()
-  if (tag && !topicTags.value.includes(tag)) {
-    topicTags.value = [...topicTags.value, tag]
-    customTagInput.value = ''
-    // 如果是预定义标签，同步更新映射
-    if (PREDEFINED_TAGS.includes(tag as typeof PREDEFINED_TAGS[number])) {
-      selectedTagsMap.value[tag] = true
-    }
-  }
-}
-
-// 移除标签
-const removeTag = (tag: string) => {
-  const index = topicTags.value.indexOf(tag)
-  if (index > -1) {
-    const newTags = [...topicTags.value]
-    newTags.splice(index, 1)
-    topicTags.value = newTags
-    // 如果是预定义标签，同步更新映射
-    if (PREDEFINED_TAGS.includes(tag as typeof PREDEFINED_TAGS[number])) {
-      selectedTagsMap.value[tag] = false
-    }
-  }
-}
+  return options
+})
 </script>

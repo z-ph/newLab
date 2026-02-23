@@ -176,38 +176,18 @@ export const PROCEDURE_API_ENDPOINTS = {
 } as const
 
 /**
- * 预定义标签
- */
-export const PREDEFINED_TAGS = [
-  '单选题',
-  '多选题',
-  '判断题',
-  '填空题',
-  '简答题',
-  '计算题',
-  '基础',
-  '中等',
-  '困难',
-  '章节一',
-  '章节二',
-  '章节三',
-] as const
-
-/**
  * 表单占位符文本
  */
 export const FORM_PLACEHOLDERS = {
   JSON_FIELD: '{"字段1": "答案1", "字段2": "答案2"}',
   ROW_HEADERS: '行1,行2,行3',
   COLUMN_HEADERS: '列1,列2,列3',
-  CUSTOM_TAG: '输入自定义标签',
   TOPIC_IDS: '如：1,2,3,4,5',
 } as const
 
 export const JSON_FIELD_PLACEHOLDER = FORM_PLACEHOLDERS.JSON_FIELD
 export const ROW_HEADERS_PLACEHOLDER = FORM_PLACEHOLDERS.ROW_HEADERS
 export const COLUMN_HEADERS_PLACEHOLDER = FORM_PLACEHOLDERS.COLUMN_HEADERS
-export const CUSTOM_TAG_PLACEHOLDER = FORM_PLACEHOLDERS.CUSTOM_TAG
 export const TOPIC_IDS_PLACEHOLDER = FORM_PLACEHOLDERS.TOPIC_IDS
 
 /**
@@ -218,15 +198,6 @@ export const FORM_HINTS = {
 } as const
 
 export const TOPIC_IDS_HINT = FORM_HINTS.TOPIC_IDS
-
-/**
- * 按钮文本
- */
-export const BUTTON_LABELS = {
-  ADD: '添加',
-} as const
-
-export const ADD_BUTTON_LABEL = BUTTON_LABELS.ADD
 
 /**
  * 验证规则
