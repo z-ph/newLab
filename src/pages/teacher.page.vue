@@ -1,8 +1,11 @@
 <template>
-  <div class="flex min-h-screen bg-slate-50">
-    <AppSidebar ref="sidebarRef" />
+  <div class="min-h-screen bg-slate-50">
+    <AppSidebar ref="sidebarRef" @width-change="handleWidthChange" />
 
-    <div class="flex-1 flex flex-col overflow-hidden">
+    <div
+      class="flex flex-col overflow-hidden transition-[margin] duration-200"
+      :style="isMobile ? {} : { marginLeft: `${sidebarWidth}px` }"
+    >
       <AppTopbar @toggle-drawer="sidebarRef?.toggleDrawer()" />
 
       <!-- 标签页导航 -->
@@ -20,12 +23,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useBreakpoints } from '@vueuse/core'
 import AppSidebar from '@/features/teacher/components/AppSidebar.vue'
 import AppTopbar from '@/features/teacher/components/AppTopbar.vue'
 import TabBar from '@/features/teacher/components/TabBar.vue'
 
+const breakpoints = useBreakpoints({ md: 768 })
+const isMobile = breakpoints.smaller('md')
+
 const sidebarRef = ref<InstanceType<typeof AppSidebar>>()
+const sidebarWidth = ref(256)
+
+const handleWidthChange = (width: number) => {
+  sidebarWidth.value = width
+}
+
+onMounted(() => {
+  const saved = localStorage.getItem('sidebar-width')
+  if (saved) {
+    sidebarWidth.value = parseInt(saved, 10)
+  }
+})
 </script>
 
 <style scoped>

@@ -2,7 +2,7 @@
   <!-- ==================== 桌面端/平板：固定侧边栏 ==================== -->
   <div
     v-if="!isMobile"
-    class="h-screen bg-white border-r border-slate-200 flex flex-col relative"
+    class="fixed left-0 top-0 h-screen bg-white border-r border-slate-200 flex flex-col z-30"
     :style="sidebarStyle"
   >
     <!-- Logo区域 -->
@@ -205,6 +205,13 @@ import Button from 'primevue/button'
 import { MENU_ITEMS } from '@/features/teacher/constants'
 import UserInfo from './UserInfo.vue'
 
+// ==================== Emits ====================
+interface Emits {
+  (e: 'widthChange', width: number): void
+}
+
+const emit = defineEmits<Emits>()
+
 // ==================== 断点检测 ====================
 const breakpoints = useBreakpoints({
   md: 768,
@@ -229,7 +236,10 @@ onMounted(() => {
       const width = parseInt(saved, 10)
       if (width >= MIN_WIDTH && width <= MAX_WIDTH) {
         sidebarWidth.value = width
+        emit('widthChange', width)
       }
+    } else {
+      emit('widthChange', DEFAULT_WIDTH)
     }
   }
 })
@@ -238,6 +248,7 @@ onMounted(() => {
 watch(sidebarWidth, (newWidth) => {
   if (!isMobile.value) {
     localStorage.setItem('sidebar-width', String(newWidth))
+    emit('widthChange', newWidth)
   }
 })
 
