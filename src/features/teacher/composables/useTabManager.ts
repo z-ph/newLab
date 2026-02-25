@@ -1,6 +1,7 @@
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useRoute } from 'vue-router'
+import { MENU_ITEMS } from '../constants'
 
 /**
  * 标签页信息
@@ -10,6 +11,47 @@ export interface TabInfo {
   title: string // 显示标题
   path: string // 完整路径
   closable: boolean // 主标签页=false，详情页=true
+}
+
+/**
+ * 侧边栏菜单路径集合（包含一级菜单和二级菜单）
+ */
+const SIDEBAR_PATHS = new Set<string>()
+
+// 初始化侧边栏路径集合
+function initSidebarPaths() {
+  MENU_ITEMS.forEach((item) => {
+    // 添加一级菜单路径
+    SIDEBAR_PATHS.add(item.path)
+    SIDEBAR_PATHS.add(item.path.replace(/\/$/, '')) // 同时添加无尾部斜杠的版本
+
+    // 添加二级菜单路径
+    if (item.children) {
+      item.children.forEach((child) => {
+        SIDEBAR_PATHS.add(child.path)
+      })
+    }
+  })
+}
+
+initSidebarPaths()
+
+/**
+ * 检查路径是否在侧边栏菜单中
+ */
+function isSidebarPath(path: string): boolean {
+  // 精确匹配
+  if (SIDEBAR_PATHS.has(path)) {
+    return true
+  }
+
+  // 检查是否是带 query 参数的侧边栏路径
+  const pathWithoutQuery = path.split('?')[0] ?? path
+  if (SIDEBAR_PATHS.has(pathWithoutQuery)) {
+    return true
+  }
+
+  return false
 }
 
 /**
@@ -205,6 +247,11 @@ export function useTabManager() {
         if (activeTab.value !== newPath) {
           activeTab.value = newPath
         }
+        return
+      }
+
+      // 如果路径在侧边栏菜单中，不添加到 tabbar
+      if (isSidebarPath(newPath)) {
         return
       }
 
