@@ -15480,11 +15480,7 @@
             "headers": {}
           }
         },
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "security": []
       }
     },
     "/api/student/procedure-submissions": {
@@ -15629,11 +15625,7 @@
             "headers": {}
           }
         },
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "security": []
       }
     },
     "/api/student/procedure-submissions/course/{courseId}": {
@@ -15769,11 +15761,7 @@
             "headers": {}
           }
         },
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "security": []
       }
     },
     "/api/student/procedure-submissions/completed": {
@@ -15828,11 +15816,7 @@
             "headers": {}
           }
         },
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "security": []
       }
     },
     "/api/student/procedure-submissions/uncompleted": {
@@ -15887,11 +15871,7 @@
             "headers": {}
           }
         },
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "security": []
       }
     },
     "/api/student/procedure-submissions/video/{procedureId}/viewed": {
@@ -15968,11 +15948,7 @@
             "headers": {}
           }
         },
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "security": []
       }
     },
     "/api/student/procedure-submissions/topic/complete": {
@@ -16040,11 +16016,7 @@
             "headers": {}
           }
         },
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "security": []
       }
     },
     "/api/student/procedure-submissions/data-collection/complete": {
@@ -16160,11 +16132,7 @@
             "headers": {}
           }
         },
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "security": []
       }
     },
     "/api/student/procedure-submissions/topic/update": {
@@ -16232,11 +16200,7 @@
             "headers": {}
           }
         },
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "security": []
       }
     },
     "/api/student/procedure-submissions/data-collection/update": {
@@ -16361,11 +16325,7 @@
             "headers": {}
           }
         },
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "security": []
       }
     },
     "/api/student/procedure-submissions/timed-quiz/complete": {
@@ -16433,11 +16393,7 @@
             "headers": {}
           }
         },
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
+        "security": []
       }
     },
     "/api/teacher/procedures/extensions": {

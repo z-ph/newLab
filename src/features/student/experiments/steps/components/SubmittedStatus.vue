@@ -63,12 +63,12 @@
                 >
                   {{ submittedData.fillBlankAnswers[fieldName] || '-' }}
                 </span>
-                <!-- 错误时显示括号里的正确答案（绿色） -->
+                <!-- 显示正确答案（有误差范围时总是显示，错误时也显示） -->
                 <span
-                  v-if="!isAnswerCorrect(fieldName) && correctAnswerMap[fieldName]"
+                  v-if="correctAnswerMap[fieldName] && (tolerance !== undefined || !isAnswerCorrect(fieldName))"
                   class="text-sm text-green-600"
                 >
-                  （{{ correctAnswerMap[fieldName] }}）
+                  （{{ formatCorrectAnswer(correctAnswerMap[fieldName]!) }}）
                 </span>
               </div>
             </div>
@@ -110,12 +110,12 @@
                     >
                       {{ submittedData.tableCellAnswers[`${row}-${col}`] || '-' }}
                     </span>
-                    <!-- 错误时显示括号里的正确答案（绿色） -->
+                    <!-- 显示正确答案（有误差范围时总是显示，错误时也显示） -->
                     <span
-                      v-if="!isTableCellCorrect(`${row}-${col}`) && correctAnswerMap[`${row}-${col}`]"
+                      v-if="correctAnswerMap[`${row}-${col}`] && (tolerance !== undefined || !isTableCellCorrect(`${row}-${col}`))"
                       class="text-green-600 ml-1"
                     >
-                      （{{ correctAnswerMap[`${row}-${col}`] }}）
+                      （{{ formatCorrectAnswer(correctAnswerMap[`${row}-${col}`]!) }}）
                     </span>
                   </td>
                 </tr>
@@ -226,19 +226,60 @@ const correctAnswerMap = computed<Record<string, string>>(() => {
   }
 })
 
-// 判断答案是否正确
+// 获取误差范围
+const tolerance = computed<number | undefined>(() => {
+  const detail = props.dataCollectionDetail
+  if (detail && 'tolerance' in detail && typeof detail.tolerance === 'number') {
+    return detail.tolerance
+  }
+  return undefined
+})
+
+// 格式化正确答案显示（带误差范围）
+function formatCorrectAnswer(answer: string): string {
+  if (tolerance.value !== undefined) {
+    return `${answer} (±${tolerance.value})`
+  }
+  return answer
+}
+
+// 判断答案是否正确（支持误差范围）
 function isAnswerCorrect(fieldName: string): boolean {
   const studentAnswer = submittedData.value.fillBlankAnswers[fieldName]
   const correctAnswer = correctAnswerMap.value[fieldName]
   if (!correctAnswer || studentAnswer === undefined) return true
+
+  // 尝试数值比较（如果有误差范围）
+  const toleranceValue = tolerance.value
+  if (toleranceValue !== undefined) {
+    const studentNum = parseFloat(studentAnswer.trim())
+    const correctNum = parseFloat(correctAnswer.trim())
+    if (!isNaN(studentNum) && !isNaN(correctNum)) {
+      return Math.abs(studentNum - correctNum) <= toleranceValue
+    }
+  }
+
+  // 默认精确字符串匹配
   return studentAnswer.trim() === correctAnswer.trim()
 }
 
-// 判断表格单元格答案是否正确
+// 判断表格单元格答案是否正确（支持误差范围）
 function isTableCellCorrect(cellPosition: string): boolean {
   const studentAnswer = submittedData.value.tableCellAnswers[cellPosition]
   const correctAnswer = correctAnswerMap.value[cellPosition]
   if (!correctAnswer || studentAnswer === undefined) return true
+
+  // 尝试数值比较（如果有误差范围）
+  const toleranceValue = tolerance.value
+  if (toleranceValue !== undefined) {
+    const studentNum = parseFloat(studentAnswer.trim())
+    const correctNum = parseFloat(correctAnswer.trim())
+    if (!isNaN(studentNum) && !isNaN(correctNum)) {
+      return Math.abs(studentNum - correctNum) <= toleranceValue
+    }
+  }
+
+  // 默认精确字符串匹配
   return studentAnswer.trim() === correctAnswer.trim()
 }
 

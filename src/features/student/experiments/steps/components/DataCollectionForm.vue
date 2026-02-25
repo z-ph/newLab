@@ -88,7 +88,7 @@
 import { ref, computed } from 'vue'
 import { DATA_COLLECTION_TYPE } from '@/features/teacher/experiment/procedure/constants'
 import { DATA_COLLECTION_TYPE_LABELS } from '@/features/student/experiments/constants'
-import { dataCollectionToFormData, recordToFillBlankAnswers, recordToTableCellAnswers, type DataCollectionFormData, type DataCollectionSubmitParams } from '@/features/student/experiments/utils/dataCollection'
+import { dataCollectionToFormData, type DataCollectionFormData, type DataCollectionSubmitParams } from '@/features/student/experiments/utils/dataCollection'
 import { useSubmitDataCollection } from '@/features/student/experiments/hooks'
 import KeyDataForm from './KeyDataForm.vue'
 import TableDataForm from './TableDataForm.vue'
@@ -190,19 +190,19 @@ async function handleSubmit() {
   // 构建提交参数
   const params: DataCollectionSubmitParams = {}
 
-  // 添加填空答案（转换为 DTO 数组）
+  // 添加填空答案（直接使用 Record 对象）
   if (dataCollectionType.value === DATA_COLLECTION_TYPE.KEY_DATA) {
     const hasAnswers = Object.values(formData.value.fillBlankAnswers).some(v => v && v.trim())
     if (hasAnswers) {
-      params.fillBlankAnswers = recordToFillBlankAnswers(formData.value.fillBlankAnswers)
+      params.fillBlankAnswers = formData.value.fillBlankAnswers
     }
   }
 
-  // 添加表格答案（转换为 DTO 数组）
+  // 添加表格答案（直接使用 Record 对象）
   if (dataCollectionType.value === DATA_COLLECTION_TYPE.TABLE_DATA) {
     const hasAnswers = Object.values(formData.value.tableCellAnswers).some(v => v && v.trim())
     if (hasAnswers) {
-      params.tableCellAnswers = recordToTableCellAnswers(formData.value.tableCellAnswers)
+      params.tableCellAnswers = formData.value.tableCellAnswers
     }
   }
 

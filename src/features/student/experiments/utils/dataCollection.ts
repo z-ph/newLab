@@ -22,10 +22,12 @@ export interface DataCollectionFormData {
 
 /**
  * 提交参数类型
+ * 注意：fillBlankAnswers 和 tableCellAnswers 直接使用 Record 类型，
+ * 在 hook 中序列化为 JSON 字符串发送给后端
  */
 export interface DataCollectionSubmitParams {
-  fillBlankAnswers?: FillBlankAnswer[]
-  tableCellAnswers?: TableCellAnswer[]
+  fillBlankAnswers?: Record<string, string>
+  tableCellAnswers?: Record<string, string>
   photos?: File
   documents?: File
 }
