@@ -173,7 +173,7 @@ export function checkAllRequiredAnswered(
 export function getAnswerDisplayText(
   topicType: number,
   answer: string,
-  choices?: string
+  choices?: string | TopicChoice[]
 ): string {
   if (!answer) return '-'
 

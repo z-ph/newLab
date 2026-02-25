@@ -47,7 +47,20 @@
             </div>
             <div class="text-sm">
               <span class="text-gray-500">答案：</span>
-              <span class="font-medium text-blue-600">{{ item.answerDisplay }}</span>
+              <!-- 学生答案：正确用绿色，错误用红色 -->
+              <span
+                class="font-medium"
+                :class="item.isCorrect ? 'text-green-600' : 'text-red-600'"
+              >
+                {{ item.answerDisplay }}
+              </span>
+              <!-- 错误时显示正确答案 -->
+              <span
+                v-if="item.correctAnswer && !item.isCorrect"
+                class="text-green-600 ml-1"
+              >
+                （正确答案：{{ item.correctAnswerDisplay }}）
+              </span>
             </div>
           </div>
         </div>
@@ -61,12 +74,17 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { StudentProcedureDetailResponse, TopicDetail5 } from '@/core/api/generated'
+import type { StudentProcedureDetailResponse, StudentProcedureDetailWithAnswerResponse, TopicItem } from '@/core/api/generated'
 import { getTopicTypeName, getTopicTypeSeverity } from '../../constants/topic'
-import { parseSubmittedAnswer, getAnswerDisplayText } from '../../utils/topic'
+import { getAnswerDisplayText } from '../../utils/topic'
+
+type MergedStepInfo = StudentProcedureDetailResponse & {
+  topicDetail?: StudentProcedureDetailWithAnswerResponse['topicDetail']
+  isAfterEndTime?: boolean
+}
 
 interface Props {
-  stepInfo: StudentProcedureDetailResponse
+  stepInfo: MergedStepInfo
   canEdit?: boolean
 }
 
@@ -88,14 +106,17 @@ const formattedSubmissionTime = computed(() => {
 // 得分
 const score = computed(() => props.stepInfo.score)
 
+// 是否可以显示正确答案
+const canShowCorrectAnswer = computed(() => props.stepInfo.isAfterEndTime ?? false)
+
 // 已提交答案列表
 const submittedAnswers = computed(() => {
-  const topics = props.stepInfo.topics ?? []
-  const answerMap = parseSubmittedAnswer(props.stepInfo.answer)
+  const topics = props.stepInfo.topicDetail?.topics ?? []
 
-  return topics.map((topic: TopicDetail5) => {
-    const topicId = String(topic.id)
-    const answer = answerMap[topicId] ?? ''
+  return topics.map((topic: TopicItem) => {
+    const studentAnswer = topic.studentAnswer ?? ''
+    const correctAnswer = canShowCorrectAnswer.value ? topic.correctAnswer : undefined
+    const isCorrect = canShowCorrectAnswer.value ? (topic.isCorrect ?? true) : true
 
     return {
       topicId: topic.id,
@@ -103,8 +124,11 @@ const submittedAnswers = computed(() => {
       typeName: getTopicTypeName(topic.type),
       typeSeverity: getTopicTypeSeverity(topic.type) ?? 'contrast',
       content: topic.content ?? '',
-      answer: answer,
-      answerDisplay: getAnswerDisplayText(topic.type ?? 0, answer, topic.choices),
+      answer: studentAnswer,
+      answerDisplay: getAnswerDisplayText(topic.type ?? 0, studentAnswer, topic.choices),
+      correctAnswer,
+      correctAnswerDisplay: correctAnswer ? getAnswerDisplayText(topic.type ?? 0, correctAnswer, topic.choices) : undefined,
+      isCorrect,
     }
   }).sort((a, b) => a.number - b.number)
 })
