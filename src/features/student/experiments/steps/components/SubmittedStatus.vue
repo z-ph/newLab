@@ -45,16 +45,57 @@
       <template #content>
         <!-- 关键数据展示 -->
         <div v-if="type === DATA_COLLECTION_TYPE.KEY_DATA">
-          <KeyDataDisplay :answers="submittedData.fillBlankAnswers || {}" />
+          <div class="space-y-2">
+            <div v-if="fieldKeys.length === 0" class="text-center py-4 bg-gray-50 rounded border border-gray-200">
+              <p class="text-sm text-gray-500">暂无数据</p>
+            </div>
+            <div v-else class="space-y-2">
+              <div
+                v-for="fieldName in fieldKeys"
+                :key="fieldName"
+                class="flex items-center gap-3 py-2 border-b border-gray-100 last:border-0"
+              >
+                <label class="text-sm font-medium text-slate-700 w-32 shrink-0">{{ fieldName }}</label>
+                <span class="text-sm text-slate-900">{{ submittedData.fillBlankAnswers[fieldName] || '-' }}</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- 表格数据展示 -->
         <div v-else-if="type === DATA_COLLECTION_TYPE.TABLE_DATA">
-          <TableDataDisplay
-            :row-headers="tableHeaders.rowHeaders"
-            :column-headers="tableHeaders.columnHeaders"
-            :answers="submittedData.tableCellAnswers || {}"
-          />
+          <div class="overflow-x-auto border border-slate-200 rounded">
+            <table class="min-w-full divide-y divide-slate-200">
+              <thead class="bg-slate-50">
+                <tr>
+                  <th class="px-4 py-2 text-center text-xs font-medium text-slate-500 uppercase tracking-wider bg-slate-100 border-b border-r border-slate-200">
+                    行 \ 列
+                  </th>
+                  <th
+                    v-for="col in tableHeaders.columnHeaders"
+                    :key="col"
+                    class="px-4 py-2 text-left text-xs font-medium text-slate-700 uppercase tracking-wider bg-slate-100 border-b border-slate-200"
+                  >
+                    {{ col || '(未命名)' }}
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-slate-200">
+                <tr v-for="row in tableHeaders.rowHeaders" :key="row">
+                  <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-slate-700 bg-slate-50 border-r border-slate-200">
+                    {{ row || '(未命名)' }}
+                  </td>
+                  <td
+                    v-for="col in tableHeaders.columnHeaders"
+                    :key="`${row}-${col}`"
+                    class="px-4 py-2 text-sm text-slate-900"
+                  >
+                    {{ submittedData.tableCellAnswers[`${row}-${col}`] || '-' }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <!-- 照片展示 -->
@@ -101,7 +142,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent } from 'vue'
+import { computed } from 'vue'
 import { DATA_COLLECTION_TYPE } from '@/features/teacher/experiment/procedure/constants'
 import { DATA_COLLECTION_TYPE_LABELS } from '@/features/student/experiments/constants'
 import { formatDateTime, formatFileSize } from '@/features/shared/utils/formatters'
@@ -137,6 +178,9 @@ const submittedData = computed(() => {
   }
 })
 
+// 关键数据字段名列表
+const fieldKeys = computed(() => Object.keys(submittedData.value.fillBlankAnswers))
+
 // 解析表格表头
 const tableHeaders = computed(() => {
   return parseTableConfig(submittedData.value.tableCellAnswers)
@@ -153,79 +197,4 @@ function getDocUrl(downloadKey?: string): string {
   if (!downloadKey) return ''
   return `${baseURL}${downloadKey}`
 }
-
-/**
- * 关键数据展示组件
- */
-const KeyDataDisplay = defineComponent({
-  props: {
-    answers: {
-      type: Object as () => Record<string, string>,
-      default: () => ({}),
-    },
-  },
-  setup(props) {
-    const fieldKeys = computed(() => Object.keys(props.answers))
-    return { fieldKeys }
-  },
-  template: `
-    <div class="space-y-2">
-      <div v-if="fieldKeys.length === 0" class="text-center py-4 bg-gray-50 rounded border border-gray-200">
-        <p class="text-sm text-gray-500">暂无数据</p>
-      </div>
-      <div v-else class="space-y-2">
-        <div v-for="fieldName in fieldKeys" :key="fieldName" class="flex items-center gap-3 py-2 border-b border-gray-100 last:border-0">
-          <label class="text-sm font-medium text-slate-700 w-32 shrink-0">{{ fieldName }}</label>
-          <span class="text-sm text-slate-900">{{ answers[fieldName] || '-' }}</span>
-        </div>
-      </div>
-    </div>
-  `,
-})
-
-/**
- * 表格数据展示组件
- */
-const TableDataDisplay = defineComponent({
-  props: {
-    rowHeaders: {
-      type: Array as () => string[],
-      default: () => [],
-    },
-    columnHeaders: {
-      type: Array as () => string[],
-      default: () => [],
-    },
-    answers: {
-      type: Object as () => Record<string, string>,
-      default: () => ({}),
-    },
-  },
-  template: `
-    <div class="overflow-x-auto border border-slate-200 rounded">
-      <table class="min-w-full divide-y divide-slate-200">
-        <thead class="bg-slate-50">
-          <tr>
-            <th class="px-4 py-2 text-center text-xs font-medium text-slate-500 uppercase tracking-wider bg-slate-100 border-b border-r border-slate-200">
-              行 \\ 列
-            </th>
-            <th v-for="col in columnHeaders" :key="col" class="px-4 py-2 text-left text-xs font-medium text-slate-700 uppercase tracking-wider bg-slate-100 border-b border-slate-200">
-              {{ col || '(未命名)' }}
-            </th>
-          </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-slate-200">
-          <tr v-for="row in rowHeaders" :key="row">
-            <td class="px-4 py-2 whitespace-nowrap text-sm font-medium text-slate-700 bg-slate-50 border-r border-slate-200">
-              {{ row || '(未命名)' }}
-            </td>
-            <td v-for="col in columnHeaders" :key="\\\`\\\${row}-\\\${col}\\\`" class="px-4 py-2 text-sm text-slate-900">
-              {{ answers[\\\`\\\${row}-\\\${col}\\\`] || '-' }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  `,
-})
 </script>
