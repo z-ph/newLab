@@ -1025,8 +1025,8 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/MapString",
-                "description": "自定义模板数据（可选）\nkey: 模板变量名，如 first, keyword1, keyword2, remark\nvalue: 变量值"
+                "$ref": "#/components/schemas/LoginRequest1",
+                "description": "请求参数（包含openid）"
               }
             }
           }
@@ -1133,8 +1133,8 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/MapString",
-                "description": "自定义模板数据（可选）\nkey: 模板变量名，如 first, keyword1, keyword2, remark\nvalue: 变量值"
+                "$ref": "#/components/schemas/LoginRequest1",
+                "description": "请求参数（包含openid）"
               }
             }
           }
@@ -1752,7 +1752,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseMapString",
+                  "$ref": "#/components/schemas/ApiResponseDownloadKeyResponse",
                   "description": "下载密钥"
                 },
                 "examples": {
@@ -1841,7 +1841,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseMapString",
+                  "$ref": "#/components/schemas/ApiResponseDownloadKeyResponse",
                   "description": "下载密钥"
                 },
                 "examples": {
@@ -1921,7 +1921,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseMapString",
+                  "$ref": "#/components/schemas/ApiResponseDownloadKeyResponse",
                   "description": "下载密钥"
                 },
                 "examples": {
@@ -10107,7 +10107,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseListMapObject",
+                  "$ref": "#/components/schemas/ApiResponseListCrossClassAttendee",
                   "description": "跨班签到学生列表"
                 },
                 "examples": {
@@ -14498,8 +14498,8 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseMapObject",
-                  "description": "学生列表和统计信息"
+                  "$ref": "#/components/schemas/ApiResponseStudentAttendanceStats",
+                  "description": "签到统计信息"
                 },
                 "examples": {
                   "1": {
@@ -15788,6 +15788,7 @@
             "in": "query",
             "description": "课程ID",
             "required": true,
+            "example": "COURSE000001",
             "schema": {
               "type": "string"
             }
@@ -15797,6 +15798,7 @@
             "in": "query",
             "description": "实验ID",
             "required": true,
+            "example": 5,
             "schema": {
               "type": "integer"
             }
@@ -15806,6 +15808,7 @@
             "in": "query",
             "description": "步骤ID",
             "required": true,
+            "example": 20,
             "schema": {
               "type": "integer"
             }
@@ -15819,440 +15822,6 @@
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseStudentProcedureDetailWithAnswerResponse",
                   "description": "步骤详情（带答案）\n 注意：需要判断当前时间是否超过步骤的endTime\n - 题库答题步骤：如果未超过endTime，correctAnswer和isCorrect字段设为null\n - 数据收集步骤：如果未超过endTime，correctAnswer字段设为null\n - 如果已超过endTime，才返回正确答案"
-                },
-                "examples": {
-                  "1": {
-                    "summary": "成功示例",
-                    "value": {
-                      "code": 0,
-                      "message": "",
-                      "data": {
-                        "id": 0,
-                        "number": 0,
-                        "type": 0,
-                        "remark": "",
-                        "proportion": 0,
-                        "isModifiable": false,
-                        "notModifiableReason": "",
-                        "submissionTime": "",
-                        "score": 0,
-                        "teacherComment": "",
-                        "isAfterEndTime": false,
-                        "videoDetail": {
-                          "id": 0,
-                          "title": "",
-                          "seconds": 0,
-                          "filePath": "",
-                          "fileSize": 0
-                        },
-                        "dataCollectionDetail": {
-                          "id": 0,
-                          "type": 0,
-                          "remark": "",
-                          "needPhoto": false,
-                          "needDoc": false,
-                          "fillBlankAnswers": {
-                            "": ""
-                          },
-                          "tableCellAnswers": {
-                            "": ""
-                          },
-                          "photos": [
-                            {
-                              "id": 0,
-                              "fileType": 0,
-                              "fileFormat": "",
-                              "originalFileName": "",
-                              "fileSize": 0,
-                              "remark": "",
-                              "createTime": "",
-                              "downloadKey": ""
-                            }
-                          ],
-                          "documents": [
-                            {
-                              "id": 0,
-                              "fileType": 0,
-                              "fileFormat": "",
-                              "originalFileName": "",
-                              "fileSize": 0,
-                              "remark": "",
-                              "createTime": "",
-                              "downloadKey": ""
-                            }
-                          ],
-                          "correctAnswer": ""
-                        },
-                        "topicDetail": {
-                          "id": 0,
-                          "isRandom": false,
-                          "number": 0,
-                          "tags": "",
-                          "topics": [
-                            {
-                              "id": 0,
-                              "number": 0,
-                              "type": 0,
-                              "content": "",
-                              "choices": {
-                                "": ""
-                              },
-                              "studentAnswer": "",
-                              "correctAnswer": "",
-                              "isCorrect": false,
-                              "score": 0
-                            }
-                          ]
-                        },
-                        "timedQuizDetail": {
-                          "id": 0,
-                          "isRandom": false,
-                          "number": 0,
-                          "quizTimeLimit": 0,
-                          "isLocked": false,
-                          "topics": [
-                            {
-                              "id": 0,
-                              "number": 0,
-                              "type": 0,
-                              "content": "",
-                              "choices": {
-                                "": ""
-                              },
-                              "studentAnswer": "",
-                              "correctAnswer": "",
-                              "isCorrect": false,
-                              "score": 0
-                            }
-                          ]
-                        }
-                      }
-                    }
-                  },
-                  "2": {
-                    "summary": "成功示例",
-                    "value": {
-                      "code": 0,
-                      "message": "",
-                      "data": {
-                        "id": 0,
-                        "number": 0,
-                        "type": 0,
-                        "remark": "",
-                        "proportion": 0,
-                        "isModifiable": false,
-                        "notModifiableReason": "",
-                        "submissionTime": "",
-                        "score": 0,
-                        "teacherComment": "",
-                        "isAfterEndTime": false,
-                        "videoDetail": {
-                          "id": 0,
-                          "title": "",
-                          "seconds": 0,
-                          "filePath": "",
-                          "fileSize": 0
-                        },
-                        "dataCollectionDetail": {
-                          "id": 0,
-                          "type": 0,
-                          "remark": "",
-                          "needPhoto": false,
-                          "needDoc": false,
-                          "fillBlankAnswers": {
-                            "": ""
-                          },
-                          "tableCellAnswers": {
-                            "": ""
-                          },
-                          "photos": [
-                            {
-                              "id": 0,
-                              "fileType": 0,
-                              "fileFormat": "",
-                              "originalFileName": "",
-                              "fileSize": 0,
-                              "remark": "",
-                              "createTime": "",
-                              "downloadKey": ""
-                            }
-                          ],
-                          "documents": [
-                            {
-                              "id": 0,
-                              "fileType": 0,
-                              "fileFormat": "",
-                              "originalFileName": "",
-                              "fileSize": 0,
-                              "remark": "",
-                              "createTime": "",
-                              "downloadKey": ""
-                            }
-                          ],
-                          "correctAnswer": ""
-                        },
-                        "topicDetail": {
-                          "id": 0,
-                          "isRandom": false,
-                          "number": 0,
-                          "tags": "",
-                          "topics": [
-                            {
-                              "id": 0,
-                              "number": 0,
-                              "type": 0,
-                              "content": "",
-                              "choices": {
-                                "": ""
-                              },
-                              "studentAnswer": "",
-                              "correctAnswer": "",
-                              "isCorrect": false,
-                              "score": 0
-                            }
-                          ]
-                        },
-                        "timedQuizDetail": {
-                          "id": 0,
-                          "isRandom": false,
-                          "number": 0,
-                          "quizTimeLimit": 0,
-                          "isLocked": false,
-                          "topics": [
-                            {
-                              "id": 0,
-                              "number": 0,
-                              "type": 0,
-                              "content": "",
-                              "choices": {
-                                "": ""
-                              },
-                              "studentAnswer": "",
-                              "correctAnswer": "",
-                              "isCorrect": false,
-                              "score": 0
-                            }
-                          ]
-                        }
-                      }
-                    }
-                  },
-                  "3": {
-                    "summary": "成功示例",
-                    "value": {
-                      "code": 0,
-                      "message": "",
-                      "data": {
-                        "id": 0,
-                        "number": 0,
-                        "type": 0,
-                        "remark": "",
-                        "proportion": 0,
-                        "isModifiable": false,
-                        "notModifiableReason": "",
-                        "submissionTime": "",
-                        "score": 0,
-                        "teacherComment": "",
-                        "isAfterEndTime": false,
-                        "videoDetail": {
-                          "id": 0,
-                          "title": "",
-                          "seconds": 0,
-                          "filePath": "",
-                          "fileSize": 0
-                        },
-                        "dataCollectionDetail": {
-                          "id": 0,
-                          "type": 0,
-                          "remark": "",
-                          "needPhoto": false,
-                          "needDoc": false,
-                          "fillBlankAnswers": {
-                            "": ""
-                          },
-                          "tableCellAnswers": {
-                            "": ""
-                          },
-                          "photos": [
-                            {
-                              "id": 0,
-                              "fileType": 0,
-                              "fileFormat": "",
-                              "originalFileName": "",
-                              "fileSize": 0,
-                              "remark": "",
-                              "createTime": "",
-                              "downloadKey": ""
-                            }
-                          ],
-                          "documents": [
-                            {
-                              "id": 0,
-                              "fileType": 0,
-                              "fileFormat": "",
-                              "originalFileName": "",
-                              "fileSize": 0,
-                              "remark": "",
-                              "createTime": "",
-                              "downloadKey": ""
-                            }
-                          ],
-                          "correctAnswer": ""
-                        },
-                        "topicDetail": {
-                          "id": 0,
-                          "isRandom": false,
-                          "number": 0,
-                          "tags": "",
-                          "topics": [
-                            {
-                              "id": 0,
-                              "number": 0,
-                              "type": 0,
-                              "content": "",
-                              "choices": {
-                                "": ""
-                              },
-                              "studentAnswer": "",
-                              "correctAnswer": "",
-                              "isCorrect": false,
-                              "score": 0
-                            }
-                          ]
-                        },
-                        "timedQuizDetail": {
-                          "id": 0,
-                          "isRandom": false,
-                          "number": 0,
-                          "quizTimeLimit": 0,
-                          "isLocked": false,
-                          "topics": [
-                            {
-                              "id": 0,
-                              "number": 0,
-                              "type": 0,
-                              "content": "",
-                              "choices": {
-                                "": ""
-                              },
-                              "studentAnswer": "",
-                              "correctAnswer": "",
-                              "isCorrect": false,
-                              "score": 0
-                            }
-                          ]
-                        }
-                      }
-                    }
-                  },
-                  "4": {
-                    "summary": "成功示例",
-                    "value": {
-                      "code": 0,
-                      "message": "",
-                      "data": {
-                        "id": 0,
-                        "number": 0,
-                        "type": 0,
-                        "remark": "",
-                        "proportion": 0,
-                        "isModifiable": false,
-                        "notModifiableReason": "",
-                        "submissionTime": "",
-                        "score": 0,
-                        "teacherComment": "",
-                        "isAfterEndTime": false,
-                        "videoDetail": {
-                          "id": 0,
-                          "title": "",
-                          "seconds": 0,
-                          "filePath": "",
-                          "fileSize": 0
-                        },
-                        "dataCollectionDetail": {
-                          "id": 0,
-                          "type": 0,
-                          "remark": "",
-                          "needPhoto": false,
-                          "needDoc": false,
-                          "fillBlankAnswers": {
-                            "": ""
-                          },
-                          "tableCellAnswers": {
-                            "": ""
-                          },
-                          "photos": [
-                            {
-                              "id": 0,
-                              "fileType": 0,
-                              "fileFormat": "",
-                              "originalFileName": "",
-                              "fileSize": 0,
-                              "remark": "",
-                              "createTime": "",
-                              "downloadKey": ""
-                            }
-                          ],
-                          "documents": [
-                            {
-                              "id": 0,
-                              "fileType": 0,
-                              "fileFormat": "",
-                              "originalFileName": "",
-                              "fileSize": 0,
-                              "remark": "",
-                              "createTime": "",
-                              "downloadKey": ""
-                            }
-                          ],
-                          "correctAnswer": ""
-                        },
-                        "topicDetail": {
-                          "id": 0,
-                          "isRandom": false,
-                          "number": 0,
-                          "tags": "",
-                          "topics": [
-                            {
-                              "id": 0,
-                              "number": 0,
-                              "type": 0,
-                              "content": "",
-                              "choices": {
-                                "": ""
-                              },
-                              "studentAnswer": "",
-                              "correctAnswer": "",
-                              "isCorrect": false,
-                              "score": 0
-                            }
-                          ]
-                        },
-                        "timedQuizDetail": {
-                          "id": 0,
-                          "isRandom": false,
-                          "number": 0,
-                          "quizTimeLimit": 0,
-                          "isLocked": false,
-                          "topics": [
-                            {
-                              "id": 0,
-                              "number": 0,
-                              "type": 0,
-                              "content": "",
-                              "choices": {
-                                "": ""
-                              },
-                              "studentAnswer": "",
-                              "correctAnswer": "",
-                              "isCorrect": false,
-                              "score": 0
-                            }
-                          ]
-                        }
-                      }
-                    }
-                  }
                 }
               }
             },
@@ -22505,24 +22074,14 @@
           "data": {
             "type": "object",
             "properties": {
-              "totalAttendance": {
-                "type": "integer",
-                "description": " 总签到次数"
+              "stats": {
+                "$ref": "#/components/schemas/stats"
               },
-              "normalAttendance": {
-                "type": "integer"
-              },
-              "lateAttendance": {
-                "type": "integer"
-              },
-              "crossClassAttendance": {
-                "type": "integer"
-              },
-              "makeupAttendance": {
-                "type": "integer"
-              },
-              "attendanceRate": {
-                "type": "number"
+              "data": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/data"
+                }
               }
             },
             "description": "响应数据"
@@ -22726,7 +22285,20 @@
       },
       "key": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "courseInfo": {
+            "$ref": "#/components/schemas/CourseInfo",
+            "description": "课程信息"
+          },
+          "experiments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExperimentDetailItem",
+              "description": "实验详情项"
+            },
+            "description": "该课程下的实验列表"
+          }
+        }
       },
       "ApiResponseListMapObject": {
         "type": "object",
@@ -23573,7 +23145,11 @@
             "description": "题目内容"
           },
           "choices": {
-            "type": "string",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TopicChoice",
+              "description": "题目选项\n用于替代 Map<String, String> 结构（选项）\nKey: 选项字母（A, B, C, D），Value: 选项内容"
+            },
             "description": "选项内容（key: 选项字母如A、B、C、D，value: 选项内容）"
           },
           "studentAnswer": {
@@ -23816,8 +23392,12 @@
             "description": "数据类型（1-关键数据，2-表格数据）"
           },
           "dataFields": {
-            "$ref": "#/components/schemas/MapString",
-            "description": "自定义模板数据（可选）\nkey: 模板变量名，如 first, keyword1, keyword2, remark\nvalue: 变量值"
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DataField",
+              "description": "数据收集字段\n用于替代 Map<String, String> 结构（数据收集字段）\nKey: 字段名，Value: 字段值"
+            },
+            "description": "收集数据字段，格式：Map<数据名称, 正确答案>，示例：{\"温度\": \"25\", \"湿度\": \"60\", \"压力\": \"101.3\"}，当dataType=1时使用，只对数字类型数据进行自动判分"
           },
           "tableRowHeaders": {
             "type": "array",
@@ -23834,8 +23414,12 @@
             "description": "表格列表头（第一行的标识）\n当dataType=2时使用"
           },
           "tableCellAnswers": {
-            "$ref": "#/components/schemas/MapString",
-            "description": "自定义模板数据（可选）\nkey: 模板变量名，如 first, keyword1, keyword2, remark\nvalue: 变量值"
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TableCellAnswer",
+              "description": "表格单元格答案\n用于替代 Map<String, String> 结构（表格答案）\nKey: 单元格位置，Value: 答案值"
+            },
+            "description": "表格单元格答案（Map<表格坐标, 答案>）\n坐标格式：行索引,列索引，如\"0,0\"、\"1,2\"\n当dataType=2时使用"
           },
           "tolerance": {
             "type": "number",
@@ -23969,7 +23553,11 @@
             "description": "班级编号"
           },
           "answers": {
-            "$ref": "#/components/schemas/MapString1",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TopicAnswerItem",
+              "description": "题目答案项\n用于替代 Map<Long, String> 结构\nKey: 题目ID，Value: 学生答案"
+            },
             "description": "题目答案列表\nkey: 题目ID\nvalue: 答案（根据题目类型不同格式不同）\n  - 单选题/判断题：选项字母（如\"A\"、\"B\"）\n  - 多选题：选项字母组合（如\"A-B-C\"）\n  - 填空题：答案内容\n  - 简答题：文字回答"
           }
         }
@@ -24034,8 +23622,12 @@
             "description": "数据类型（1-关键数据，2-表格数据）"
           },
           "dataFields": {
-            "$ref": "#/components/schemas/MapString",
-            "description": "自定义模板数据（可选）\nkey: 模板变量名，如 first, keyword1, keyword2, remark\nvalue: 变量值"
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DataField",
+              "description": "数据收集字段\n用于替代 Map<String, String> 结构（数据收集字段）\nKey: 字段名，Value: 字段值"
+            },
+            "description": "收集数据字段，格式：Map<数据名称, 正确答案>，示例：{\"温度\": \"25\", \"湿度\": \"60\", \"压力\": \"101.3\"}，当dataType=1时使用，只对数字类型数据进行自动判分"
           },
           "tableRowHeaders": {
             "type": "array",
@@ -24052,8 +23644,12 @@
             "description": "表格列表头（第一行的标识）\n当dataType=2时使用"
           },
           "tableCellAnswers": {
-            "$ref": "#/components/schemas/MapString",
-            "description": "自定义模板数据（可选）\nkey: 模板变量名，如 first, keyword1, keyword2, remark\nvalue: 变量值"
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TableCellAnswer",
+              "description": "表格单元格答案\n用于替代 Map<String, String> 结构（表格答案）\nKey: 单元格位置，Value: 答案值"
+            },
+            "description": "表格单元格答案（Map<表格坐标, 答案>）\n坐标格式：行索引,列索引，如\"0,0\"、\"1,2\"\n当dataType=2时使用"
           },
           "tolerance": {
             "type": "number",
@@ -24204,8 +23800,12 @@
             "description": "数据类型（1-关键数据，2-表格数据）"
           },
           "dataFields": {
-            "$ref": "#/components/schemas/MapString",
-            "description": "自定义模板数据（可选）\nkey: 模板变量名，如 first, keyword1, keyword2, remark\nvalue: 变量值"
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DataField",
+              "description": "数据收集字段\n用于替代 Map<String, String> 结构（数据收集字段）\nKey: 字段名，Value: 字段值"
+            },
+            "description": "收集数据字段，格式：Map<数据名称, 正确答案>，示例：{\"温度\": \"25\", \"湿度\": \"60\", \"压力\": \"101.3\"}，当dataType=1时使用，只对数字类型数据进行自动判分"
           },
           "tableRowHeaders": {
             "type": "array",
@@ -24222,8 +23822,12 @@
             "description": "表格列表头（第一行的标识）\n当dataType=2时使用"
           },
           "tableCellAnswers": {
-            "$ref": "#/components/schemas/MapString",
-            "description": "自定义模板数据（可选）\nkey: 模板变量名，如 first, keyword1, keyword2, remark\nvalue: 变量值"
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TableCellAnswer",
+              "description": "表格单元格答案\n用于替代 Map<String, String> 结构（表格答案）\nKey: 单元格位置，Value: 答案值"
+            },
+            "description": "表格单元格答案（Map<表格坐标, ���案>）\n坐标格式：行索引,列索引，如\"0,0\"、\"1,2\"\n当dataType=2时使用"
           },
           "tolerance": {
             "type": "number",
@@ -24517,12 +24121,20 @@
             "description": "是否需要提交文档"
           },
           "fillBlankAnswers": {
-            "$ref": "#/components/schemas/MapString",
-            "description": "自定义模板数据（可选）\nkey: 模板变量名，如 first, keyword1, keyword2, remark\nvalue: 变量值"
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FillBlankAnswer",
+              "description": "填空答案项\n用于替代 Map<String, String> 结构（填空答案）\nKey: 字段名，Value: 答案值"
+            },
+            "description": "填空答案（key: 字段名, value: 答案值）"
           },
           "tableCellAnswers": {
-            "$ref": "#/components/schemas/MapString",
-            "description": "自定义模板数据（可选）\nkey: 模板变量名，如 first, keyword1, keyword2, remark\nvalue: 变量值"
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TableCellAnswer",
+              "description": "表格单元格答案\n用于替代 Map<String, String> 结构（表格答案）\nKey: 单元格位置，Value: 答案值"
+            },
+            "description": "表格答案（key: 单元格位置, value: 答案值）"
           },
           "photos": {
             "type": "array",
@@ -24567,7 +24179,11 @@
             "description": "题目内容"
           },
           "choices": {
-            "type": "string",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TopicChoice",
+              "description": "题目选项\n用于替代 Map<String, String> 结构（选项）\nKey: 选项字母（A, B, C, D），Value: 选项内容"
+            },
             "description": "选项内容"
           },
           "studentAnswer": {
@@ -24714,7 +24330,11 @@
             "description": "题目内容"
           },
           "choices": {
-            "type": "string",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TopicChoice",
+              "description": "题目选项\n用于替代 Map<String, String> 结构（选项）\nKey: 选项字母（A, B, C, D），Value: 选项内容"
+            },
             "description": "选项内容"
           }
         }
@@ -25854,20 +25474,36 @@
             "format": "int64"
           },
           "typeCount": {
-            "$ref": "#/components/schemas/MapLong",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TypeCountItem",
+              "description": "题型统计项\n用于替代 Map<Integer, Long> 结构\nKey: 题型类型，Value: 题目数量"
+            },
             "description": "按题型统计\nkey: 题型类型（1-单选，2-多选等）\nvalue: 该题型题目数量"
           },
           "subjectTagCount": {
-            "$ref": "#/components/schemas/MapLong1",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TagCountItem",
+              "description": "标签统计项\n用于替代 Map<String, Long> 结构（标签统计）\nKey: 标签名称，Value: 题目数量"
+            },
             "description": "按学科标签统计（type=1）\nkey: 标签名称\nvalue: 该标签下的题目数量"
           },
           "difficultyTagCount": {
-            "$ref": "#/components/schemas/MapLong1",
-            "description": "按学科标签统计（type=1）\nkey: 标签名称\nvalue: 该标签下的题目数量"
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TagCountItem",
+              "description": "标签统计项\n用于替代 Map<String, Long> 结构（标签统计）\nKey: 标签名称，Value: 题目数量"
+            },
+            "description": "按难度标签统计（type=2）\nkey: 标签名称\nvalue: 该标签下的题目数量"
           },
           "customTagCount": {
-            "$ref": "#/components/schemas/MapLong1",
-            "description": "按学科标签统计（type=1）\nkey: 标签名称\nvalue: 该标签下的题目数量"
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TagCountItem",
+              "description": "标签统计项\n用于替代 Map<String, Long> 结构（标签统计）\nKey: 标签名称，Value: 题目数量"
+            },
+            "description": "按自定义标签统计（type=4）\nkey: 标签名称\nvalue: 该标签下的题目数量"
           }
         }
       },
@@ -26235,12 +25871,20 @@
             "description": "是否需要提交文档"
           },
           "fillBlankAnswers": {
-            "$ref": "#/components/schemas/MapString",
-            "description": "自定义模板数据（可选）\nkey: 模板变量名，如 first, keyword1, keyword2, remark\nvalue: 变量值"
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FillBlankAnswer",
+              "description": "填空答案项\n用于替代 Map<String, String> 结构（填空答案）\nKey: 字段名，Value: 答案值"
+            },
+            "description": "填空答案（key: 字段名, value: 学生答案值）"
           },
           "tableCellAnswers": {
-            "$ref": "#/components/schemas/MapString",
-            "description": "自定义模板数据（可选）\nkey: 模板变量名，如 first, keyword1, keyword2, remark\nvalue: 变量值"
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TableCellAnswer",
+              "description": "表格单元格答案\n用于替代 Map<String, String> 结构（表格答案）\nKey: 单元格位置，Value: 答案值"
+            },
+            "description": "表格答案（key: 单元格位置, value: 学生答案值）"
           },
           "correctAnswer": {
             "type": "string",
@@ -26340,7 +25984,11 @@
             "description": "题目内容"
           },
           "choices": {
-            "type": "string",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TopicChoice",
+              "description": "题目选项\n用于替代 Map<String, String> 结构（选项）\nKey: 选项字母（A, B, C, D），Value: 选项内容"
+            },
             "description": "选项内容（key: 选项字母如A、B、C、D，value: 选项内容）"
           },
           "studentAnswer": {
@@ -26437,7 +26085,11 @@
             "description": "题目内容"
           },
           "choices": {
-            "type": "string",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TopicChoice",
+              "description": "题目选项\n用于替代 Map<String, String> 结构（选项）\nKey: 选项字母（A, B, C, D），Value: 选项内容"
+            },
             "description": "选项内容（key: 选项字母如A、B、C、D，value: 选项内容）"
           },
           "studentAnswer": {
@@ -26783,8 +26435,12 @@
             "description": "班级编号"
           },
           "answers": {
-            "$ref": "#/components/schemas/MapString1",
-            "description": "题目答案列表\nkey: 题目ID\nvalue: 答案（根据题目类型不同格式不同）\n  - 单选题/判断题：选项字母（如\"A\"、\"B\"）\n  - 多选题：选项字母组合（如\"A-B-C\"）\n  - 填空题：答案内容\n  - 简答题：文字回答"
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TopicAnswerItem",
+              "description": "题目答案项\n用于替代 Map<Long, String> 结构\nKey: 题目ID，Value: 学生答案"
+            },
+            "description": "题目答案Map（题目ID -> 答案）"
           }
         }
       },
@@ -26805,8 +26461,12 @@
             "description": "密钥"
           },
           "answers": {
-            "$ref": "#/components/schemas/MapString1",
-            "description": "题目答案列表\nkey: 题目ID\nvalue: 答案（根据题目类型不同格式不同）\n  - 单选题/判断题：选项字母（如\"A\"、\"B\"）\n  - 多选题：选项字母组合（如\"A-B-C\"）\n  - 填空题：答案内容\n  - 简答题：文字回答"
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TopicAnswerItem",
+              "description": "题目答案项\n用于替代 Map<Long, String> 结构\nKey: 题目ID，Value: 学生答案"
+            },
+            "description": "题目答案Map（题目ID -> 答案）"
           }
         }
       },
@@ -27136,8 +26796,12 @@
             "format": "int64"
           },
           "answers": {
-            "$ref": "#/components/schemas/MapString1",
-            "description": "题目答案列表\nkey: 题目ID\nvalue: 答案（根据题目类型不同格式不同）\n  - 单选题/判断题：选项字母（如\"A\"、\"B\"）\n  - 多选题：选项字母组合（如\"A-B-C\"）\n  - 填空题：答案内容\n  - 简答题：文字回答"
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TopicAnswerItem",
+              "description": "题目答案项\n用于替代 Map<Long, String> 结构\nKey: 题目ID，Value: 学生答案"
+            },
+            "description": "答案内容\n格式:{topicId: answer}\n例如:{1: \"A\", 2: \"B-C\", 3: \"对\"}"
           }
         }
       },
@@ -27480,7 +27144,7 @@
         "type": "object",
         "properties": {
           "key": {
-            "$ref": "#/components/schemas/key1"
+            "$ref": "#/components/schemas/key"
           }
         }
       },
@@ -27488,9 +27152,13 @@
         "type": "object",
         "properties": {
           "courseExperiments": {
-            "$ref": "#/components/schemas/MapCourseExperimentsDetail",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseExperimentItem",
+              "description": "课程实验映射项\n用于替代 Map<String, CourseExperimentsDetail> 结构\nKey: 课程代码，Value: 实验详情"
+            },
             "description": "课程ID -> 课程实验详情\n使用LinkedHashMap保持插入顺序",
-            "default": "new LinkedHashMap<>()"
+            "default": "new ArrayList<>()"
           }
         }
       },
@@ -27694,6 +27362,285 @@
           "courseId",
           "classCodes"
         ]
+      },
+      "LoginRequest1": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "登录码"
+          },
+          "openId": {
+            "type": "string",
+            "description": "OpenID"
+          }
+        }
+      },
+      "DownloadKeyResponse": {
+        "type": "object",
+        "properties": {
+          "downloadKey": {
+            "type": "string",
+            "description": "下载密钥"
+          },
+          "downloadUrl": {
+            "type": "string",
+            "description": "下载URL"
+          },
+          "playKey": {
+            "type": "string",
+            "description": "播放密钥"
+          },
+          "playUrl": {
+            "type": "string",
+            "description": "播放URL"
+          }
+        }
+      },
+      "ApiResponseDownloadKeyResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "响应状态码"
+          },
+          "message": {
+            "type": "string",
+            "description": "响应消息"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DownloadKeyResponse",
+            "description": "响应数据"
+          }
+        }
+      },
+      "TopicChoice": {
+        "type": "object",
+        "properties": {
+          "optionKey": {
+            "type": "string",
+            "description": "选项字母（A, B, C, D）"
+          },
+          "optionContent": {
+            "type": "string",
+            "description": "选项内容"
+          }
+        }
+      },
+      "FillBlankAnswer": {
+        "type": "object",
+        "properties": {
+          "fieldName": {
+            "type": "string",
+            "description": "字段名"
+          },
+          "value": {
+            "type": "string",
+            "description": "答案值"
+          }
+        }
+      },
+      "TableCellAnswer": {
+        "type": "object",
+        "properties": {
+          "cellPosition": {
+            "type": "string",
+            "description": "单元格位置（如 A1, B2）"
+          },
+          "value": {
+            "type": "string",
+            "description": "答案值"
+          }
+        }
+      },
+      "CrossClassAttendee": {
+        "type": "object",
+        "properties": {
+          "studentCode": {
+            "type": "string",
+            "description": "学号"
+          },
+          "studentName": {
+            "type": "string",
+            "description": "学生姓名"
+          },
+          "studentActualClassCode": {
+            "type": "string",
+            "description": "学生实际班级编号"
+          },
+          "className": {
+            "type": "string",
+            "description": "班级名称"
+          },
+          "attendanceTime": {
+            "type": "string",
+            "description": "签到时间"
+          },
+          "lastAttendanceTime": {
+            "type": "string",
+            "description": "最后签到时间"
+          },
+          "studentType": {
+            "type": "string",
+            "description": "学生类型"
+          }
+        }
+      },
+      "ApiResponseListCrossClassAttendee": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "响应状态码"
+          },
+          "message": {
+            "type": "string",
+            "description": "响应消息"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CrossClassAttendee",
+              "description": "跨班签到学生\n用于替代 Map<String, Object> 结构（跨班签到学生信息）"
+            },
+            "description": "响应数据"
+          }
+        }
+      },
+      "CourseExperimentsDetail": {
+        "type": "object",
+        "properties": {
+          "courseInfo": {
+            "$ref": "#/components/schemas/CourseInfo",
+            "description": "课程信息"
+          },
+          "experiments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExperimentDetailItem",
+              "description": "实验详情项"
+            },
+            "description": "该课程下的实验列表"
+          }
+        }
+      },
+      "CourseExperimentItem": {
+        "type": "object",
+        "properties": {
+          "courseCode": {
+            "type": "string",
+            "description": "课程���码"
+          },
+          "detail": {
+            "$ref": "#/components/schemas/CourseExperimentsDetail",
+            "description": "实验详情"
+          }
+        }
+      },
+      "TypeCountItem": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "integer",
+            "description": "题型类型（1-单选，2-多选，3-判断，4-填空，5-简答，6-其他）"
+          },
+          "count": {
+            "type": "integer",
+            "description": "该题型下的题目数量",
+            "format": "int64"
+          }
+        }
+      },
+      "TagCountItem": {
+        "type": "object",
+        "properties": {
+          "tagName": {
+            "type": "string",
+            "description": "标签名称"
+          },
+          "count": {
+            "type": "integer",
+            "description": "该标签下的题目数量",
+            "format": "int64"
+          }
+        }
+      },
+      "DataField": {
+        "type": "object",
+        "properties": {
+          "fieldName": {
+            "type": "string",
+            "description": "字段名"
+          },
+          "value": {
+            "type": "string",
+            "description": "字段值"
+          }
+        }
+      },
+      "TopicAnswerItem": {
+        "type": "object",
+        "properties": {
+          "topicId": {
+            "type": "integer",
+            "description": "题目ID",
+            "format": "int64"
+          },
+          "answer": {
+            "type": "string",
+            "description": "学生答案"
+          }
+        }
+      },
+      "StudentAttendanceStats": {
+        "type": "object",
+        "properties": {
+          "totalAttendance": {
+            "type": "integer",
+            "description": "总签到次数"
+          },
+          "normalAttendance": {
+            "type": "integer",
+            "description": "正常签到次数",
+            "format": "int64"
+          },
+          "lateAttendance": {
+            "type": "integer",
+            "description": "迟到次数",
+            "format": "int64"
+          },
+          "crossClassAttendance": {
+            "type": "integer",
+            "description": "跨班签到次数",
+            "format": "int64"
+          },
+          "makeupAttendance": {
+            "type": "integer",
+            "description": "补签次数",
+            "format": "int64"
+          },
+          "attendanceRate": {
+            "type": "number",
+            "description": "签到率"
+          }
+        }
+      },
+      "ApiResponseStudentAttendanceStats": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "响应状态码"
+          },
+          "message": {
+            "type": "string",
+            "description": "响应消息"
+          },
+          "data": {
+            "$ref": "#/components/schemas/StudentAttendanceStats",
+            "description": "响应数据"
+          }
+        }
       }
     },
     "securitySchemes": {

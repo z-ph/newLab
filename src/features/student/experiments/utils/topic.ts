@@ -3,7 +3,7 @@
  */
 
 import { TOPIC_TYPE } from '../constants/topic'
-import type { TopicItem1 } from '@/core/api/generated'
+import type { TopicItem1, TopicChoice } from '@/core/api/generated'
 
 /**
  * 解析后的选项结构
@@ -15,11 +15,25 @@ export interface ParsedChoice {
 
 /**
  * 解析题目选项
- * 格式: JSON 字符串 '{"A":"选项A","B":"选项B","C":"选项C","D":"选项D"}'
+ * 支持两种格式：
+ * 1. 新格式：TopicChoice[] 数组
+ * 2. 旧格式：JSON 字符串 '{"A":"选项A","B":"选项B"}'
  */
-export function parseTopicChoices(choices?: string): ParsedChoice[] {
+export function parseTopicChoices(choices?: string | TopicChoice[]): ParsedChoice[] {
   if (!choices) return []
 
+  // 新格式：数组
+  if (Array.isArray(choices)) {
+    return choices
+      .filter(choice => choice.optionKey && choice.optionContent)
+      .map(choice => ({
+        label: choice.optionKey!,
+        content: choice.optionContent!.trim(),
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label))
+  }
+
+  // 旧格式：JSON 字符串
   try {
     const parsed = JSON.parse(choices) as Record<string, string>
     return Object.entries(parsed)

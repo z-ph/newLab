@@ -39,8 +39,9 @@ export function toCourseGroups(
 
   return Object.entries(courseExperiments).map(([courseId, value]) => ({
     courseId,
-    courseInfo: value?.courseInfo,
-    experiments: value?.experiments || [],
+    courseCode: value?.courseCode,
+    courseInfo: value?.detail?.courseInfo,
+    experiments: value?.detail?.experiments || [],
   }));
 }
 

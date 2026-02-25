@@ -145,7 +145,7 @@ const topicId = computed(() => props.topic.id)
 const topicNumber = computed(() => props.topic.number ?? 0)
 const topicType = computed(() => props.topic.type ?? 0)
 const topicContent = computed(() => props.topic.content ?? '')
-const topicChoices = computed(() => props.topic.choices ?? '')
+const topicChoices = computed(() => props.topic.choices)
 
 // 题目类型名称和颜色
 const topicTypeName = computed(() => getTopicTypeName(topicType.value))

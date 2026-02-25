@@ -39,8 +39,12 @@ export function useSubmitDataCollection() {
         query: {
           procedureId: params.procedureId,
           classCode: params.classCode,
-          fillBlankAnswers: params.data.fillBlankAnswers,
-          tableCellAnswers: params.data.tableCellAnswers,
+          fillBlankAnswers: params.data.fillBlankAnswers
+            ? JSON.stringify(params.data.fillBlankAnswers)
+            : undefined,
+          tableCellAnswers: params.data.tableCellAnswers
+            ? JSON.stringify(params.data.tableCellAnswers)
+            : undefined,
         },
         client,
       })
@@ -74,8 +78,12 @@ export function useUpdateDataCollection() {
         query: {
           procedureId: params.procedureId,
           classCode: params.classCode,
-          fillBlankAnswers: params.data.fillBlankAnswers,
-          tableCellAnswers: params.data.tableCellAnswers,
+          fillBlankAnswers: params.data.fillBlankAnswers
+            ? JSON.stringify(params.data.fillBlankAnswers)
+            : undefined,
+          tableCellAnswers: params.data.tableCellAnswers
+            ? JSON.stringify(params.data.tableCellAnswers)
+            : undefined,
         },
         client,
       })

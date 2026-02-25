@@ -1,8 +1,14 @@
 /**
- * 数据采集步骤类型定义
+ * 数据采集���骤类型定义
  */
 
-import type { DataCollectionDetail, DataCollectionDetail1, DataCollectionDetail2 } from '@/core/api/generated'
+import type {
+  DataCollectionDetail,
+  DataCollectionDetail1,
+  DataCollectionDetail2,
+  FillBlankAnswer,
+  TableCellAnswer,
+} from '@/core/api/generated'
 
 /**
  * 表单数据类型
@@ -18,8 +24,8 @@ export interface DataCollectionFormData {
  * 提交参数类型
  */
 export interface DataCollectionSubmitParams {
-  fillBlankAnswers?: string  // JSON.stringify
-  tableCellAnswers?: string  // JSON.stringify
+  fillBlankAnswers?: FillBlankAnswer[]
+  tableCellAnswers?: TableCellAnswer[]
   photos?: File
   documents?: File
 }
@@ -54,6 +60,52 @@ function hasTableCellAnswers(obj: unknown): obj is DataCollectionDetail2 {
 }
 
 /**
+ * 将 FillBlankAnswer 数组转换为 Record
+ */
+export function fillBlankAnswersToRecord(answers?: FillBlankAnswer[] | null): Record<string, string> {
+  if (!answers || !Array.isArray(answers)) return {}
+  return answers.reduce((acc, item) => {
+    if (item.fieldName) {
+      acc[item.fieldName] = item.value ?? ''
+    }
+    return acc
+  }, {} as Record<string, string>)
+}
+
+/**
+ * 将 TableCellAnswer 数组转换为 Record
+ */
+export function tableCellAnswersToRecord(answers?: TableCellAnswer[] | null): Record<string, string> {
+  if (!answers || !Array.isArray(answers)) return {}
+  return answers.reduce((acc, item) => {
+    if (item.cellPosition) {
+      acc[item.cellPosition] = item.value ?? ''
+    }
+    return acc
+  }, {} as Record<string, string>)
+}
+
+/**
+ * 将 Record 转换为 FillBlankAnswer 数组
+ */
+export function recordToFillBlankAnswers(record: Record<string, string>): FillBlankAnswer[] {
+  return Object.entries(record).map(([fieldName, value]) => ({
+    fieldName,
+    value,
+  }))
+}
+
+/**
+ * 将 Record 转换为 TableCellAnswer 数组
+ */
+export function recordToTableCellAnswers(record: Record<string, string>): TableCellAnswer[] {
+  return Object.entries(record).map(([cellPosition, value]) => ({
+    cellPosition,
+    value,
+  }))
+}
+
+/**
  * 从 DataCollectionDetail 或 DataCollectionDetail2 转换为表单数据
  *
  * 学生端 API 返回的 detail 只有 remark 字段（包含 JSON 配置）
@@ -69,8 +121,10 @@ export function dataCollectionToFormData(detail?: DataCollectionDetail | DataCol
 } {
   // 处理关键数据字段
   // 优先使用 fillBlankAnswers（已完成的提交），否则从 remark 解析
-  const fillBlankMap = hasFillBlankAnswers(detail) ? detail.fillBlankAnswers : undefined
-  let dataFields = mapStringToRecord(fillBlankMap)
+  let dataFields: Record<string, string> = {}
+  if (hasFillBlankAnswers(detail) && detail.fillBlankAnswers) {
+    dataFields = fillBlankAnswersToRecord(detail.fillBlankAnswers)
+  }
 
   // 如果没有 fillBlankAnswers，从 remark 解析 dataFields 配置
   if (Object.keys(dataFields).length === 0 && detail?.remark) {
@@ -89,8 +143,11 @@ export function dataCollectionToFormData(detail?: DataCollectionDetail | DataCol
   }
 
   // 处理表格数据
-  const tableCellMap = hasTableCellAnswers(detail) ? detail.tableCellAnswers : undefined
-  let tableData = parseTableConfig(mapStringToRecord(tableCellMap))
+  let tableData = { rowHeaders: [] as string[], columnHeaders: [] as string[], answers: {} as Record<string, string> }
+  if (hasTableCellAnswers(detail) && detail.tableCellAnswers) {
+    const answers = tableCellAnswersToRecord(detail.tableCellAnswers)
+    tableData = parseTableConfig(answers)
+  }
 
   // 如果没有 tableCellAnswers，从 remark 解析表格配置
   if (Object.keys(tableData.answers).length === 0 && detail?.remark) {
@@ -136,39 +193,4 @@ export function parseTableConfig(answers: Record<string, string>): {
     columnHeaders: Array.from(colSet),
     answers,
   }
-}
-
-/**
- * 将表格数据转换为 API 所需的键格式
- */
-export function buildTableCellAnswers(
-  rowHeaders: string[],
-  columnHeaders: string[],
-  cellValues: Record<string, string>
-): Record<string, string> {
-  const result: Record<string, string> = {}
-
-  rowHeaders.forEach((row) => {
-    columnHeaders.forEach((col) => {
-      const key = `${row}-${col}`
-      const value = cellValues[key]
-      if (value !== undefined) {
-        result[key] = value
-      }
-    })
-  })
-
-  return result
-}
-
-/**
- * MapString 类型转换辅助函数
- * 注意：API 中的 MapString 类型定义不完整，实际使用时需要类型转换
- * TODO: 等 API 类型修复后应移除此辅助函数
- */
-export function mapStringToRecord(map?: { key?: string } | null): Record<string, string> {
-  if (!map) return {}
-  // MapString 实际上是 Record<string, string> 的序列化形式
-  // 这里需要类型断言是因为 OpenAPI 生成器没有正确生成该类型
-  return map as Record<string, string>
 }

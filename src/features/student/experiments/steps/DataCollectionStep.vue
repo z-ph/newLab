@@ -1,7 +1,17 @@
 <template>
   <div class="space-y-4">
+    <!-- 已完成状态 - 显示已提交数据 -->
+    <SubmittedStatus
+      v-if="isCompleted && stepInfo"
+      :type="dataCollectionType"
+      :submission-time="stepInfo.submissionTime"
+      :score="stepInfo.score"
+      :teacher-comment="stepInfo.teacherComment"
+      :data-collection-detail="stepInfo.dataCollectionDetail"
+    />
+
     <!-- 不可访问状态 -->
-    <template v-if="!isAccessible && !isCompleted">
+    <template v-else-if="!isAccessible">
       <Card>
         <template #content>
           <div class="text-center py-8">
@@ -13,7 +23,7 @@
       </Card>
     </template>
 
-    <!-- 可访问状态 - 显示表单 -->
+    <!-- 可访问且未完成状态 - 显示表单 -->
     <template v-else>
       <DataCollectionForm
         :step-id="stepId"
@@ -28,8 +38,10 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { DATA_COLLECTION_TYPE } from '@/features/teacher/experiment/procedure/constants'
 import { useQueryProcedureDetail, useQueryStudentExperimentDetail } from '../hooks'
 import DataCollectionForm from './components/DataCollectionForm.vue'
+import SubmittedStatus from './components/SubmittedStatus.vue'
 
 interface Props {
   stepId: number
@@ -64,6 +76,11 @@ const isAccessible = computed(() => stepInfo.value?.isAccessible ?? true)
 
 // 不可访问原因
 const inaccessibleReason = computed(() => stepInfo.value?.inaccessibleReason)
+
+// 数据采集类型
+const dataCollectionType = computed(() => {
+  return stepInfo.value?.dataCollectionDetail?.type ?? DATA_COLLECTION_TYPE.KEY_DATA
+})
 
 // 用于表单的步骤信息
 const stepInfoForForm = computed(() => {

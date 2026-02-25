@@ -105,7 +105,7 @@ import { computed, defineComponent } from 'vue'
 import { DATA_COLLECTION_TYPE } from '@/features/teacher/experiment/procedure/constants'
 import { DATA_COLLECTION_TYPE_LABELS } from '@/features/student/experiments/constants'
 import { formatDateTime, formatFileSize } from '@/features/shared/utils/formatters'
-import { parseTableConfig, mapStringToRecord } from '@/features/student/experiments/utils/dataCollection'
+import { parseTableConfig, fillBlankAnswersToRecord, tableCellAnswersToRecord } from '@/features/student/experiments/utils/dataCollection'
 import type { DataCollectionDetail, DataCollectionDetail2 } from '@/core/api/generated'
 import { baseURL } from '@/core/api/config'
 
@@ -123,17 +123,11 @@ const props = defineProps<Props>()
 const submittedData = computed(() => {
   const detail = props.dataCollectionDetail
 
-  // 提取填空答案
-  let fillBlankAnswers: Record<string, string> = {}
-  if (detail?.fillBlankAnswers) {
-    fillBlankAnswers = mapStringToRecord(detail.fillBlankAnswers)
-  }
+  // 提取填空答案（新 API 返回 FillBlankAnswer[]）
+  const fillBlankAnswers = fillBlankAnswersToRecord(detail?.fillBlankAnswers)
 
-  // 提取表格答案
-  let tableCellAnswers: Record<string, string> = {}
-  if (detail?.tableCellAnswers) {
-    tableCellAnswers = mapStringToRecord(detail.tableCellAnswers)
-  }
+  // 提取表格答案（新 API 返回 TableCellAnswer[]）
+  const tableCellAnswers = tableCellAnswersToRecord(detail?.tableCellAnswers)
 
   return {
     fillBlankAnswers,
@@ -234,6 +228,4 @@ const TableDataDisplay = defineComponent({
     </div>
   `,
 })
-
-export { KeyDataDisplay, TableDataDisplay }
 </script>

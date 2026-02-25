@@ -7,7 +7,7 @@ import {
   postApiStudentProcedureSubmissionsTopicComplete,
   putApiStudentProcedureSubmissionsTopicUpdate,
 } from '@/core/api/generated'
-import type { MapString1 } from '@/core/api/generated'
+import type { TopicAnswerItem } from '@/core/api/generated'
 import client from '@/core/api/config'
 import { toast } from '@/core/utils/toast'
 
@@ -21,11 +21,13 @@ export interface SubmitTopicAnswersParams {
 }
 
 /**
- * 将答案对象转换为 API 所需的 MapString1 类型
- * 注意：MapString1 类型定义不完整，实际是 Record<string, string>
+ * 将答案 Record 转换为 TopicAnswerItem 数组
  */
-function toMapString1(answers: Record<string, string>): MapString1 {
-  return answers as unknown as MapString1
+function toTopicAnswerItems(answers: Record<string, string>): TopicAnswerItem[] {
+  return Object.entries(answers).map(([topicId, answer]) => ({
+    topicId: Number(topicId),
+    answer,
+  }))
 }
 
 /**
@@ -40,7 +42,7 @@ export function useSubmitTopicAnswers() {
         body: {
           procedureId: params.procedureId,
           classCode: params.classCode,
-          answers: toMapString1(params.answers),
+          answers: toTopicAnswerItems(params.answers),
         },
         client,
       })
@@ -65,7 +67,7 @@ export function useUpdateTopicAnswers() {
         body: {
           procedureId: params.procedureId,
           classCode: params.classCode,
-          answers: toMapString1(params.answers),
+          answers: toTopicAnswerItems(params.answers),
         },
         client,
       })
