@@ -91,17 +91,14 @@ const formattedSubmissionTime = computed(() => {
 // 得分
 const score = computed(() => props.stepInfo.score)
 
-// 是否可以显示正确答案
-const canShowCorrectAnswer = computed(() => props.stepInfo.isAfterEndTime ?? false)
-
 // 已提交答案列表
 const submittedAnswers = computed(() => {
   const topics = props.stepInfo.topicDetail?.topics ?? []
 
   return topics.map((topic: TopicItem) => {
     const studentAnswer = topic.studentAnswer ?? ''
-    const correctAnswer = canShowCorrectAnswer.value ? topic.correctAnswer : undefined
-    const isCorrect = canShowCorrectAnswer.value ? (topic.isCorrect ?? true) : true
+    const correctAnswer = topic.correctAnswer
+    const isCorrect = topic.isCorrect ?? true
 
     return {
       topicId: topic.id,
