@@ -74,12 +74,12 @@ export function validateAnswer(topicType: number, answer: string): boolean {
   switch (topicType) {
     case TOPIC_TYPE.SINGLE_CHOICE:
     case TOPIC_TYPE.TRUE_FALSE:
-      // 单选/判断: 必须是单个字母 A-H
-      return /^[A-H]$/i.test(answer)
+      // 单选/判断: 任意非空字符串（optionKey 可自定义）
+      return answer.trim().length > 0
 
     case TOPIC_TYPE.MULTIPLE_CHOICE:
-      // 多选: 必须是 A-B-C 格式
-      return /^[A-H](-[A-H])+$/.test(answer)
+      // 多选: key-key 格式（optionKey 可自定义）
+      return answer.includes('-') && answer.split('-').every(k => k.trim().length > 0)
 
     case TOPIC_TYPE.FILL_BLANK:
     case TOPIC_TYPE.SHORT_ANSWER:

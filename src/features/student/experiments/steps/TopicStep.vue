@@ -2,9 +2,8 @@
   <div class="space-y-4">
     <!-- 已完成状态 - 只读模式 -->
     <TopicSubmittedStatus
-      v-if="isCompleted && !isEditing && stepInfo"
+      v-if="isCompleted && stepInfo"
       :step-info="stepInfo"
-      @edit="startEditing"
     />
 
     <!-- 不可访问状态 -->
@@ -20,7 +19,7 @@
       </Card>
     </template>
 
-    <!-- 未完成状态或编辑模式 - 显示题目列表 -->
+    <!-- 未完成状态 - 显示题目列表 -->
     <template v-else>
       <!-- 步骤信息 -->
       <Card>
@@ -28,20 +27,12 @@
           <div class="flex items-center justify-between">
             <div class="space-y-2">
               <h3 class="text-base font-medium text-gray-900">
-                {{ isEditing ? '编辑答案' : (stepInfo?.remark || '完成题目') }}
+                {{ stepInfo?.remark || '完成题目' }}
               </h3>
               <p class="text-sm text-gray-600">
                 共 {{ topicCount }} 道题目，请认真作答
               </p>
             </div>
-            <Button
-              v-if="isEditing"
-              label="取消"
-              severity="secondary"
-              size="small"
-              icon="pi pi-times"
-              @click="cancelEditing"
-            />
           </div>
         </template>
       </Card>
@@ -73,7 +64,7 @@
       <!-- 提交按钮 -->
       <div class="flex justify-end">
         <Button
-          :label="isEditing ? '更新答案' : '提交答案'"
+          label="提交答案"
           severity="primary"
           :loading="isSubmitting"
           :disabled="!canSubmit"
@@ -86,8 +77,8 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { useQueryProcedureDetail, useQueryStudentExperimentDetail, useSubmitTopicAnswers, useUpdateTopicAnswers } from '../hooks'
-import { getDefaultAnswer, checkAllRequiredAnswered, buildAnswersPayload, parseSubmittedAnswer } from '../utils/topic'
+import { useQueryProcedureDetail, useQueryStudentExperimentDetail, useSubmitTopicAnswers } from '../hooks'
+import { getDefaultAnswer, checkAllRequiredAnswered, buildAnswersPayload } from '../utils/topic'
 import TopicQuestion from './components/TopicQuestion.vue'
 import TopicSubmittedStatus from './components/TopicSubmittedStatus.vue'
 
@@ -119,12 +110,6 @@ const { query: experimentQuery } = useQueryStudentExperimentDetail(
 // 提交答案 hook
 const submitTopicAnswers = useSubmitTopicAnswers()
 
-// 更新答案 hook
-const updateTopicAnswers = useUpdateTopicAnswers()
-
-// 编辑模式
-const isEditing = ref(false)
-
 // 是否已完成
 const isCompleted = computed(() => stepInfo.value?.isCompleted ?? false)
 
@@ -152,41 +137,13 @@ watch(topics, (newTopics) => {
 }, { immediate: true })
 
 // 提交中状态
-const isSubmitting = computed(() =>
-  submitTopicAnswers.isPending.value || updateTopicAnswers.isPending.value
-)
+const isSubmitting = computed(() => submitTopicAnswers.isPending.value)
 
 // 是否可以提交
 const canSubmit = computed(() => {
   if (topics.value.length === 0) return false
   return checkAllRequiredAnswered(topics.value, answers.value)
 })
-
-// 开始编辑
-function startEditing() {
-  isEditing.value = true
-  // 预填充已提交的答案
-  const submittedAnswers = parseSubmittedAnswer(stepInfo.value?.answer)
-  for (const topic of topics.value) {
-    if (topic.id) {
-      const submittedAnswer = submittedAnswers[String(topic.id)]
-      if (submittedAnswer !== undefined) {
-        answers.value[topic.id] = submittedAnswer
-      }
-    }
-  }
-}
-
-// 取消编辑
-function cancelEditing() {
-  isEditing.value = false
-  // 重置答案为默认值
-  for (const topic of topics.value) {
-    if (topic.id) {
-      answers.value[topic.id] = getDefaultAnswer(topic.type ?? 0)
-    }
-  }
-}
 
 // 处理提交
 async function handleSubmit() {
@@ -196,22 +153,11 @@ async function handleSubmit() {
 
   const payload = buildAnswersPayload(answers.value)
 
-  if (isEditing.value) {
-    // 更新答案
-    await updateTopicAnswers.mutateAsync({
-      procedureId: props.stepId,
-      classCode: props.classCode,
-      answers: payload,
-    })
-    isEditing.value = false
-  } else {
-    // 首次提交
-    await submitTopicAnswers.mutateAsync({
-      procedureId: props.stepId,
-      classCode: props.classCode,
-      answers: payload,
-    })
-  }
+  await submitTopicAnswers.mutateAsync({
+    procedureId: props.stepId,
+    classCode: props.classCode,
+    answers: payload,
+  })
 
   // 刷新数据
   experimentQuery.refetch()

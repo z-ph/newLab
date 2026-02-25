@@ -16,14 +16,6 @@
           <div v-if="score !== undefined">
             <Tag :value="`得分：${score}`" severity="success" />
           </div>
-          <Button
-            v-if="canEdit"
-            label="编辑答案"
-            severity="secondary"
-            size="small"
-            icon="pi pi-pencil"
-            @click="emit('edit')"
-          />
         </div>
       </template>
     </Card>
@@ -85,16 +77,9 @@ type MergedStepInfo = StudentProcedureDetailResponse & {
 
 interface Props {
   stepInfo: MergedStepInfo
-  canEdit?: boolean
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  canEdit: true,
-})
-
-const emit = defineEmits<{
-  edit: []
-}>()
+const props = defineProps<Props>()
 
 // 格式化提交时间
 const formattedSubmissionTime = computed(() => {
