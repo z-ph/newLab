@@ -137,7 +137,7 @@ const submittedAnswers = computed(() => {
 
     return {
       topicId: topic.id,
-      number: topic.number ?? 0,
+      number: (topic.number ?? 0) + 1,
       type: topicType,
       typeName: getTopicTypeName(topic.type),
       typeSeverity: getTopicTypeSeverity(topic.type) ?? 'contrast',
