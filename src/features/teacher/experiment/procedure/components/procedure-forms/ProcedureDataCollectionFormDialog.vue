@@ -241,14 +241,22 @@ const handleSubmit = async () => {
   }
 
   if (formData.value.dataType === 1) {
-    // 关键数据类型
-    body.dataFields = parseJson(formData.value.dataFieldsJson)
+    // 关键数据类型：将 Record 转换为 DataField 数组
+    const dataFieldsRecord = parseJson(formData.value.dataFieldsJson)
+    body.dataFields = Object.entries(dataFieldsRecord).map(([fieldName, value]) => ({
+      fieldName,
+      value: String(value),
+    }))
   } else if (formData.value.dataType === 2) {
     // 表格数据类型
     body.tableRowHeaders = parseArray(formData.value.tableRowHeadersStr)
     body.tableColumnHeaders = parseArray(formData.value.tableColumnHeadersStr)
-    // 表格答案（可选填）
-    body.tableCellAnswers = parseJson(formData.value.tableCellAnswersStr || '{}')
+    // 表格答案：将 Record 转换为 TableCellAnswer 数组
+    const cellAnswersRecord = parseJson(formData.value.tableCellAnswersStr || '{}')
+    body.tableCellAnswers = Object.entries(cellAnswersRecord).map(([cellPosition, value]) => ({
+      cellPosition,
+      value: String(value),
+    }))
   }
 
   // 附加选项（可选）
