@@ -56,7 +56,20 @@
                 class="flex items-center gap-3 py-2 border-b border-gray-100 last:border-0"
               >
                 <label class="text-sm font-medium text-slate-700 w-32 shrink-0">{{ fieldName }}</label>
-                <span class="text-sm text-slate-900">{{ submittedData.fillBlankAnswers[fieldName] || '-' }}</span>
+                <!-- 学生答案：正确用绿色，错误用红色 -->
+                <span
+                  class="text-sm font-medium"
+                  :class="isAnswerCorrect(fieldName) ? 'text-green-600' : 'text-red-600'"
+                >
+                  {{ submittedData.fillBlankAnswers[fieldName] || '-' }}
+                </span>
+                <!-- 错误时显示括号里的正确答案（绿色） -->
+                <span
+                  v-if="!isAnswerCorrect(fieldName) && correctAnswerMap[fieldName]"
+                  class="text-sm text-green-600"
+                >
+                  （{{ correctAnswerMap[fieldName] }}）
+                </span>
               </div>
             </div>
           </div>
@@ -88,9 +101,22 @@
                   <td
                     v-for="col in tableHeaders.columnHeaders"
                     :key="`${row}-${col}`"
-                    class="px-4 py-2 text-sm text-slate-900"
+                    class="px-4 py-2 text-sm"
                   >
-                    {{ submittedData.tableCellAnswers[`${row}-${col}`] || '-' }}
+                    <!-- 学生答案：正确用绿色，错误用红色 -->
+                    <span
+                      :class="isTableCellCorrect(`${row}-${col}`) ? 'text-green-600' : 'text-red-600'"
+                      class="font-medium"
+                    >
+                      {{ submittedData.tableCellAnswers[`${row}-${col}`] || '-' }}
+                    </span>
+                    <!-- 错误时显示括号里的正确答案（绿色） -->
+                    <span
+                      v-if="!isTableCellCorrect(`${row}-${col}`) && correctAnswerMap[`${row}-${col}`]"
+                      class="text-green-600 ml-1"
+                    >
+                      （{{ correctAnswerMap[`${row}-${col}`] }}）
+                    </span>
                   </td>
                 </tr>
               </tbody>
@@ -185,6 +211,36 @@ const fieldKeys = computed(() => Object.keys(submittedData.value.fillBlankAnswer
 const tableHeaders = computed(() => {
   return parseTableConfig(submittedData.value.tableCellAnswers)
 })
+
+// 解析正确答案 JSON
+const correctAnswerMap = computed<Record<string, string>>(() => {
+  const detail = props.dataCollectionDetail
+  if (!detail || !('correctAnswer' in detail) || !detail.correctAnswer) {
+    return {}
+  }
+  try {
+    return JSON.parse(detail.correctAnswer) as Record<string, string>
+  } catch {
+    console.warn('[SubmittedStatus] 解析 correctAnswer 失败')
+    return {}
+  }
+})
+
+// 判断答案是否正确
+function isAnswerCorrect(fieldName: string): boolean {
+  const studentAnswer = submittedData.value.fillBlankAnswers[fieldName]
+  const correctAnswer = correctAnswerMap.value[fieldName]
+  if (!correctAnswer || studentAnswer === undefined) return true
+  return studentAnswer.trim() === correctAnswer.trim()
+}
+
+// 判断表格单元格答案是否正确
+function isTableCellCorrect(cellPosition: string): boolean {
+  const studentAnswer = submittedData.value.tableCellAnswers[cellPosition]
+  const correctAnswer = correctAnswerMap.value[cellPosition]
+  if (!correctAnswer || studentAnswer === undefined) return true
+  return studentAnswer.trim() === correctAnswer.trim()
+}
 
 // 获取图片 URL
 function getPhotoUrl(downloadKey?: string): string {
