@@ -2,7 +2,17 @@
   <div class="min-h-screen bg-gray-50 pb-16">
     <!-- 顶部标题栏 -->
     <header class="bg-white shadow-sm sticky top-0 z-10">
-      <div class="px-4 py-3">
+      <div class="px-4 py-3 flex items-center gap-3">
+        <Button
+          v-if="showBackButton"
+          icon="pi pi-arrow-left"
+          severity="secondary"
+          text
+          rounded
+          size="small"
+          @click="handleBack"
+          aria-label="返回上一级"
+        />
         <h1 class="text-lg font-semibold text-gray-900">{{ title }}</h1>
       </div>
     </header>
@@ -31,7 +41,10 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import Button from 'primevue/button'
+import { getParentRoute, shouldShowBackButton } from '@/features/student/navigation/routeHierarchy'
 
 interface Props {
   title?: string
@@ -42,6 +55,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const route = useRoute()
+const router = useRouter()
 
 const navItems = [
   { path: '/student', icon: 'pi pi-home', label: '首页' },
@@ -50,5 +64,23 @@ const navItems = [
 
 const isActive = (path: string) => {
   return route.path === path || route.path.startsWith(path + '/')
+}
+
+// 判断是否显示返回按钮
+const showBackButton = computed(() => shouldShowBackButton(route.path))
+
+// 返回上一级
+const handleBack = () => {
+  const params = route.params as Record<string, string>
+  const query = route.query as Record<string, string>
+
+  const parentRoute = getParentRoute(route.path, params, query)
+
+  if (parentRoute) {
+    router.push(parentRoute)
+  } else {
+    // 兜底：返回浏览器历史
+    router.back()
+  }
 }
 </script>
