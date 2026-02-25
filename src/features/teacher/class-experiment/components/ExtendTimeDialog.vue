@@ -1,55 +1,56 @@
 <template>
   <Dialog
     v-model:visible="visible"
-    header="延长时间"
+    :header="isOneClickMode ? '一键延长（所有步骤）' : '延长时间'"
     :modal="true"
-    :style="{ width: '450px' }"
+    :style="{ width: '500px' }"
   >
     <div class="space-y-4">
-      <!-- 已选学生 -->
+      <!-- 学生选择 -->
       <div>
         <label class="mb-2 block text-sm font-medium text-slate-700">
-          已选学生 ({{ selectedStudents.length }} 人)
+          选择学生 <span class="text-red-500">*</span>
         </label>
-        <div class="max-h-32 overflow-y-auto rounded border border-slate-200 p-2">
-          <div v-for="student in selectedStudents" :key="student.studentUsername" class="py-1 text-sm text-slate-600">
-            {{ student.studentName }} ({{ student.studentUsername }})
-          </div>
+        <div class="mb-2 flex gap-2">
+          <Button
+            label="全选"
+            size="small"
+            outlined
+            @click="selectAllStudents"
+          />
+          <Button
+            label="取消全选"
+            size="small"
+            outlined
+            severity="secondary"
+            @click="clearSelectedStudents"
+          />
         </div>
-      </div>
-
-      <!-- 延长方式 -->
-      <div>
-        <label class="mb-2 block text-sm font-medium text-slate-700">
-          延长方式
-        </label>
-        <div class="flex gap-4">
-          <div class="flex items-center gap-2">
-            <RadioButton
-              v-model="extendMode"
-              inputId="extendModeExperiment"
-              value="experiment"
+        <div class="max-h-48 overflow-y-auto rounded border border-slate-200 p-2">
+          <div
+            v-for="student in availableStudents"
+            :key="student.studentUsername"
+            class="flex items-center gap-2 border-b border-slate-100 py-1.5 last:border-b-0"
+          >
+            <Checkbox
+              v-model="selectedStudentUsernames"
+              :inputId="`student-${student.studentUsername}`"
+              :value="student.studentUsername"
             />
-            <label for="extendModeExperiment" class="text-sm">按实验延长</label>
-          </div>
-          <div class="flex items-center gap-2">
-            <RadioButton
-              v-model="extendMode"
-              inputId="extendModeProcedure"
-              value="procedure"
-            />
-            <label for="extendModeProcedure" class="text-sm">按步骤延长</label>
+            <label :for="`student-${student.studentUsername}`" class="flex-1 text-sm text-slate-600 cursor-pointer">
+              {{ student.studentName }} ({{ student.studentUsername }})
+            </label>
           </div>
         </div>
         <p class="mt-1 text-xs text-slate-500">
-          {{ extendMode === 'experiment' ? '延长该实验下所有步骤的时间' : '只延长指定步骤的时间' }}
+          已选择 {{ selectedStudentUsernames.length }} / {{ availableStudents.length }} 人
         </p>
       </div>
 
-      <!-- 步骤选择（按步骤延长时显示） -->
-      <div v-if="extendMode === 'procedure'">
+      <!-- 步骤选择（非一键延长模式时显示） -->
+      <div v-if="!isOneClickMode">
         <label class="mb-2 block text-sm font-medium text-slate-700">
-          选择步骤
+          选择步骤 <span class="text-red-500">*</span>
         </label>
         <Select
           v-model="selectedProcedureId"
@@ -69,6 +70,7 @@
         </label>
         <div class="rounded border border-slate-200 bg-slate-50 p-2 text-sm text-slate-600">
           {{ formatDateTime(originalDeadline.toISOString()) }}
+          <span v-if="isOneClickMode" class="ml-2 text-xs text-slate-400">(最后一个步骤)</span>
         </div>
       </div>
 
@@ -101,7 +103,7 @@
     <template #footer>
       <Button label="取消" severity="secondary" outlined @click="close" />
       <Button
-        label="确认延长"
+        :label="isOneClickMode ? '确认一键延长' : '确认延长'"
         :loading="isPending"
         :disabled="!canSubmit"
         @click="handleExtend"
@@ -114,7 +116,7 @@
 import { ref, computed, nextTick } from 'vue'
 import Dialog from 'primevue/dialog'
 import Button from 'primevue/button'
-import RadioButton from 'primevue/radiobutton'
+import Checkbox from 'primevue/checkbox'
 import Select from 'primevue/select'
 import DatePicker from 'primevue/datepicker'
 import { useBatchExtendByProcedure, useBatchExtendByExperiment } from '@/features/teacher/experiment/procedure/hooks'
@@ -139,10 +141,15 @@ const visible = ref(false)
 const experimentId = ref<number>()
 const experimentStartTime = ref<string>()
 const procedures = ref<ProcedureInfo[]>([])
-const selectedStudents = ref<StudentInfo[]>([])
+const availableStudents = ref<StudentInfo[]>([])
 
-const extendMode = ref<'experiment' | 'procedure'>('experiment')
+// 一键延长模式（按实验延长所有步骤）
+const isOneClickMode = ref(false)
+// 用户选择的步骤 ID
 const selectedProcedureId = ref<number | undefined>(undefined)
+// 用户选择的学生学号列表
+const selectedStudentUsernames = ref<string[]>([])
+// 新截止时间
 const newDeadline = ref<Date | null>(null)
 
 const extendByProcedure = useBatchExtendByProcedure()
@@ -157,16 +164,27 @@ const procedureOptions = computed(() => {
   }))
 })
 
+// 全选学生
+const selectAllStudents = () => {
+  selectedStudentUsernames.value = availableStudents.value.map((s) => s.studentUsername)
+}
+
+// 取消全选
+const clearSelectedStudents = () => {
+  selectedStudentUsernames.value = []
+}
+
 // 计算原截止时间
 const originalDeadline = computed(() => {
   if (!experimentStartTime.value) return null
 
   let procedure: ProcedureInfo | undefined
-  if (extendMode.value === 'procedure') {
-    procedure = procedures.value.find((p) => p.id === selectedProcedureId.value)
-  } else {
-    // 按实验延长时，取最后一个步骤的截止时间
+  if (isOneClickMode.value) {
+    // 一键延长模式：取最后一个步骤的截止时间
     procedure = procedures.value[procedures.value.length - 1]
+  } else {
+    // 按步骤延长模式
+    procedure = procedures.value.find((p) => p.id === selectedProcedureId.value)
   }
 
   if (!procedure) return null
@@ -193,8 +211,9 @@ const calculatedExtendedMinutes = computed(() => {
 
 const canSubmit = computed(() => {
   if (newDeadline.value === null) return false
-  if (selectedStudents.value.length === 0) return false
-  if (extendMode.value === 'procedure' && selectedProcedureId.value === undefined) return false
+  if (selectedStudentUsernames.value.length === 0) return false
+  // 按步骤延长时需要选择步骤
+  if (!isOneClickMode.value && selectedProcedureId.value === undefined) return false
   if (calculatedExtendedMinutes.value <= 0) return false
   return true
 })
@@ -204,34 +223,43 @@ function updateOriginalDeadline() {
   // 触发计算属性重新计算
 }
 
+/**
+ * 打开延长时间对话框
+ * @param students 可选的学生列表
+ * @param expId 实验 ID
+ * @param procedureList 步骤列表
+ * @param startTime 实验开始时间
+ * @param procedureId 预选的步骤 ID（如果传入，则为按步骤延长模式；否则为一键延长模式）
+ */
 async function open(
   students: StudentInfo[],
   expId: number,
   procedureList: ProcedureInfo[],
   startTime: string,
-  preselectedProcedureId?: number
+  procedureId?: number
 ) {
-  selectedStudents.value = students
+  availableStudents.value = students
+  selectedStudentUsernames.value = students.map((s) => s.studentUsername) // 默认全选
   experimentId.value = expId
   procedures.value = procedureList
   experimentStartTime.value = startTime
   newDeadline.value = null
 
-  // 如果预选了步骤，则设置为按步骤延长模式
-  if (preselectedProcedureId !== undefined) {
-    extendMode.value = 'procedure'
-    selectedProcedureId.value = preselectedProcedureId
+  // 根据是否传入 procedureId 决定模式
+  if (procedureId !== undefined) {
+    isOneClickMode.value = false
+    selectedProcedureId.value = procedureId
   } else {
-    extendMode.value = 'experiment'
+    isOneClickMode.value = true
     selectedProcedureId.value = undefined
   }
 
   visible.value = true
 
   // 等待 DOM 更新后再次确认选中值
-  if (preselectedProcedureId !== undefined) {
+  if (procedureId !== undefined) {
     await nextTick()
-    selectedProcedureId.value = preselectedProcedureId
+    selectedProcedureId.value = procedureId
   }
 }
 
@@ -240,7 +268,7 @@ function close() {
 }
 
 async function handleExtend() {
-  if (!experimentId.value || newDeadline.value === null || selectedStudents.value.length === 0) {
+  if (!experimentId.value || newDeadline.value === null || selectedStudentUsernames.value.length === 0) {
     return
   }
 
@@ -249,20 +277,20 @@ async function handleExtend() {
     return
   }
 
-  const studentUsernames = selectedStudents.value.map((s) => s.studentUsername)
-
   try {
-    if (extendMode.value === 'experiment') {
+    if (isOneClickMode.value) {
+      // 一键延长：按实验延长所有步骤
       await extendByExperiment.mutateAsync({
         experimentId: experimentId.value,
-        studentUsernames,
+        studentUsernames: selectedStudentUsernames.value,
         extendedMinutes: calculatedExtendedMinutes.value,
       })
     } else {
+      // 按步骤延长
       if (selectedProcedureId.value === undefined) return
       await extendByProcedure.mutateAsync({
         experimentalProcedureId: selectedProcedureId.value,
-        studentUsernames,
+        studentUsernames: selectedStudentUsernames.value,
         extendedMinutes: calculatedExtendedMinutes.value,
       })
     }

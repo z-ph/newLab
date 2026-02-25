@@ -249,6 +249,16 @@
                 暂无步骤数据
               </div>
               <div v-else class="space-y-4">
+                <!-- 一键延长按钮 -->
+                <div class="flex justify-end">
+                  <Button
+                    label="一键延长"
+                    severity="info"
+                    outlined
+                    icon="pi pi-clock"
+                    @click="openOneClickExtendDialog"
+                  />
+                </div>
                 <DataTable :value="proceduresList" :paginator="true" :rows="10">
                   <Column field="number" header="步骤序号" style="width: 100px" />
                   <Column field="type" header="步骤类型">
@@ -292,8 +302,13 @@
               </div>
               <div v-else>
                 <DataTable :value="extensionsList" :paginator="true" :rows="10">
+                  <Column header="学生姓名" sortable>
+                    <template #body="slotProps">
+                      {{ getStudentName(slotProps.data.studentUsername) }}
+                    </template>
+                  </Column>
                   <Column field="studentUsername" header="学生学号" sortable />
-                  <Column header="步骤">
+                  <Column header="步骤" sortable :sortField="(data) => String(getProcedureNumber(data.experimentalProcedureId))">
                     <template #body="slotProps">
                       {{ getProcedureLabel(slotProps.data.experimentalProcedureId) }}
                     </template>
@@ -621,6 +636,40 @@ const getProcedureLabel = (procedureId: number | undefined) => {
   return `步骤 ${procedure.number}${procedure.remark ? ` - ${procedure.remark}` : ''}`
 }
 
+// 根据步骤ID获取步骤序号（用于排序）
+const getProcedureNumber = (procedureId: number | undefined) => {
+  if (!procedureId) return 0
+  const procedure = proceduresList.value.find((p) => p.id === procedureId)
+  return procedure?.number ?? 0
+}
+
+// 根据学号获取学生姓名
+const getStudentName = (studentUsername: string | undefined) => {
+  if (!studentUsername) return '-'
+
+  // 优先从统计数据获取
+  const studentFromStats = statisticsData.value?.studentCompletions?.find(
+    (s) => s.studentUsername === studentUsername
+  )
+  if (studentFromStats?.studentName) return studentFromStats.studentName
+
+  // 从签到数据获取
+  const allAttendanceLists = [
+    attendanceData.value?.normalAttendanceList,
+    attendanceData.value?.crossClassAttendanceList,
+    attendanceData.value?.notAttendanceList,
+  ]
+
+  for (const list of allAttendanceLists) {
+    if (list) {
+      const student = list.find((s) => s.studentUsername === studentUsername)
+      if (student?.studentName) return student.studentName
+    }
+  }
+
+  return studentUsername
+}
+
 // 获取延长记录的截止时间
 const getExtensionDeadline = (extension: StudentProcedureExtension) => {
   const procedure = proceduresList.value.find((p) => p.id === extension.experimentalProcedureId)
@@ -738,6 +787,62 @@ const openExtendTimeDialog = () => {
   }))
 
   extendTimeDialogRef.value?.open(students, experimentIdForStats.value!, procedureList, experimentStartTime.value)
+}
+
+// 一键延长 - 延长所有步骤
+const openOneClickExtendDialog = () => {
+  if (!experimentStartTime.value) {
+    toast.add({ severity: 'warn', summary: '提示', detail: '无法获取实验开始时间', life: 3000 })
+    return
+  }
+
+  // 从签到数据获取学生列表
+  const allStudents: { studentUsername: string; studentName: string }[] = []
+
+  // 添加已签到的学生
+  if (attendanceData.value?.normalAttendanceList) {
+    for (const s of attendanceData.value.normalAttendanceList) {
+      if (s.studentUsername && s.studentName) {
+        allStudents.push({ studentUsername: s.studentUsername, studentName: s.studentName })
+      }
+    }
+  }
+
+  // 添加跨班签到的学生
+  if (attendanceData.value?.crossClassAttendanceList) {
+    for (const s of attendanceData.value.crossClassAttendanceList) {
+      if (s.studentUsername && s.studentName) {
+        allStudents.push({ studentUsername: s.studentUsername, studentName: s.studentName })
+      }
+    }
+  }
+
+  // 添加未签到的学生
+  if (attendanceData.value?.notAttendanceList) {
+    for (const s of attendanceData.value.notAttendanceList) {
+      if (s.studentUsername && s.studentName) {
+        allStudents.push({ studentUsername: s.studentUsername, studentName: s.studentName })
+      }
+    }
+  }
+
+  // 如果没有学生数据，提示用户
+  if (allStudents.length === 0) {
+    toast.add({ severity: 'warn', summary: '提示', detail: '暂无学生数据', life: 3000 })
+    return
+  }
+
+  const procedureList = proceduresList.value.map((p: TeacherProcedureDetailResponse) => ({
+    id: p.id!,
+    number: p.number!,
+    type: p.type!,
+    remark: p.remark,
+    offsetMinutes: p.offsetMinutes,
+    durationMinutes: p.durationMinutes,
+  }))
+
+  // 不传 procedureId，进入一键延长模式
+  extendTimeDialogRef.value?.open(allStudents, experimentIdForStats.value!, procedureList, experimentStartTime.value)
 }
 
 // 按步骤延长时间 - 从签到列表获取学生
