@@ -1,5 +1,5 @@
 <template>
-  <div class="p-1">
+  <div class="p-1 flex gap-0.5 flex-col">
     <Card>
       <template #content>
         <div class="mb-4 flex items-center justify-between">
@@ -28,6 +28,8 @@
         </form>
       </template>
     </Card>
+    <CourseTable/>
+
   </div>
 </template>
 
@@ -37,6 +39,9 @@ import { useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import { useCreateCourse } from '@/features/teacher/course/hooks'
 import type { CreateCourseRequest } from '@/core/api/generated'
+import {
+  CourseTable,
+} from '@/features/teacher/course'
 
 const router = useRouter()
 const toast = useToast()
@@ -84,8 +89,6 @@ async function handleSubmit() {
       detail: '课程创建成功',
       life: 3000,
     })
-
-    router.push('/teacher/courses/')
   } finally {
     isSubmitting.value = false
   }
