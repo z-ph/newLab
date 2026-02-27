@@ -61,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
 import Popover from 'primevue/popover'
@@ -96,10 +96,19 @@ const handleView = (video: VideoUploadResponse) => {
 }
 
 // ✅ 表格内部调用 hook 获取数据
-const { current, size, videos, total, query } = useQueryVideoPage({
+const { current, size, fileName, videos, total, query } = useQueryVideoPage({
   current: 1,
   size: 10,
 })
+
+// ✅ 监听筛选条件变化，同步到 hook 的 fileName
+watch(
+  () => filters.value.originalFileName,
+  (newFileName) => {
+    fileName.value = newFileName || ''
+    current.value = 1 // 重置到第一页
+  }
+)
 
 // ✅ 表格内部调用 mutation
 const deleteMutation = useDeleteVideo()

@@ -88,24 +88,47 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue"
+import { ref, watch } from "vue"
 import { useRouter } from "vue-router"
 import { useConfirm } from "primevue/useconfirm"
-import type { TopicDetailResponse } from "@/core/api/generated"
+import type { TopicDetailResponse, TopicQueryRequest } from "@/core/api/generated"
 import { getTopicTypeName, getTopicTypeSeverity } from "@/features/teacher/topic/constants"
 import { formatChoices } from "@/features/teacher/topic/utils/formatters"
 import { formatDateTime } from "@/features/shared/utils"
 import { getTagSeverity } from "@/features/teacher/topic/utils/tagHelpers"
 import { useQueryTopicPage, useDeleteTopic } from "@/features/teacher/topic/hooks"
 
+// ✅ 从 API 类型派生筛选条件类型
+type TopicFilters = Pick<TopicQueryRequest, 'type' | 'keyword' | 'tagIds' | 'difficultyTagIds' | 'subjectTagIds'>
+
+const props = defineProps<{
+  filters?: TopicFilters
+}>()
+
 const router = useRouter()
 
 // ✅ 直接在组件内调用 hook，利用 Vue Query 缓存
-const { current, size, total, topics, query } =
+const { current, size, total, topics, query, type, keyword, tagIds, difficultyTagIds, subjectTagIds } =
   useQueryTopicPage({
     current: 1,
     size: 10,
   })
+
+// ✅ 监听外部传入的筛选条件，同步到 hook 的状态
+watch(
+  () => props.filters,
+  (newFilters) => {
+    if (newFilters) {
+      type.value = newFilters.type
+      keyword.value = newFilters.keyword
+      tagIds.value = newFilters.tagIds
+      difficultyTagIds.value = newFilters.difficultyTagIds
+      subjectTagIds.value = newFilters.subjectTagIds
+      current.value = 1 // 重置到第一页
+    }
+  },
+  { deep: true, immediate: true }
+)
 
 // 删除 mutation
 const deleteMutation = useDeleteTopic()
