@@ -40,3 +40,4 @@ typed-router.d.ts
 auto-imports.d.ts
 components.d.ts
 .claude/settings.local.json
+test-results/
