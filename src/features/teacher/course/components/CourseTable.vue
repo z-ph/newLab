@@ -2,7 +2,12 @@
   <Card>
     <template #content>
       <DataTable v-model:selection="selectedCourses" :value="courses" :paginator="true" :rows="size"
-        :loading="query.isLoading.value" selection-mode="multiple" :total-records="total" @page="onPageChange"
+        :loading="query.isLoading.value" selection-mode="multiple" :total-records="total"
+        lazy
+        paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+        :rows-per-page-options="[10, 20, 50]"
+        current-page-report-template="显示 {first} 到 {last} 共 {totalRecords} 条"
+        @page="onPageChange"
         :pt="{ header: { class: 'px-0!' } }">
         <template #header>
           <div class="flex items-center justify-between">
@@ -81,6 +86,7 @@ const total = computed(() => query.data.value?.total || 0)
 // 事件处理
 const onPageChange = (event: DataTablePageEvent) => {
   current.value = event.page + 1
+  size.value = event.rows
 }
 
 // 删除处理

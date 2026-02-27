@@ -7,7 +7,11 @@
   <Card>
     <template #content>
       <DataTable :value="videos" :loading="query.isLoading.value" :paginator="true" :rows="size" :total-records="total"
-        :lazy="true" @page="onPageChange" striped-rows :empty-message="'暂无视频数据'" :pt="{ header: { class: 'px-0!' } }">
+        lazy
+        paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+        :rows-per-page-options="[10, 20, 50]"
+        current-page-report-template="显示 {first} 到 {last} 共 {totalRecords} 条"
+        @page="onPageChange" striped-rows :empty-message="'暂无视频数据'" :pt="{ header: { class: 'px-0!' } }">
         <template #header>
           <div class="flex items-center justify-between">
             <h1 class="text-xl font-bold text-slate-900">视频管理</h1>
@@ -107,6 +111,7 @@ const filenamePopoverRef = ref<InstanceType<typeof Popover>>()
 // 分页处理
 const onPageChange = (event: any) => {
   current.value = event.page + 1
+  size.value = event.rows
 }
 
 // 删除处理

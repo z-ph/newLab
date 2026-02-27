@@ -98,15 +98,10 @@ import { formatDateTime } from "@/features/shared/utils"
 import { getTagSeverity } from "@/features/teacher/topic/utils/tagHelpers"
 import { useQueryTopicPage, useDeleteTopic } from "@/features/teacher/topic/hooks"
 
-interface Emits {
-  (e: 'update:current', value: number): void
-}
-
-const emit = defineEmits<Emits>()
 const router = useRouter()
 
 // ✅ 直接在组件内调用 hook，利用 Vue Query 缓存
-const { size, total, topics, query } =
+const { current, size, total, topics, query } =
   useQueryTopicPage({
     current: 1,
     size: 10,
@@ -121,7 +116,8 @@ const selectedTopics = ref<TopicDetailResponse[]>([])
 
 // 分页
 const onPage = (event: any) => {
-  emit('update:current', event.page + 1)
+  current.value = event.page + 1
+  size.value = event.rows
 }
 
 // 查看详情/编辑（跳转到详情页）

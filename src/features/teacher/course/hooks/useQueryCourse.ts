@@ -46,15 +46,20 @@ export function useQueryCoursePage(initial: {
 }) {
   const current = ref(initial.current || 1);
   const size = ref(initial.size || 20);
-  const query = useQueryCourseBase(
-    {
-      current: current.value,
-      size: size.value,
-    },
-    {
-      queryKey: computed(() => ["courses-page", current.value, size.value]),
-    },
-  );
+
+  const query = useQuery({
+    queryKey: computed(() => ["courses-page", current.value, size.value]),
+    queryFn: () =>
+      postApiTeacherCoursesQuery({
+        body: {
+          current: current.value,
+          size: size.value,
+        },
+        client,
+      }),
+    select: (res) => res.data?.data,
+  });
+
   return {
     current,
     size,
