@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
 
   return {
-    base: env.PREFIX_PATH || '/',
+    base: env.VITE_PREFIX_PATH || '/',
     plugins: [
       tailwindcss(),
       VueRouter({

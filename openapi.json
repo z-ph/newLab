@@ -1752,7 +1752,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseDownloadKeyResponse",
+                  "$ref": "#/components/schemas/ApiResponseMapString",
                   "description": "下载密钥"
                 },
                 "examples": {
@@ -1841,7 +1841,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseDownloadKeyResponse",
+                  "$ref": "#/components/schemas/ApiResponseMapString",
                   "description": "下载密钥"
                 },
                 "examples": {
@@ -1921,7 +1921,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseDownloadKeyResponse",
+                  "$ref": "#/components/schemas/ApiResponseMapString",
                   "description": "下载密钥"
                 },
                 "examples": {
@@ -3596,6 +3596,9 @@
               "schema": {
                 "$ref": "#/components/schemas/CreateCourseRequest",
                 "description": "创建课程请求"
+              },
+              "example": {
+                "courseName": "特刚"
               }
             }
           }
@@ -3608,72 +3611,6 @@
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseCourseResponse",
                   "description": "课程信息"
-                },
-                "examples": {
-                  "1": {
-                    "summary": "成功示例",
-                    "value": {
-                      "code": 0,
-                      "message": "",
-                      "data": {
-                        "id": 0,
-                        "courseId": "",
-                        "courseName": "",
-                        "teacherUsername": "",
-                        "teacherEmployeeId": "",
-                        "createTime": "",
-                        "updateTime": ""
-                      }
-                    }
-                  },
-                  "2": {
-                    "summary": "成功示例",
-                    "value": {
-                      "code": 0,
-                      "message": "",
-                      "data": {
-                        "id": 0,
-                        "courseId": "",
-                        "courseName": "",
-                        "teacherUsername": "",
-                        "teacherEmployeeId": "",
-                        "createTime": "",
-                        "updateTime": ""
-                      }
-                    }
-                  },
-                  "3": {
-                    "summary": "成功示例",
-                    "value": {
-                      "code": 0,
-                      "message": "",
-                      "data": {
-                        "id": 0,
-                        "courseId": "",
-                        "courseName": "",
-                        "teacherUsername": "",
-                        "teacherEmployeeId": "",
-                        "createTime": "",
-                        "updateTime": ""
-                      }
-                    }
-                  },
-                  "4": {
-                    "summary": "成功示例",
-                    "value": {
-                      "code": 0,
-                      "message": "",
-                      "data": {
-                        "id": 0,
-                        "courseId": "",
-                        "courseName": "",
-                        "teacherUsername": "",
-                        "teacherEmployeeId": "",
-                        "createTime": "",
-                        "updateTime": ""
-                      }
-                    }
-                  }
                 }
               }
             },
@@ -4753,304 +4690,6 @@
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponsePageResponseClassResponse",
                   "description": "查询结果"
-                }
-              }
-            },
-            "headers": {}
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/teacher/class/{id}": {
-      "get": {
-        "summary": "根据ID查询班级（包含实验信息）",
-        "deprecated": false,
-        "description": "",
-        "tags": [],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "班级ID",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseClassWithExperimentsResponse",
-                  "description": "班级信息（包含实验信息）"
-                },
-                "examples": {
-                  "1": {
-                    "summary": "成功示例",
-                    "value": {
-                      "code": 0,
-                      "message": "",
-                      "data": {
-                        "classCode": "",
-                        "className": "",
-                        "studentCount": 0,
-                        "createTime": "",
-                        "updateTime": "",
-                        "experiments": [
-                          {
-                            "classExperimentId": 0,
-                            "courseId": "",
-                            "experimentId": "",
-                            "experimentName": "",
-                            "courseTime": "",
-                            "startTime": "",
-                            "endTime": "",
-                            "experimentLocation": "",
-                            "userName": ""
-                          }
-                        ]
-                      }
-                    }
-                  },
-                  "2": {
-                    "summary": "成功示例",
-                    "value": {
-                      "code": 0,
-                      "message": "",
-                      "data": {
-                        "classCode": "",
-                        "className": "",
-                        "studentCount": 0,
-                        "createTime": "",
-                        "updateTime": "",
-                        "experiments": [
-                          {
-                            "classExperimentId": 0,
-                            "courseId": "",
-                            "experimentId": "",
-                            "experimentName": "",
-                            "courseTime": "",
-                            "startTime": "",
-                            "endTime": "",
-                            "experimentLocation": "",
-                            "userName": ""
-                          }
-                        ]
-                      }
-                    }
-                  },
-                  "3": {
-                    "summary": "成功示例",
-                    "value": {
-                      "code": 0,
-                      "message": "",
-                      "data": {
-                        "classCode": "",
-                        "className": "",
-                        "studentCount": 0,
-                        "createTime": "",
-                        "updateTime": "",
-                        "experiments": [
-                          {
-                            "classExperimentId": 0,
-                            "courseId": "",
-                            "experimentId": "",
-                            "experimentName": "",
-                            "courseTime": "",
-                            "startTime": "",
-                            "endTime": "",
-                            "experimentLocation": "",
-                            "userName": ""
-                          }
-                        ]
-                      }
-                    }
-                  },
-                  "4": {
-                    "summary": "成功示例",
-                    "value": {
-                      "code": 0,
-                      "message": "",
-                      "data": {
-                        "classCode": "",
-                        "className": "",
-                        "studentCount": 0,
-                        "createTime": "",
-                        "updateTime": "",
-                        "experiments": [
-                          {
-                            "classExperimentId": 0,
-                            "courseId": "",
-                            "experimentId": "",
-                            "experimentName": "",
-                            "courseTime": "",
-                            "startTime": "",
-                            "endTime": "",
-                            "experimentLocation": "",
-                            "userName": ""
-                          }
-                        ]
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "headers": {}
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      },
-      "put": {
-        "summary": "更新班级信息",
-        "deprecated": false,
-        "description": "",
-        "tags": [],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "班级ID",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateClassRequest",
-                "description": "更新班级请求"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseVoid",
-                  "description": "是否解绑成功"
-                },
-                "examples": {
-                  "1": {
-                    "summary": "成功示例",
-                    "value": {
-                      "code": 0,
-                      "message": "",
-                      "data": null
-                    }
-                  },
-                  "2": {
-                    "summary": "成功示例",
-                    "value": {
-                      "code": 0,
-                      "message": "",
-                      "data": null
-                    }
-                  },
-                  "3": {
-                    "summary": "成功示例",
-                    "value": {
-                      "code": 0,
-                      "message": "",
-                      "data": null
-                    }
-                  },
-                  "4": {
-                    "summary": "成功示例",
-                    "value": {
-                      "code": 0,
-                      "message": "",
-                      "data": null
-                    }
-                  }
-                }
-              }
-            },
-            "headers": {}
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      },
-      "delete": {
-        "summary": "删除班级",
-        "deprecated": false,
-        "description": "",
-        "tags": [],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "班级ID",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseVoid",
-                  "description": "是否解绑成功"
-                },
-                "examples": {
-                  "1": {
-                    "summary": "成功示例",
-                    "value": {
-                      "code": 0,
-                      "message": "",
-                      "data": null
-                    }
-                  },
-                  "2": {
-                    "summary": "成功示例",
-                    "value": {
-                      "code": 0,
-                      "message": "",
-                      "data": null
-                    }
-                  },
-                  "3": {
-                    "summary": "成功示例",
-                    "value": {
-                      "code": 0,
-                      "message": "",
-                      "data": null
-                    }
-                  },
-                  "4": {
-                    "summary": "成功示例",
-                    "value": {
-                      "code": 0,
-                      "message": "",
-                      "data": null
-                    }
-                  }
                 }
               }
             },
@@ -6170,6 +5809,44 @@
                       ]
                     }
                   }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/teacher/class/{classCode}": {
+      "delete": {
+        "summary": "删除班级",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "classCode",
+            "in": "path",
+            "description": "班级代码",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid",
+                  "description": "是否解绑成功"
                 }
               }
             },
@@ -24111,6 +23788,10 @@
           "correctAnswer": {
             "type": "string",
             "description": "正确答案（仅在当前时间超过步骤答题时间后才返回）\n格式：JSON字符串，包含fillBlankCorrectAnswer和tableCellCorrectAnswer"
+          },
+          "tolerance": {
+            "type": "number",
+            "description": "误差范围（用于数值类答案的判分）"
           }
         }
       },
