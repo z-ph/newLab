@@ -19,7 +19,6 @@
                 size="small"
                 @click="handleBatchDelete"
               />
-              <Button label="标签管理" icon="pi pi-tags" outlined severity="secondary" @click="emit('tag-manage')" />
               <Button label="新增题目" icon="pi pi-plus" @click="handleAdd" />
             </div>
           </div>
@@ -78,8 +77,7 @@
         <Column header="操作"  frozen frozen-align="right">
           <template #body="{ data }">
             <div class="flex gap-2">
-              <Button label="查看" size="small" text @click="handleView(data)" />
-              <Button label="编辑" size="small" text severity="primary" @click="handleEdit(data)" />
+              <Button label="详情" size="small" text @click="handleDetail(data)" />
               <Button label="删除" size="small" text severity="danger" @click="handleDelete(data)" />
             </div>
           </template>
@@ -102,9 +100,6 @@ import { useQueryTopicPage, useDeleteTopic } from "@/features/teacher/topic/hook
 
 interface Emits {
   (e: 'update:current', value: number): void
-  (e: 'view', topic: TopicDetailResponse): void
-  (e: 'edit', topic: TopicDetailResponse): void
-  (e: 'tag-manage'): void
 }
 
 const emit = defineEmits<Emits>()
@@ -129,14 +124,9 @@ const onPage = (event: any) => {
   emit('update:current', event.page + 1)
 }
 
-// 查看详情
-const handleView = (topic: TopicDetailResponse) => {
-  emit('view', topic)
-}
-
-// 编辑
-const handleEdit = (topic: TopicDetailResponse) => {
-  emit('edit', topic)
+// 查看详情/编辑（跳转到详情页）
+const handleDetail = (topic: TopicDetailResponse) => {
+  router.push(`/teacher/topics/${topic.id}`)
 }
 
 // 新增题目 - 跳转到创建页面

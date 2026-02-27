@@ -202,6 +202,12 @@ const ROUTE_META: Partial<Record<TeacherRoutePath, RouteMeta>> = {
         icon: 'pi pi-plus',
         path: '/teacher/topics/create',
       },
+      {
+        name: 'topic-tags',
+        title: '标签管理',
+        icon: 'pi pi-tags',
+        path: '/teacher/topics/tags',
+      },
     ],
   },
 }
