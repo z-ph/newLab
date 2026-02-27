@@ -2,6 +2,17 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 测试账号
+
+| 角色 | 用户名 | 密码 |
+|------|--------|------|
+| 教师端 | admin | admin123 |
+| 学生端 | 2021001 | admin123 |
+
+**Playwright MCP 测试流程**：
+- 使用无头模式（headless）避免多实例冲突
+- 每次测试需要重新登录（无头浏览器不保留登录状态）
+
 ## 项目概述
 
 Vue 3 + TypeScript + Vite 前端项目，使用 pnpm 包管理。
