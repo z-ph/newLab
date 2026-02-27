@@ -31,7 +31,6 @@
       </DataTable>
     </template>
   </Card>
-  <CourseFormDialog ref="formDialogRef" v-on:refresh="query.refetch"/>
 </template>
 
 <script setup lang="ts">
@@ -41,17 +40,13 @@ import { useConfirm } from 'primevue/useconfirm'
 import type { DataTablePageEvent } from 'primevue/datatable'
 import type { CourseResponse } from '@/core/api/generated'
 import { useQueryCoursePage, useDeleteCourse } from '../hooks'
-import { CourseFormDialog } from '@/features/teacher/course'
 import { formatDateTime } from '@/features/shared/utils/formatters'
 
 const router = useRouter()
 
-// ==================== 对话框 ref ====================
-const formDialogRef = ref<InstanceType<typeof CourseFormDialog>>()
-
 // ==================== 创建课程 ====================
 const handleCreate = () => {
-  formDialogRef.value?.open()
+  router.push('/teacher/courses/create')
 }
 
 // ==================== 查看课程详情 ====================

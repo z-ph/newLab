@@ -1,20 +1,6 @@
 <template>
   <Dialog v-model:visible="visible" header="班级管理" :modal="true" :style="{ maxWidth: '100vw', width: '90vw' }">
     <div class="flex flex-col gap-6">
-      <!-- 编辑班级名称 -->
-      <section>
-        <h3 class="mb-3 text-base font-semibold text-slate-900">班级信息</h3>
-        <form @submit.prevent="handleUpdateClassName" class="flex items-end gap-3">
-          <div class="flex-1">
-            <label class="mb-2 block text-sm font-medium text-slate-700">
-              班级名称 <span class="text-red-500">*</span>
-            </label>
-            <InputText v-model="formData.className" class="w-full" placeholder="请输入班级名称" />
-          </div>
-          <Button type="submit" :loading="isSubmitting">保存</Button>
-        </form>
-      </section>
-
       <!-- Tabs：学生和实验 -->
       <Tabs v-model:value="activeTab">
         <TabList>
@@ -149,10 +135,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, computed } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
-import { useUpdateClass } from '@/features/teacher/class'
 import { useQueryStudentList } from '@/features/teacher/class/hooks/useQueryStudentList'
 import { useBindStudents, useUnbindStudents } from '@/features/teacher/class/hooks/useMutateClassStudents'
 import { useQueryClassExperimentsGroupedByCourse, toCourseGroups } from '@/features/teacher/class/hooks/useQueryClassExperimentsGroupedByCourse'
@@ -165,14 +150,10 @@ import BindClassExperimentDialog from '@/features/teacher/class-experiment/compo
 // ==================== 对话框状态 ====================
 const visible = ref(false)
 const activeTab = ref('students')
-const isSubmitting = ref(false)
-const formData = reactive({ className: '' })
-const updateMutation = useUpdateClass()
 const toast = useToast()
 const confirm = useConfirm()
 
 // 保存班级信息
-let classId: number | undefined
 let classCode = ref('')
 
 interface ClassInfo {
@@ -183,9 +164,7 @@ interface ClassInfo {
 
 function open(classInfo: ClassInfo) {
   console.log(classInfo)
-  classId = classInfo.id
   classCode.value = classInfo.classCode || ''
-  formData.className = classInfo.className || ''
   visible.value = true
 }
 
@@ -194,45 +173,6 @@ function close() {
 }
 
 defineExpose({ open, close })
-
-// ==================== 更新班级名称 ====================
-async function handleUpdateClassName() {
-  if (!formData.className?.trim()) {
-    toast.add({
-      severity: 'warn',
-      summary: '提示',
-      detail: '请输入班级名称',
-      life: 3000,
-    })
-    return
-  }
-
-  if (!classId) {
-    toast.add({
-      severity: 'error',
-      summary: '错误',
-      detail: '班级 ID 不存在',
-      life: 3000,
-    })
-    return
-  }
-
-  isSubmitting.value = true
-  try {
-    await updateMutation.mutateAsync({
-      path: { id: classId },
-      body: { className: formData.className },
-    })
-    toast.add({
-      severity: 'success',
-      summary: '成功',
-      detail: '班级名称更新成功',
-      life: 3000,
-    })
-  } finally {
-    isSubmitting.value = false
-  }
-}
 
 // ==================== 学生管理 ====================
 const {

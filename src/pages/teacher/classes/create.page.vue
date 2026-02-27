@@ -80,8 +80,8 @@ const navigateToEdit = (classItem: Class) => {
 }
 
 const handleDelete = (classItem: Class) => {
-  const classId = classItem.id
-  if (!classId) return
+  const code = classItem.classCode
+  if (!code) return
 
   confirm.require({
     message: `确定要删除班级"${classItem.className}"吗？此操作不可撤销。`,
@@ -92,7 +92,7 @@ const handleDelete = (classItem: Class) => {
     acceptClass: 'p-button-danger',
     accept: async () => {
       await deleteMutation.mutateAsync({
-        path: { id: classId },
+        path: { classCode: code },
       })
       query.refetch()
     },

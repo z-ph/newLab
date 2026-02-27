@@ -96,6 +96,20 @@ const ROUTE_META: Partial<Record<TeacherRoutePath, RouteMeta>> = {
     name: 'courses',
     title: '课程管理',
     icon: 'pi pi-book',
+    children: [
+      {
+        name: 'course-list',
+        title: '课程列表',
+        icon: 'pi pi-list',
+        path: '/teacher/courses/',
+      },
+      {
+        name: 'course-create',
+        title: '创建课程',
+        icon: 'pi pi-plus',
+        path: '/teacher/courses/create',
+      },
+    ],
   },
   '/teacher/classes/': {
     name: 'classes',

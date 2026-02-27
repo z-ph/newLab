@@ -20,7 +20,7 @@
                 @click="handleBatchDelete"
               />
               <Button label="标签管理" icon="pi pi-tags" outlined severity="secondary" @click="emit('tag-manage')" />
-              <Button label="新增题目" icon="pi pi-plus" @click="emit('add')" />
+              <Button label="新增题目" icon="pi pi-plus" @click="handleAdd" />
             </div>
           </div>
         </template>
@@ -91,6 +91,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue"
+import { useRouter } from "vue-router"
 import { useConfirm } from "primevue/useconfirm"
 import type { TopicDetailResponse } from "@/core/api/generated"
 import { getTopicTypeName, getTopicTypeSeverity } from "@/features/teacher/topic/constants"
@@ -104,10 +105,11 @@ interface Emits {
   (e: 'view', topic: TopicDetailResponse): void
   (e: 'edit', topic: TopicDetailResponse): void
   (e: 'tag-manage'): void
-  (e: 'add'): void
 }
 
 const emit = defineEmits<Emits>()
+const router = useRouter()
+
 // ✅ 直接在组件内调用 hook，利用 Vue Query 缓存
 const { size, total, topics, query } =
   useQueryTopicPage({
@@ -135,6 +137,11 @@ const handleView = (topic: TopicDetailResponse) => {
 // 编辑
 const handleEdit = (topic: TopicDetailResponse) => {
   emit('edit', topic)
+}
+
+// 新增题目 - 跳转到创建页面
+const handleAdd = () => {
+  router.push('/teacher/topics/create')
 }
 
 // 删除单个

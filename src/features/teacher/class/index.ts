@@ -19,7 +19,6 @@ export {
 
 export {
   useCreateClass,
-  useUpdateClass,
 } from './hooks/useMutateClass'
 
 export {

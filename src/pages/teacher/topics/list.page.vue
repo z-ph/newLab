@@ -13,10 +13,9 @@
       @view="handleView"
       @edit="handleEdit"
       @tag-manage="handleTagManage"
-      @add="handleAddClick"
     />
 
-    <!-- 新增/编辑对话框 -->
+    <!-- 编辑对话框 -->
     <TopicFormDialog ref="formDialogRef" @refresh="query.refetch()" />
 
     <!-- 详情对话框 -->
@@ -71,11 +70,6 @@ const filters = computed({
 const formDialogRef = ref<InstanceType<typeof TopicFormDialog>>()
 const detailDialogRef = ref<InstanceType<typeof TopicDetailDialog>>()
 const tagManageDialogRef = ref<InstanceType<typeof TagManageDialog>>()
-
-// ✅ 新增按钮点击
-const handleAddClick = () => {
-  formDialogRef.value?.open()
-}
 
 // ✅ 标签管理
 const handleTagManage = () => {

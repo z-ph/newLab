@@ -8,20 +8,6 @@
         </div>
 
         <div class="flex flex-col gap-6">
-          <!-- 编辑班级名称 -->
-          <section>
-            <h3 class="mb-3 text-base font-semibold text-slate-900">班级信息</h3>
-            <form @submit.prevent="handleUpdateClassName" class="flex items-end gap-3">
-              <div class="flex-1">
-                <label class="mb-2 block text-sm font-medium text-slate-700">
-                  班级名称 <span class="text-red-500">*</span>
-                </label>
-                <InputText v-model="formData.className" class="w-full" placeholder="请输入班级名称" />
-              </div>
-              <Button type="submit" :loading="isSubmitting">保存</Button>
-            </form>
-          </section>
-
           <!-- Tabs：学生和实验 -->
           <Tabs v-model:value="activeTab">
             <TabList>
@@ -171,7 +157,6 @@ import { useRouter, useRoute } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import Card from 'primevue/card'
-import { useUpdateClass } from '@/features/teacher/class'
 import { useQueryStudentList } from '@/features/teacher/class/hooks/useQueryStudentList'
 import { useBindStudents, useUnbindStudents } from '@/features/teacher/class/hooks/useMutateClassStudents'
 import { useQueryClassExperimentsGroupedByCourse, toCourseGroups } from '@/features/teacher/class/hooks/useQueryClassExperimentsGroupedByCourse'
@@ -186,7 +171,6 @@ const confirm = useConfirm()
 const toast = useToast()
 
 const classCode = computed(() => (route.params as any).classCode as string)
-const classId = computed(() => Number(route.query.id as string))
 
 // 从 query 获取标题参数
 const pageTitle = computed(() => {
@@ -195,31 +179,10 @@ const pageTitle = computed(() => {
 })
 
 const activeTab = ref('students')
-const isSubmitting = ref(false)
 const formData = reactive({ className: '' })
-const updateMutation = useUpdateClass()
 
 // 初始化表单数据
 formData.className = pageTitle.value
-
-// ==================== 更新班级名称 ====================
-async function handleUpdateClassName() {
-  if (!formData.className?.trim()) {
-    toast.add({ severity: 'warn', summary: '提示', detail: '请输入班级名称', life: 3000 })
-    return
-  }
-
-  isSubmitting.value = true
-  try {
-    await updateMutation.mutateAsync({
-      path: { id: classId.value },
-      body: { className: formData.className },
-    })
-    toast.add({ severity: 'success', summary: '成功', detail: '班级名称更新成功', life: 3000 })
-  } finally {
-    isSubmitting.value = false
-  }
-}
 
 // ==================== 学生管理 ====================
 const {
