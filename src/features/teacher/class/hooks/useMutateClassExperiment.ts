@@ -3,10 +3,12 @@ import {
   postApiTeacherClassUnbindExperimentByExperimentId,
 } from "@/core/api/generated";
 import type { GetFirstParamsType } from "@/core/utils/typeUtils";
-import { useMutation } from "@tanstack/vue-query";
+import { useMutation, useQueryClient } from "@tanstack/vue-query";
 import client from "@/core/api/config";
 
 export function useBindExperiment() {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async (
       params: GetFirstParamsType<typeof postApiTeacherClassBindExperiment>,
@@ -17,10 +19,17 @@ export function useBindExperiment() {
       });
       return response.data?.data;
     },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["class-experiments"],
+      });
+    },
   });
 }
 
 export function useUnbindExperiment() {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async (
       params: GetFirstParamsType<typeof postApiTeacherClassUnbindExperimentByExperimentId>,
@@ -30,6 +39,11 @@ export function useUnbindExperiment() {
         client,
       });
       return response.data?.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["class-experiments"],
+      });
     },
   });
 }

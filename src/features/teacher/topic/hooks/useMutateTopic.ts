@@ -1,12 +1,14 @@
 import { postApiTeacherTopics, putApiTeacherTopics, deleteApiTeacherTopicsByTopicId, deleteApiTeacherTopicsBatch } from "@/core/api/generated"
 import client from "@/core/api/config"
-import { useMutation } from "@tanstack/vue-query"
+import { useMutation, useQueryClient } from "@tanstack/vue-query"
 import { toast } from "@/core/utils/toast"
 
 /**
  * 创建题目
  */
 export function useCreateTopic() {
+  const queryClient = useQueryClient()
+
   return useMutation({
     mutationFn: (data: {
       type: number
@@ -21,6 +23,9 @@ export function useCreateTopic() {
       }),
     onSuccess: () => {
       toast.success("题目创建成功")
+      queryClient.invalidateQueries({
+        queryKey: ["topics"],
+      })
     },
   })
 }
@@ -29,6 +34,8 @@ export function useCreateTopic() {
  * 更新题目
  */
 export function useUpdateTopic() {
+  const queryClient = useQueryClient()
+
   return useMutation({
     mutationFn: (data: {
       id: number
@@ -44,6 +51,9 @@ export function useUpdateTopic() {
       }),
     onSuccess: () => {
       toast.success("题目更新成功")
+      queryClient.invalidateQueries({
+        queryKey: ["topics"],
+      })
     },
   })
 }
@@ -52,6 +62,8 @@ export function useUpdateTopic() {
  * 删除单个题目
  */
 export function useDeleteTopic() {
+  const queryClient = useQueryClient()
+
   return useMutation({
     mutationFn: (topicId: number) =>
       deleteApiTeacherTopicsByTopicId({
@@ -60,6 +72,9 @@ export function useDeleteTopic() {
       }),
     onSuccess: () => {
       toast.success("题目删除成功")
+      queryClient.invalidateQueries({
+        queryKey: ["topics"],
+      })
     },
   })
 }
@@ -68,6 +83,8 @@ export function useDeleteTopic() {
  * 批量删除题目
  */
 export function useBatchDeleteTopics() {
+  const queryClient = useQueryClient()
+
   return useMutation({
     mutationFn: (topicIds: number[]) =>
       deleteApiTeacherTopicsBatch({
@@ -76,6 +93,9 @@ export function useBatchDeleteTopics() {
       }),
     onSuccess: () => {
       toast.success("批量删除成功")
+      queryClient.invalidateQueries({
+        queryKey: ["topics"],
+      })
     },
   })
 }
