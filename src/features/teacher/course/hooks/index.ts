@@ -7,6 +7,7 @@ export { useQueryCourseAll, useQueryCoursePage, useQueryCourseById } from './use
 export { useQueryCourseExperiments } from './useQueryCourseExperiments'
 export { useQueryCourseGrades } from './useQueryCourseGrades'
 export { useQueryCourseSubmissions } from './useQueryCourseSubmissions'
+export { useQueryCourseExperimentList, useQueryCourseClassExperiments } from './useQueryCourseDetail'
 
 // 变更 hooks
 export { useCreateCourse, useUpdateCourse, useDeleteCourse } from './useMutateCourse'

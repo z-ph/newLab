@@ -22,9 +22,10 @@
         <Column key="actions" header="操作">
           <template #body="slotProps">
             <div class="flex gap-2">
-              <Button icon="pi pi-pencil" outlined size="small" @click="handleEdit(slotProps.data)" />
+              <Button icon="pi pi-eye" outlined size="small" severity="info" @click="handleViewDetail(slotProps.data)" v-tooltip.top="'查看详情'" />
+              <Button icon="pi pi-pencil" outlined size="small" @click="handleEdit(slotProps.data)" v-tooltip.top="'编辑'" />
               <Button icon="pi pi-trash" outlined severity="danger" size="small" @click="handleDelete(slotProps.data)"
-                :loading="deleteMutation.isPending.value" />
+                :loading="deleteMutation.isPending.value" v-tooltip.top="'删除'" />
             </div>
           </template>
         </Column>
@@ -36,6 +37,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
 import type { DataTablePageEvent } from 'primevue/datatable'
 import type { CourseResponse } from '@/core/api/generated'
@@ -44,6 +46,8 @@ import {
   CourseFormDialog,
 } from '@/features/teacher/course'
 import { formatDateTime } from '@/features/shared/utils/formatters'
+
+const router = useRouter()
 
 // ==================== 对话框 ref ====================
 const dialogRef = ref<InstanceType<typeof CourseFormDialog>>()
@@ -58,6 +62,18 @@ const handleEdit = (course: CourseResponse) => {
   dialogRef.value?.open({
     courseId: course.courseId,
     courseName: course.courseName,
+  })
+}
+
+// ==================== 查看课程详情 ====================
+const handleViewDetail = (course: CourseResponse) => {
+  if (!course.courseId) return
+  router.push({
+    path: `/teacher/courses/${course.courseId}/detail`,
+    query: {
+      title: encodeURIComponent(course.courseName || '课程详情'),
+      courseName: encodeURIComponent(course.courseName || ''),
+    },
   })
 }
 
