@@ -11,6 +11,20 @@
           <Button label="返回" icon="pi pi-arrow-left" severity="secondary" @click="handleBack" />
         </div>
 
+        <!-- 编辑课程名称 -->
+        <section class="mb-6">
+          <h3 class="mb-3 text-base font-semibold text-slate-900">课程信息</h3>
+          <form @submit.prevent="handleUpdateCourseName" class="flex items-end gap-3">
+            <div class="flex-1">
+              <label class="mb-2 block text-sm font-medium text-slate-700">
+                课程名称 <span class="text-red-500">*</span>
+              </label>
+              <InputText v-model="formData.courseName" class="w-full" placeholder="请输入课程名称" />
+            </div>
+            <Button type="submit" :loading="isSubmitting">保存</Button>
+          </form>
+        </section>
+
         <Tabs v-model:value="activeTab">
           <TabList>
             <Tab value="experiments">实验列表</Tab>
@@ -96,15 +110,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useToast } from 'primevue/usetoast'
 import Card from 'primevue/card'
-import { useQueryCourseExperimentList, useQueryCourseClassExperiments } from '../hooks'
+import { useQueryCourseExperimentList, useQueryCourseClassExperiments, useUpdateCourse } from '../hooks'
 import { formatDateTime } from '@/features/shared/utils/formatters'
 import type { ClassExperimentDetailResponse } from '@/core/api/generated'
 
 const router = useRouter()
 const route = useRoute()
+const toast = useToast()
 
 const courseId = computed(() => {
   const params = route.params as { courseId?: string }
@@ -114,8 +130,61 @@ const courseName = computed(() => {
   const name = route.query.courseName as string
   return name ? decodeURIComponent(name) : ''
 })
+const courseIdNumber = computed(() => {
+  const id = route.query.courseId as string
+  return id ? parseInt(id, 10) : undefined
+})
 
 const activeTab = ref('experiments')
+const isSubmitting = ref(false)
+const formData = reactive({ courseName: '' })
+
+// 初始化表单数据
+const initFormData = () => {
+  formData.courseName = courseName.value
+}
+initFormData()
+
+// 更新课程名称
+const updateMutation = useUpdateCourse()
+
+async function handleUpdateCourseName() {
+  if (!formData.courseName?.trim()) {
+    toast.add({
+      severity: 'warn',
+      summary: '提示',
+      detail: '请输入课程名称',
+      life: 3000,
+    })
+    return
+  }
+
+  if (!courseIdNumber.value) {
+    toast.add({
+      severity: 'error',
+      summary: '错误',
+      detail: '课程 ID 不存在',
+      life: 3000,
+    })
+    return
+  }
+
+  isSubmitting.value = true
+  try {
+    await updateMutation.mutateAsync({
+      path: { id: courseIdNumber.value },
+      body: { courseName: formData.courseName },
+    })
+    toast.add({
+      severity: 'success',
+      summary: '成功',
+      detail: '课程名称更新成功',
+      life: 3000,
+    })
+  } finally {
+    isSubmitting.value = false
+  }
+}
 
 // 查询课程下的实验列表
 const experimentsQuery = useQueryCourseExperimentList(courseId)
@@ -142,7 +211,7 @@ const handleViewClassExperiment = (classExperiment: ClassExperimentDetailRespons
   router.push({
     path: `/teacher/classes/${classExperiment.classCode}/experiments/${classExperiment.classExperimentId}/detail`,
     query: {
-      courseName: encodeURIComponent(courseName.value),
+      courseName: encodeURIComponent(formData.courseName),
       experimentName: encodeURIComponent(classExperiment.experimentName || ''),
       className: encodeURIComponent(classExperiment.className || ''),
       experimentId: classExperiment.experimentId,

@@ -128,7 +128,6 @@ async function handleSubmit() {
       await createMutation.mutateAsync({
         body: {
           courseName: formData.courseName,
-          courseId:formData.courseName
         },
       })
 
@@ -141,6 +140,7 @@ async function handleSubmit() {
     }
 
     visible.value = false
+    formData.courseName = ''
   } finally {
     isSubmitting.value = false
   }

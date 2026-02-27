@@ -23,7 +23,6 @@
           <template #body="slotProps">
             <div class="flex gap-2">
               <Button icon="pi pi-eye" outlined size="small" severity="info" @click="handleViewDetail(slotProps.data)" v-tooltip.top="'查看详情'" />
-              <Button icon="pi pi-pencil" outlined size="small" @click="handleEdit(slotProps.data)" v-tooltip.top="'编辑'" />
               <Button icon="pi pi-trash" outlined severity="danger" size="small" @click="handleDelete(slotProps.data)"
                 :loading="deleteMutation.isPending.value" v-tooltip.top="'删除'" />
             </div>
@@ -32,7 +31,7 @@
       </DataTable>
     </template>
   </Card>
-  <CourseFormDialog ref="dialogRef" v-on:refresh="query.refetch"/>
+  <CourseFormDialog ref="formDialogRef" v-on:refresh="query.refetch"/>
 </template>
 
 <script setup lang="ts">
@@ -42,27 +41,17 @@ import { useConfirm } from 'primevue/useconfirm'
 import type { DataTablePageEvent } from 'primevue/datatable'
 import type { CourseResponse } from '@/core/api/generated'
 import { useQueryCoursePage, useDeleteCourse } from '../hooks'
-import {
-  CourseFormDialog,
-} from '@/features/teacher/course'
+import { CourseFormDialog } from '@/features/teacher/course'
 import { formatDateTime } from '@/features/shared/utils/formatters'
 
 const router = useRouter()
 
 // ==================== 对话框 ref ====================
-const dialogRef = ref<InstanceType<typeof CourseFormDialog>>()
+const formDialogRef = ref<InstanceType<typeof CourseFormDialog>>()
 
 // ==================== 创建课程 ====================
 const handleCreate = () => {
-  dialogRef.value?.open()
-}
-
-// ==================== 编辑课程 ====================
-const handleEdit = (course: CourseResponse) => {
-  dialogRef.value?.open({
-    courseId: course.courseId,
-    courseName: course.courseName,
-  })
+  formDialogRef.value?.open()
 }
 
 // ==================== 查看课程详情 ====================
@@ -73,6 +62,7 @@ const handleViewDetail = (course: CourseResponse) => {
     query: {
       title: encodeURIComponent(course.courseName || '课程详情'),
       courseName: encodeURIComponent(course.courseName || ''),
+      courseId: course.id?.toString(),
     },
   })
 }
