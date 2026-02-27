@@ -7,6 +7,7 @@
           v-model="singleChoiceValue"
           :input-id="`choice-${choice.originalIndex}`"
           :value="getChoiceLabel(choice.originalIndex)"
+          :disabled="disabled"
         />
         <label :for="`choice-${choice.originalIndex}`" class="cursor-pointer">
           {{ getChoiceLabel(choice.originalIndex) }}: {{ choice.text }}
@@ -21,6 +22,7 @@
           v-model="multiChoiceValue"
           :input-id="`choice-${choice.originalIndex}`"
           :value="getChoiceLabel(choice.originalIndex)"
+          :disabled="disabled"
         />
         <label :for="`choice-${choice.originalIndex}`" class="cursor-pointer">
           {{ getChoiceLabel(choice.originalIndex) }}: {{ choice.text }}
@@ -31,11 +33,11 @@
     <!-- 判断题 -->
     <div v-if="type === TOPIC_TYPE.TRUE_FALSE" class="flex gap-4">
       <div class="flex items-center gap-2">
-        <RadioButton v-model="correctAnswer" input-id="correct" value="T" />
+        <RadioButton v-model="correctAnswer" input-id="correct" value="T" :disabled="disabled" />
         <label for="correct" class="cursor-pointer">正确</label>
       </div>
       <div class="flex items-center gap-2">
-        <RadioButton v-model="correctAnswer" input-id="wrong" value="F" />
+        <RadioButton v-model="correctAnswer" input-id="wrong" value="F" :disabled="disabled" />
         <label for="wrong" class="cursor-pointer">错误</label>
       </div>
     </div>
@@ -46,6 +48,7 @@
         v-model="correctAnswer"
         placeholder="请输入正确答案"
         class="w-full"
+        :disabled="disabled"
       />
     </div>
   </div>
@@ -62,10 +65,12 @@ interface Props {
   type: number
   choiceList: string[]
   selectedChoices?: string[]
+  disabled?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   selectedChoices: () => [],
+  disabled: false,
 })
 
 const correctAnswer = defineModel<string>('modelValue', { required: true })

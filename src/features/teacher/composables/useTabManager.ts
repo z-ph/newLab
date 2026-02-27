@@ -263,20 +263,29 @@ export function useTabManager() {
       if (queryTitle) {
         title = decodeURIComponent(queryTitle)
       } else {
-        // 检查是否是一级菜单路由
-        const matchedRoute = Object.keys(routeTitles).find((key) =>
-          newPath === key || newPath.startsWith(key + '/')
-        )
-
-        if (matchedRoute) {
-          title = routeTitles[matchedRoute] || '页面'
-        } else if (newPath.includes('/videos/')) {
+        // 特殊路由处理（需要在通用匹配之前）
+        if (newPath.includes('/videos/')) {
           if (newPath.includes('/upload')) {
             title = '上传视频'
           } else if (newPath.includes('/list')) {
             title = '视频列表'
           } else if (newPath.includes('/detail')) {
             title = '视频详情'
+          }
+        } else if (newPath.includes('/topics/')) {
+          // 题目详情页 /teacher/topics/:id（创建和列表是侧边栏菜单，不显示在 tabbar）
+          const topicId = newPath.split('/topics/')[1]?.split('/')[0]
+          if (topicId && !isNaN(Number(topicId))) {
+            title = `题目详情：${topicId}`
+          }
+        } else {
+          // 检查是否是一级菜单路由
+          const matchedRoute = Object.keys(routeTitles).find((key) =>
+            newPath === key || newPath.startsWith(key + '/')
+          )
+
+          if (matchedRoute) {
+            title = routeTitles[matchedRoute] || '页面'
           }
         }
       }

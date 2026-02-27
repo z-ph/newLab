@@ -8,11 +8,12 @@
           v-model="choiceList[index]"
           :placeholder="`选项 ${getChoiceLabel(index)}`"
           class="flex-1"
+          :disabled="disabled"
         />
       </div>
     </div>
     <Button
-      v-show="choiceList.length < MAX_CHOICES_COUNT"
+      v-show="!disabled && choiceList.length < MAX_CHOICES_COUNT"
       label="添加选项"
       type="button"
       size="small"
@@ -32,9 +33,12 @@ import { MAX_CHOICES_COUNT } from '@/features/teacher/topic/constants'
 
 interface Props {
   choiceList: string[]
+  disabled?: boolean
 }
 
-defineProps<Props>()
+withDefaults(defineProps<Props>(), {
+  disabled: false,
+})
 
 interface Emits {
   (e: 'add-choice'): void
