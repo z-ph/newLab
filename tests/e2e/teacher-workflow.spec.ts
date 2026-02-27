@@ -1,7 +1,6 @@
 import { test, expect } from "@playwright/test";
 
 const PREFIX_PATH = process.env.VITE_PREFIX_PATH || "";
-const TEACHER_URL = `${PREFIX_PATH}/teacher`;
 const LOGIN_URL = `${PREFIX_PATH}/login`;
 
 test.describe.serial("Teacher Workflow", () => {
@@ -37,9 +36,6 @@ test.describe.serial("Teacher Workflow", () => {
     const courseName = "E2E测试课程" + Date.now();
     await page.getByRole("textbox", { name: "请输入课程名称" }).fill(courseName);
     await page.getByRole("button", { name: "创建" }).click();
-
-    // Wait for navigation back to list
-    await page.waitForURL(/\/courses\/$/);
 
     // Verify course is created
     await expect(page.getByRole("cell", { name: courseName }).first()).toBeVisible();
@@ -86,9 +82,6 @@ test.describe.serial("Teacher Workflow", () => {
     // Click create button (use nth to select the correct one)
     await page.getByRole("button", { name: "创建" }).nth(3).click();
 
-    // Wait for navigation back to list
-    await page.waitForURL(/\/topics\/list/);
-
     // Verify topic is visible in the list
     await expect(page.getByText(topicContent).first()).toBeVisible();
   });
@@ -128,10 +121,7 @@ test.describe.serial("Teacher Workflow", () => {
 
     await page.getByRole("button", { name: "保存" }).click();
 
-    // Wait for navigation back to list or success
-    await page.waitForURL(/\/experiments\/list/);
-
-    // Verify experiment is visible in the list
+    // Verify experiment is visible in the table on the same page
     await expect(page.getByText(experimentName)).toBeVisible();
   });
 
@@ -251,8 +241,8 @@ test.describe.serial("Teacher Workflow", () => {
     // Save binding
     await page.getByRole("button", { name: "保存" }).click();
 
-    // Should navigate to class list after success
-    await page.waitForURL(/\/classes\/list/, { timeout: 10000 });
+    // Verify success - should stay on the same page and form should be reset
+    await expect(page.getByRole("heading", { name: "绑定实验" })).toBeVisible();
   });
 });
 
@@ -285,10 +275,7 @@ test.describe("Query Refetch Verification", () => {
     await page.getByRole("textbox", { name: "请输入课程名称" }).fill(courseName);
     await page.getByRole("button", { name: "创建" }).click();
 
-    // Wait for navigation back to list
-    await page.waitForURL(/\/courses\/$/);
-
-    // Verify new course appears without manual refresh
+    // Verify new course appears on the same page (create page has the table below form)
     await expect(page.getByRole("cell", { name: courseName }).first()).toBeVisible();
   });
 
@@ -326,10 +313,7 @@ test.describe("Query Refetch Verification", () => {
     // Click create button
     await page.getByRole("button", { name: "创建" }).nth(3).click();
 
-    // Wait for navigation back to list
-    await page.waitForURL(/\/topics\/list/);
-
-    // Verify new topic appears in the list
+    // Verify new topic appears on the same page (create page has the table below form)
     await expect(page.getByText(topicName)).toBeVisible();
   });
 
@@ -362,10 +346,7 @@ test.describe("Query Refetch Verification", () => {
 
     await page.getByRole("button", { name: "保存" }).click();
 
-    // Wait for navigation back to list
-    await page.waitForURL(/\/experiments\/list/);
-
-    // Verify new experiment appears without manual refresh
+    // Verify new experiment appears on the same page (create page has the table below form)
     await expect(page.getByText(experimentName)).toBeVisible();
   });
 });

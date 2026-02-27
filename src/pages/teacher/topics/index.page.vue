@@ -12,7 +12,6 @@
       @update:current="current = $event"
       @view="handleView"
       @edit="handleEdit"
-      @tag-manage="handleTagManage"
       @add="handleAddClick"
     />
 
@@ -21,9 +20,6 @@
 
     <!-- 详情对话框 -->
     <TopicDetailDialog ref="detailDialogRef" />
-
-    <!-- 标签管理对话框 -->
-    <TagManageDialog ref="tagManageDialogRef" />
 
   </div>
 </template>
@@ -38,7 +34,6 @@ import {
   TopicTable,
   TopicFormDialog,
   TopicDetailDialog,
-  TagManageDialog,
 } from "@/features/teacher/topic"
 import { useQueryTopicPage } from "@/features/teacher/topic/hooks"
 
@@ -70,16 +65,9 @@ const filters = computed({
 // ✅ 对话框 ref（不管理状态）
 const formDialogRef = ref<InstanceType<typeof TopicFormDialog>>()
 const detailDialogRef = ref<InstanceType<typeof TopicDetailDialog>>()
-const tagManageDialogRef = ref<InstanceType<typeof TagManageDialog>>()
-
 // ✅ 新增按钮点击
 const handleAddClick = () => {
   formDialogRef.value?.open()
-}
-
-// ✅ 标签管理
-const handleTagManage = () => {
-  tagManageDialogRef.value?.open()
 }
 
 // ✅ 查询按钮

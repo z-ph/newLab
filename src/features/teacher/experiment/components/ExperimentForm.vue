@@ -139,8 +139,9 @@ const handleSubmit = async () => {
       },
     })
     toast.success('实验创建成功')
+    // 重置表单
+    resetForm()
   }
   emit('success')
-  router.push('/teacher/experiments/list')
 }
 </script>

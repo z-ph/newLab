@@ -203,6 +203,12 @@ const handleSubmit = async () => {
 
   toast.success('班级实验配置添加成功')
   emit('success')
-  router.push('/teacher/classes/list')
+  // 重置表单
+  formData.courseId = undefined
+  formData.experimentId = undefined
+  formData.classCodes = []
+  formData.startTime = null
+  formData.endTime = null
+  formData.experimentLocation = ''
 }
 </script>

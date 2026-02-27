@@ -160,7 +160,6 @@
 
       <!-- 提交按钮 -->
       <div class="flex justify-end gap-2 mt-6">
-        <Button label="取消" severity="secondary" @click="handleCancel" />
         <Button
           :label="isEdit ? '更新' : '创建'"
           type="submit"
@@ -173,7 +172,6 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from "vue"
-import { useRouter } from "vue-router"
 import type { CreateTopicRequest, UpdateTopicRequest, TopicDetailResponse } from "@/core/api/generated"
 import { TOPIC_TYPE_OPTIONS, TOPIC_TYPE, TAG_TYPE } from "@/features/teacher/topic/constants"
 import { useQueryTags, useCreateTag, useCreateTopic, useUpdateTopic } from "@/features/teacher/topic/hooks"
@@ -191,7 +189,6 @@ interface Emits {
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
-const router = useRouter()
 
 const isEdit = computed(() => !!props.topic?.id)
 
@@ -423,10 +420,6 @@ function getTagNameById(tagId: number): string {
   return tag?.tagName || `标签${tagId}`
 }
 
-// 取消
-const handleCancel = () => {
-  router.push('/teacher/topics/list')
-}
 
 // 提交表单
 async function handleSubmit() {
@@ -510,7 +503,6 @@ async function handleSubmit() {
   }
 
   emit("success")
-  router.push('/teacher/topics/list')
 }
 
 // 监听类型变化，重置选项和答案
