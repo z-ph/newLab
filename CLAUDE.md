@@ -36,6 +36,13 @@ pnpm typecheck    # 类型检查
 - 如需开发，请在终端直接运行 `pnpm dev`（不通过 Claude Code）
 - 验证代码使用 `pnpm typecheck` 或 `pnpm build`
 
+**修改项目后的验证流程（CRITICAL）**：
+
+1. 评估可能影响的模块
+2. 使用 Playwright MCP 验证功能是否正常
+3. 出现 bug 时，使用 Playwright MCP 复现并调试
+4. 找出病因修复，并再次验证
+
 ## 工作流程规范（CRITICAL）
 
 **最重要：每次修改代码都要检查是否符合规范**
