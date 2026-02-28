@@ -8,6 +8,7 @@
         selection-mode="multiple"
         :paginator="true"
         :rows="10"
+        :rows-per-page-options="[10, 20, 50]"
         :pt="{ header: { class: 'px-0!' } }"
       >
         <template #header>
