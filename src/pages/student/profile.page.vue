@@ -111,7 +111,7 @@ const handleMenuClick = (menu: string) => {
       toast.warn('设置功能开发中')
       break
     case 'about':
-      toast.warn('关于页面开发中')
+      router.push('/student/about')
       break
   }
 }
