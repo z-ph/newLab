@@ -34,6 +34,7 @@
                       :loading="attendanceList.isLoading.value"
                       :paginator="true"
                       :rows="10"
+                      :rows-per-page-options="[10, 20, 50]"
                     >
                       <Column key="studentName" field="studentName" header="学生姓名" />
                       <Column key="studentUsername" field="studentUsername" header="学号" />
@@ -70,6 +71,7 @@
                       :loading="attendanceList.isLoading.value"
                       :paginator="true"
                       :rows="10"
+                      :rows-per-page-options="[10, 20, 50]"
                     >
                       <Column key="studentName" field="studentName" header="学生姓名" />
                       <Column key="studentUsername" field="studentUsername" header="学号" />
@@ -101,7 +103,7 @@
                 <Card v-if="attendanceData.notAttendanceList?.length">
                   <template #title>未签到学生</template>
                   <template #content>
-                    <DataTable :value="attendanceData.notAttendanceList" :paginator="true" :rows="10">
+                    <DataTable :value="attendanceData.notAttendanceList" :paginator="true" :rows="10" :rows-per-page-options="[10, 20, 50]">
                       <Column key="studentName" field="studentName" header="学生姓名" />
                       <Column key="studentUsername" field="studentUsername" header="学号" />
                       <Column key="className" field="className" header="班级" />
@@ -259,7 +261,7 @@
                     @click="openOneClickExtendDialog"
                   />
                 </div>
-                <DataTable :value="proceduresList" :paginator="true" :rows="10">
+                <DataTable :value="proceduresList" :paginator="true" :rows="10" :rows-per-page-options="[10, 20, 50]">
                   <Column field="number" header="步骤序号" style="width: 100px" />
                   <Column field="type" header="步骤类型">
                     <template #body="slotProps">
@@ -301,7 +303,7 @@
                 暂无延长记录
               </div>
               <div v-else>
-                <DataTable :value="extensionsList" :paginator="true" :rows="10">
+                <DataTable :value="extensionsList" :paginator="true" :rows="10" :rows-per-page-options="[10, 20, 50]">
                   <Column header="学生姓名" sortable>
                     <template #body="slotProps">
                       {{ getStudentName(slotProps.data.studentUsername) }}
@@ -380,6 +382,7 @@
                       :value="statisticsData.procedureStatistics"
                       :paginator="true"
                       :rows="10"
+                      :rows-per-page-options="[10, 20, 50]"
                       responsiveLayout="scroll"
                     >
                       <Column field="number" header="步骤序号" style="width: 100px" />
@@ -437,6 +440,7 @@
                       :value="statisticsData.studentCompletions"
                       :paginator="true"
                       :rows="10"
+                      :rows-per-page-options="[10, 20, 50]"
                       responsiveLayout="scroll"
                       dataKey="studentUsername"
                     >

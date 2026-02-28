@@ -40,7 +40,7 @@
                 暂无实验数据
               </div>
               <div v-else>
-                <DataTable :value="experiments" :paginator="true" :rows="10">
+                <DataTable :value="experiments" :paginator="true" :rows="10" :rows-per-page-options="[10, 20, 50]">
                   <Column field="id" header="实验ID" style="width: 100px" />
                   <Column field="experimentName" header="实验名称" />
                   <Column field="percentage" header="分数占比">
@@ -71,7 +71,7 @@
                 暂无班级数据
               </div>
               <div v-else>
-                <DataTable :value="classExperiments" :paginator="true" :rows="10">
+                <DataTable :value="classExperiments" :paginator="true" :rows="10" :rows-per-page-options="[10, 20, 50]">
                   <Column field="classCode" header="班级编号" />
                   <Column field="className" header="班级名称" />
                   <Column field="experimentName" header="实验名称" />

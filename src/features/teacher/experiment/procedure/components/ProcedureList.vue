@@ -9,6 +9,7 @@
       :loading="proceduresQuery.isLoading.value"
       :paginator="true"
       :rows="10"
+      :rows-per-page-options="[10, 20, 50]"
       :scrollable="true"
       scroll-height="flex"
       striped-rows

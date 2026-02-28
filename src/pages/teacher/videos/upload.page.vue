@@ -15,7 +15,8 @@
       <template #content>
         <DataTable :value="videos" :loading="query.isLoading.value" :paginator="true" :rows="size"
           :total-records="total" :lazy="true" @page="onPageChange"
-          paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
+          paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
+          :rows-per-page-options="[10, 20, 50]"
           :pt="{ header: { class: 'px-0!' } }">
           <template #header>
             <h2 class="text-lg font-semibold text-slate-800">已有视频</h2>
@@ -96,6 +97,7 @@ const filenamePopoverRef = ref<InstanceType<typeof Popover>>()
 
 const onPageChange = (event: DataTablePageEvent) => {
   current.value = event.page + 1
+  size.value = event.rows
 }
 
 const handleView = (video: VideoUploadResponse) => {

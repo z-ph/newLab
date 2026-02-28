@@ -103,7 +103,7 @@
                     <AccordionContent>
                       <!-- 实验列表 -->
                       <DataTable :value="courseGroup.experiments" :paginator="courseGroup.experiments.length > 5"
-                        :rows="5" :pt="{ header: { class: 'px-0!' } }">
+                        :rows="5" :rows-per-page-options="[5, 10, 20]" :pt="{ header: { class: 'px-0!' } }">
                         <Column field="experimentName" header="实验名称" />
                         <Column field="courseTime" header="上课时间" />
                         <Column field="percentage" header="占比">

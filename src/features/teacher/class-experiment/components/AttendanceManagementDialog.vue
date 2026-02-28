@@ -10,6 +10,7 @@
             :loading="attendanceList.isLoading.value"
             :paginator="true"
             :rows="ATTENDANCE_TABLE_PAGE_SIZE"
+            :rows-per-page-options="[10, 20, 50]"
           >
             <Column key="studentName" field="studentName" header="学生姓名" />
             <Column key="studentUsername" field="studentUsername" header="学号" />
@@ -46,6 +47,7 @@
             :loading="attendanceList.isLoading.value"
             :paginator="true"
             :rows="ATTENDANCE_TABLE_PAGE_SIZE"
+            :rows-per-page-options="[10, 20, 50]"
           >
             <Column key="studentName" field="studentName" header="学生姓名" />
             <Column key="studentUsername" field="studentUsername" header="学号" />
@@ -77,7 +79,7 @@
       <Card v-if="attendanceData?.notAttendanceList?.length">
         <template #title>未签到学生</template>
         <template #content>
-          <DataTable :value="attendanceData.notAttendanceList" :paginator="true" :rows="NOT_ATTENDANCE_TABLE_PAGE_SIZE">
+          <DataTable :value="attendanceData.notAttendanceList" :paginator="true" :rows="NOT_ATTENDANCE_TABLE_PAGE_SIZE" :rows-per-page-options="[10, 20, 50]">
             <Column key="studentName" field="studentName" header="学生姓名" />
             <Column key="studentUsername" field="studentUsername" header="学号" />
             <Column key="className" field="className" header="班级" />
