@@ -7,6 +7,18 @@
           <Button label="返回" icon="pi pi-arrow-left" severity="secondary" @click="handleBack" />
         </div>
 
+        <!-- 班级名称编辑 -->
+        <div class="mb-4 flex items-center gap-4">
+          <label class="text-sm font-medium text-slate-700 whitespace-nowrap">班级名称</label>
+          <InputText v-model="formData.className" class="flex-1 max-w-md" placeholder="请输入班级名称" />
+          <Button
+            label="保存"
+            icon="pi pi-check"
+            :loading="updateClassMutation.isPending.value"
+            @click="handleSaveClassName"
+          />
+        </div>
+
         <div class="flex flex-col gap-6">
           <!-- Tabs：学生和实验 -->
           <Tabs v-model:value="activeTab">
@@ -161,6 +173,7 @@ import { useQueryStudentList } from '@/features/teacher/class/hooks/useQueryStud
 import { useBindStudents, useUnbindStudents } from '@/features/teacher/class/hooks/useMutateClassStudents'
 import { useQueryClassExperimentsGroupedByCourse, toCourseGroups } from '@/features/teacher/class/hooks/useQueryClassExperimentsGroupedByCourse'
 import { useUnbindExperiment } from '@/features/teacher/class/hooks/useMutateClassExperiment'
+import { useUpdateClass } from '@/features/teacher/class/hooks/useMutateClass'
 import { formatDateTime } from '@/features/shared/utils/formatters'
 import type { StudentClassRelation, ExperimentDetailItem } from '@/core/api/generated'
 import BindClassExperimentDialog from '@/features/teacher/class-experiment/components/BindClassExperimentDialog.vue'
@@ -181,8 +194,31 @@ const pageTitle = computed(() => {
 const activeTab = ref('students')
 const formData = reactive({ className: '' })
 
+// 更新班级名称的 mutation
+const updateClassMutation = useUpdateClass()
+
 // 初始化表单数据
 formData.className = pageTitle.value
+
+// 保存班级名称
+const handleSaveClassName = async () => {
+  if (!formData.className.trim()) {
+    toast.add({ severity: 'warn', summary: '提示', detail: '班级名称不能为空', life: 3000 })
+    return
+  }
+
+  await updateClassMutation.mutateAsync({
+    path: { classCode: classCode.value },
+    body: { className: formData.className },
+  })
+
+  // 更新 URL query 参数中的 title
+  router.replace({
+    query: { ...route.query, title: encodeURIComponent(formData.className) },
+  })
+
+  toast.add({ severity: 'success', summary: '成功', detail: '班级名称已更新', life: 3000 })
+}
 
 // ==================== 学生管理 ====================
 const {

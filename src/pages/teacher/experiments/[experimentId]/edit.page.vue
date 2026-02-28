@@ -96,6 +96,12 @@ async function handleUpdateExperiment() {
         percentage: formData.percentage,
       },
     })
+
+    // 更新 URL query 参数中的 title
+    router.replace({
+      query: { ...route.query, title: encodeURIComponent(formData.experimentName) },
+    })
+
     toast.add({ severity: 'success', summary: '成功', detail: '实验信息更新成功', life: 3000 })
     refetch()
   } finally {
