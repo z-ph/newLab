@@ -102,16 +102,16 @@ const router = useRouter()
 const handleMenuClick = (menu: string) => {
   switch (menu) {
     case 'grades':
-      router.push('/student/grades')
+      router.push('/student/profile/grades')
       break
     case 'attendance':
-      router.push('/student/attendance')
+      router.push('/student/profile/attendance')
       break
     case 'settings':
-      toast.warn('设置功能开发中')
+      router.push('/student/profile/settings')
       break
     case 'about':
-      router.push('/student/about')
+      router.push('/student/profile/about')
       break
   }
 }

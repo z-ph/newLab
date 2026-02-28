@@ -12,6 +12,6 @@ import GradeList from '@/features/student/grades/components/GradeList.vue'
 const router = useRouter()
 
 const handleViewGrade = (gradeId: number) => {
-  router.push(`/student/grades/${gradeId}`)
+  router.push(`/student/profile/grades/${gradeId}`)
 }
 </script>

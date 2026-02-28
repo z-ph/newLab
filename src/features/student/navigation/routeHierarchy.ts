@@ -29,14 +29,24 @@ export const STUDENT_ROUTE_HIERARCHY: Record<string, (params: Record<string, str
     path: '/student',
   }),
 
-  // 签到记录 → 首页
-  '/student/attendance': () => ({
-    path: '/student',
+  // 签到记录 → 个人中心
+  '/student/profile/attendance': () => ({
+    path: '/student/profile',
   }),
 
-  // 成绩查询 → 首页
-  '/student/grades': () => ({
-    path: '/student',
+  // 成绩查询 → 个人中心
+  '/student/profile/grades': () => ({
+    path: '/student/profile',
+  }),
+
+  // 关于 → 个人中心
+  '/student/profile/about': () => ({
+    path: '/student/profile',
+  }),
+
+  // 设置 → 个人中心
+  '/student/profile/settings': () => ({
+    path: '/student/profile',
   }),
 
   // 个人中心 → 首页（无需返回按钮）
