@@ -41,10 +41,15 @@ interface KeyDataRemarkConfig {
 
 /**
  * remark 字段中的配置结构（表格数据类型）
+ * 支持两种字段名格式：
+ * - tableRowHeaders / tableColumnHeaders（教师端创建时使用）
+ * - rowHeaders / columnHeaders（兼容旧格式）
  */
 interface TableDataRemarkConfig {
   rowHeaders?: string[]
   columnHeaders?: string[]
+  tableRowHeaders?: string[]
+  tableColumnHeaders?: string[]
 }
 
 /**
@@ -155,10 +160,13 @@ export function dataCollectionToFormData(detail?: DataCollectionDetail | DataCol
   if (Object.keys(tableData.answers).length === 0 && detail?.remark) {
     try {
       const config = JSON.parse(detail.remark) as TableDataRemarkConfig
-      if (config.rowHeaders && config.columnHeaders) {
+      // 支持两种字段名格式：tableRowHeaders/tableColumnHeaders 和 rowHeaders/columnHeaders
+      const rowHeaders = config.tableRowHeaders ?? config.rowHeaders
+      const columnHeaders = config.tableColumnHeaders ?? config.columnHeaders
+      if (rowHeaders && columnHeaders) {
         tableData = {
-          rowHeaders: config.rowHeaders,
-          columnHeaders: config.columnHeaders,
+          rowHeaders,
+          columnHeaders,
           answers: {},
         }
       }
