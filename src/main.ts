@@ -13,6 +13,7 @@ import 'primeicons/primeicons.css'
 
 // TanStack Query
 import { VueQueryPlugin } from '@tanstack/vue-query'
+import { queryClient } from './core/api/queryClient'
 
 // 全局 Toast 服务
 import { initToast } from './core/utils/toast'
@@ -23,7 +24,9 @@ import './core/api/config'
 const app = createApp(App)
 
 app.use(router)
-app.use(VueQueryPlugin)
+app.use(VueQueryPlugin, {
+  queryClient,
+})
 app.use(PrimeVue, {
   theme: {
     preset: Aura,
