@@ -175,6 +175,12 @@ async function handleUpdateCourseName() {
       path: { id: courseIdNumber.value },
       body: { courseName: formData.courseName },
     })
+
+    // 更新 URL query 参数中的 courseName
+    router.replace({
+      query: { ...route.query, courseName: encodeURIComponent(formData.courseName) },
+    })
+
     toast.add({
       severity: 'success',
       summary: '成功',
