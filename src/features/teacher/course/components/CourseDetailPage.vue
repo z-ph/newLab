@@ -115,6 +115,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import Card from 'primevue/card'
 import { useQueryCourseExperimentList, useQueryCourseClassExperiments, useUpdateCourse } from '../hooks'
+import { useGlobalTabManager } from '@/features/teacher/composables/useTabManager'
 import { formatDateTime } from '@/features/shared/utils/formatters'
 import type { ClassExperimentDetailResponse } from '@/core/api/generated'
 
@@ -148,6 +149,9 @@ initFormData()
 // 更新课程名称
 const updateMutation = useUpdateCourse()
 
+// Tab 管理器
+const tabManager = useGlobalTabManager()
+
 async function handleUpdateCourseName() {
   if (!formData.courseName?.trim()) {
     toast.add({
@@ -169,6 +173,8 @@ async function handleUpdateCourseName() {
     return
   }
 
+  const oldKey = route.fullPath
+
   isSubmitting.value = true
   try {
     await updateMutation.mutateAsync({
@@ -177,9 +183,12 @@ async function handleUpdateCourseName() {
     })
 
     // 更新 URL query 参数中的 courseName
-    router.replace({
-      query: { ...route.query, courseName: encodeURIComponent(formData.courseName) },
-    })
+    const newQuery = { ...route.query, courseName: encodeURIComponent(formData.courseName) }
+    router.replace({ query: newQuery })
+
+    // 更新 Tab 的 key 和标题
+    const newKey = tabManager.generateTabKey(route.path, newQuery as Record<string, string>)
+    tabManager.updateTabKeyAndTitle(oldKey, newKey, formData.courseName)
 
     toast.add({
       severity: 'success',

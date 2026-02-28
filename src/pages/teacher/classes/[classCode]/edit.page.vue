@@ -174,6 +174,7 @@ import { useBindStudents, useUnbindStudents } from '@/features/teacher/class/hoo
 import { useQueryClassExperimentsGroupedByCourse, toCourseGroups } from '@/features/teacher/class/hooks/useQueryClassExperimentsGroupedByCourse'
 import { useUnbindExperiment } from '@/features/teacher/class/hooks/useMutateClassExperiment'
 import { useUpdateClass } from '@/features/teacher/class/hooks/useMutateClass'
+import { useGlobalTabManager } from '@/features/teacher/composables/useTabManager'
 import { formatDateTime } from '@/features/shared/utils/formatters'
 import type { StudentClassRelation, ExperimentDetailItem } from '@/core/api/generated'
 import BindClassExperimentDialog from '@/features/teacher/class-experiment/components/BindClassExperimentDialog.vue'
@@ -197,6 +198,9 @@ const formData = reactive({ className: '' })
 // 更新班级名称的 mutation
 const updateClassMutation = useUpdateClass()
 
+// Tab 管理器
+const tabManager = useGlobalTabManager()
+
 // 初始化表单数据
 formData.className = pageTitle.value
 
@@ -207,15 +211,20 @@ const handleSaveClassName = async () => {
     return
   }
 
+  const oldKey = route.fullPath
+
   await updateClassMutation.mutateAsync({
     path: { classCode: classCode.value },
     body: { className: formData.className },
   })
 
   // 更新 URL query 参数中的 title
-  router.replace({
-    query: { ...route.query, title: encodeURIComponent(formData.className) },
-  })
+  const newQuery = { ...route.query, title: encodeURIComponent(formData.className) }
+  router.replace({ query: newQuery })
+
+  // 更新 Tab 的 key 和标题
+  const newKey = tabManager.generateTabKey(route.path, newQuery as Record<string, string>)
+  tabManager.updateTabKeyAndTitle(oldKey, newKey, formData.className)
 
   toast.add({ severity: 'success', summary: '成功', detail: '班级名称已更新', life: 3000 })
 }

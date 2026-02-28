@@ -47,6 +47,7 @@ import { ref, reactive, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import { useQueryExperimentById, useUpdateExperiment, ProcedureList } from '@/features/teacher/experiment'
+import { useGlobalTabManager } from '@/features/teacher/composables/useTabManager'
 
 const router = useRouter()
 const route = useRoute()
@@ -81,11 +82,16 @@ watch(experiment, (exp) => {
 const isSubmitting = ref(false)
 const updateMutation = useUpdateExperiment()
 
+// Tab 管理器
+const tabManager = useGlobalTabManager()
+
 async function handleUpdateExperiment() {
   if (!formData.experimentName.trim()) {
     toast.add({ severity: 'warn', summary: '提示', detail: '请输入实验名称', life: 3000 })
     return
   }
+
+  const oldKey = route.fullPath
 
   isSubmitting.value = true
   try {
@@ -98,9 +104,12 @@ async function handleUpdateExperiment() {
     })
 
     // 更新 URL query 参数中的 title
-    router.replace({
-      query: { ...route.query, title: encodeURIComponent(formData.experimentName) },
-    })
+    const newQuery = { ...route.query, title: encodeURIComponent(formData.experimentName) }
+    router.replace({ query: newQuery })
+
+    // 更新 Tab 的 key 和标题
+    const newKey = tabManager.generateTabKey(route.path, newQuery as Record<string, string>)
+    tabManager.updateTabKeyAndTitle(oldKey, newKey, formData.experimentName)
 
     toast.add({ severity: 'success', summary: '成功', detail: '实验信息更新成功', life: 3000 })
     refetch()

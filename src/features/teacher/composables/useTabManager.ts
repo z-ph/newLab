@@ -233,6 +233,54 @@ export function useTabManager() {
     }
   }
 
+  /**
+   * 更新标签页标题
+   * @param key 标签页 key（默认使用当前激活的标签页）
+   * @param newTitle 新标题
+   */
+  const updateTabTitle = (newTitle: string, key?: string) => {
+    const targetKey = key || activeTab.value
+    const tab = tabs.value.find((t) => t.key === targetKey)
+    if (tab) {
+      tab.title = newTitle
+    }
+  }
+
+  /**
+   * 更新当前标签页的 key 和标题（用于 URL 变化时）
+   * @param oldKey 旧的 key
+   * @param newKey 新的 key
+   * @param newTitle 新标题
+   */
+  const updateTabKeyAndTitle = (oldKey: string, newKey: string, newTitle: string) => {
+    const index = tabs.value.findIndex((t) => t.key === oldKey)
+    if (index !== -1) {
+      const oldTab = tabs.value[index]
+      if (oldTab) {
+        tabs.value[index] = {
+          key: newKey,
+          path: newKey,
+          title: newTitle,
+          closable: oldTab.closable,
+        }
+        // 如果更新的是当前激活的标签页，更新 activeTab
+        if (activeTab.value === oldKey) {
+          activeTab.value = newKey
+        }
+      }
+    }
+  }
+
+  /**
+   * 根据路径和 query 参数生成 tab key
+   * @param path 路由路径
+   * @param query query 参数对象
+   */
+  const generateTabKey = (path: string, query: Record<string, string>) => {
+    const queryString = new URLSearchParams(query).toString()
+    return queryString ? `${path}?${queryString}` : path
+  }
+
   // 初始化
   loadTabs()
 
@@ -311,6 +359,9 @@ export function useTabManager() {
     closeTab,
     switchTab,
     initMainTabs,
+    updateTabTitle,
+    updateTabKeyAndTitle,
+    generateTabKey,
   }
 }
 
