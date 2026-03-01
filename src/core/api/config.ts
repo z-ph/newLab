@@ -10,7 +10,7 @@ import type { RouteNamedMap } from "vue-router/auto-routes";
 type PublicRoute = keyof RouteNamedMap & ("/" | "/login");
 export const baseURL = import.meta.env.Dev
   ? import.meta.env.VITE_PROXY_PREFIX
-  : import.meta.env.VITE_API_BASE_URL;
+  : import.meta.env.VITE_BASE_API;
 /**
  * 创建 axios 实例
  */
