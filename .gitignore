@@ -42,3 +42,4 @@ components.d.ts
 .claude/settings.local.json
 test-results/
 playwright-report/
+.playwright-mcp/
