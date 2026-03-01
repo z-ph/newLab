@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "lastUpdated": 1772359621516,
+  "plugins": [
+    {
+      "filename": "playwright-test-expert.md",
+      "type": "agent",
+      "metadata": {
+        "sourcePath": "agents/playwright-test-expert.md",
+        "filename": "playwright-test-expert.md",
+        "name": "playwright-test-expert",
+        "description": "Use this agent when you need to debug or test frontend applications using Playwright. This includes writing new E2E tests, debugging existing test failures, taking screenshots for visual debugging, interacting with page elements, validating UI behavior, and troubleshooting frontend issues. Examples of when to use this agent:\\n\\n<example>\\nContext: User wants to verify a login form works correctly.\\nuser: \"Can you test if the login form on the login page works?\"\\nassistant: \"I'll use the playwright-test-expert agent to test the login form functionality\"\\n<commentary>\\nSince the user wants to test frontend functionality, use the Task tool to launch the playwright-test-expert agent to interact with the page and verify the login form.\\n</commentary>\\n</example>\\n\\n<example>\\nContext: A test is failing and needs debugging.\\nuser: \"The checkout flow test is failing, can you help debug it?\"\\nassistant: \"Let me use the playwright-test-expert agent to debug the failing checkout flow test\"\\n<commentary>\\nSince there's a failing E2E test that needs debugging, use the Task tool to launch the playwright-test-expert agent to investigate the failure.\\n</commentary>\\n</example>\\n\\n<example>\\nContext: User needs to verify a component renders correctly.\\nuser: \"Check if the dashboard charts are rendering properly\"\\nassistant: \"I'll launch the playwright-test-expert agent to verify the dashboard chart rendering\"\\n<commentary>\\nSince the user wants to verify UI rendering, use the Task tool to launch the playwright-test-expert agent to take screenshots and validate the visual output.\\n</commentary>\\n</example>\\n\\n<example>\\nContext: User is developing a feature and wants proactive testing.\\nuser: \"I just finished implementing the user profile page\"\\nassistant: \"Let me use the playwright-test-expert agent to verify the user profile page functionality\"\\n<commentary>\\nSince a significant feature was completed, proactively use the Task tool to launch the playwright-test-expert agent to test the new functionality.\\n</commentary>\\n</example>",
+        "category": "agents",
+        "type": "agent",
+        "size": 5066,
+        "contentHash": "52182095927b50bd39cfc29aae26267a9f0bf4bb2fad9154687bc08a96e2d663"
+      }
+    },
+    {
+      "filename": "playwright-skill",
+      "type": "skill",
+      "metadata": {
+        "sourcePath": "playwright-skill",
+        "filename": "playwright-skill",
+        "name": "playwright-skill",
+        "description": "Complete browser automation with Playwright. Auto-detects dev servers, writes clean test scripts to /tmp. Test pages, fill forms, take screenshots, check responsive design, validate UX, test login flows, check links, automate any browser task. Use when user wants to test websites, automate browser interactions, validate web functionality, or perform any browser-based testing.",
+        "category": "plugins",
+        "type": "skill",
+        "size": 49341,
+        "contentHash": "f38b55f1a3f132b9e89cd736d8085373f340c4f225193b943deedf3afd06740e",
+        "installedAt": 1772359568467,
+        "updatedAt": 1772359568467,
+        "packageName": "playwright-skill",
+        "packageVersion": "4.1.0"
+      }
+    },
+    {
+      "filename": "playwright",
+      "type": "skill",
+      "metadata": {
+        "sourcePath": "skills/playwright",
+        "filename": "playwright",
+        "name": "playwright",
+        "description": "Playwright E2E testing patterns. Trigger: When writing Playwright E2E tests (Page Object Model, selectors, MCP exploration workflow). For Prowler-specific UI conventions under ui/tests, also use prowler-test-ui.",
+        "category": "skills",
+        "type": "skill",
+        "size": 10262,
+        "contentHash": "6fec1d13d125bc684296496ef4f6325e09cbef1888892ba30a6b287a0f098244",
+        "installedAt": 1772359616035,
+        "updatedAt": 1772359616035
+      }
+    },
+    {
+      "filename": "agent-browser",
+      "type": "skill",
+      "metadata": {
+        "sourcePath": "skills/agent-browser",
+        "filename": "agent-browser",
+        "name": "agent-browser",
+        "description": "Browser automation using Vercel's agent-browser CLI. Use when you need to interact with web pages, fill forms, take screenshots, or scrape data. Alternative to Playwright MCP - uses Bash commands with ref-based element selection. Triggers on \"browse website\", \"fill form\", \"click button\", \"take screenshot\", \"scrape page\", \"web automation\".",
+        "category": "skills",
+        "type": "skill",
+        "size": 6365,
+        "contentHash": "fd63d41d4a9d923c43ee7e1128dafa32f9e26cd3eb6197534d21d5a4e6ba1f14",
+        "installedAt": 1772359621516,
+        "updatedAt": 1772359621516
+      }
+    }
+  ]
+}
