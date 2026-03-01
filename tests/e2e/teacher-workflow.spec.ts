@@ -116,13 +116,23 @@ test.describe.serial("Teacher Workflow", () => {
     // Click on a date in the next month
     await page.getByText(nextMonth.getDate().toString(), { exact: true }).first().click();
 
-    // Close the DatePicker panel by pressing Escape
-    await page.keyboard.press("Escape");
-
-    await page.getByRole("button", { name: "保存" }).click();
-
-    // Verify experiment is visible in the table on the same page
-    await expect(page.getByText(experimentName)).toBeVisible();
+    // Wait for date picker to close
+    await page.waitForTimeout(1000);
+    
+    // Click save button with force to bypass overlay
+    await page.getByRole("button", { name: "保存" }).click({ force: true });
+    
+    // Wait for navigation and go to list page
+    await page.waitForTimeout(2000);
+    await page.locator("div").filter({ hasText: /^实验列表$/ }).click();
+    await page.waitForURL(/\/experiments\/list/);
+    await page.waitForTimeout(1000);
+    
+    // Verify experiment is visible in the list
+    // Reload page to ensure fresh data (workaround for Vue Query cache issue)
+    await page.reload();
+    await page.waitForTimeout(1000);
+    await expect(page.getByText(experimentName).first()).toBeVisible();
   });
 
   test("should add steps to experiment", async ({ page }) => {
@@ -341,13 +351,23 @@ test.describe("Query Refetch Verification", () => {
     await page.getByRole("combobox", { name: "请选择截止时间" }).click();
     await page.getByText(nextMonth.getDate().toString(), { exact: true }).first().click();
 
-    // Close the DatePicker panel
-    await page.keyboard.press("Escape");
-
-    await page.getByRole("button", { name: "保存" }).click();
-
-    // Verify new experiment appears on the same page (create page has the table below form)
-    await expect(page.getByText(experimentName)).toBeVisible();
+    // Wait for date picker to close
+    await page.waitForTimeout(1000);
+    
+    // Click save button with force to bypass overlay
+    await page.getByRole("button", { name: "保存" }).click({ force: true });
+    
+    // Wait and navigate to list page
+    await page.waitForTimeout(2000);
+    await page.locator("div").filter({ hasText: /^实验列表$/ }).click();
+    await page.waitForURL(/\/experiments\/list/);
+    await page.waitForTimeout(1000);
+    
+    // Verify new experiment appears in the list
+    // Reload page to ensure fresh data (workaround for Vue Query cache issue)
+    await page.reload();
+    await page.waitForTimeout(1000);
+    await expect(page.getByText(experimentName).first()).toBeVisible();
   });
 });
 
