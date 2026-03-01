@@ -11,7 +11,7 @@
       <!-- 标签页导航 -->
       <TabBar />
 
-      <main class="flex-1 overflow-y-auto p-2">
+      <main class="flex-1 overflow-y-auto p-2 bg-slate-50">
         <router-view v-slot="{ Component, route }">
           <keep-alive :max="10">
             <component :is="Component" :key="route.fullPath" />
@@ -46,10 +46,3 @@ onMounted(() => {
   }
 })
 </script>
-
-<style scoped>
-/* 确保主内容区域是浅色背景 */
-main {
-  background-color: #f8fafc;
-}
-</style>

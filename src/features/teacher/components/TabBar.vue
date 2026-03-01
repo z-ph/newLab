@@ -1,5 +1,5 @@
 <template>
-  <div class="tabbar-container">
+  <div class="bg-white border-b border-slate-200 block md:block hidden">
     <div class="flex items-center gap-1 px-3 py-2 overflow-x-auto scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent">
       <button
         v-for="tab in tabs"
@@ -7,7 +7,7 @@
         @click="switchTab(tab.key)"
         :class="[
           'group relative flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 whitespace-nowrap min-w-0',
-          activeTab === tab.key ? 'tab-active' : 'tab-inactive',
+          activeTab === tab.key ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'text-slate-600 border border-transparent hover:bg-slate-50 hover:text-slate-900 hover:border-slate-200',
         ]"
       >
         <!-- 激活指示器 -->
@@ -45,58 +45,3 @@ import { useGlobalTabManager } from '@/features/teacher/composables/useTabManage
 
 const { tabs, activeTab, switchTab, closeTab } = useGlobalTabManager()
 </script>
-
-<style scoped>
-.tabbar-container {
-  background-color: #ffffff !important;
-  border-bottom: 1px solid #e2e8f0 !important;
-  display: block;
-}
-
-@media (min-width: 768px) {
-  .tabbar-container {
-    display: block !important;
-  }
-}
-
-@media (max-width: 767px) {
-  .tabbar-container {
-    display: none !important;
-  }
-}
-
-.tab-active {
-  background-color: #ecfdf5 !important;
-  color: #047857 !important;
-  border: 1px solid #a7f3d0 !important;
-}
-
-.tab-inactive {
-  color: #475569 !important;
-  border: 1px solid transparent !important;
-}
-
-.tab-inactive:hover {
-  background-color: #f8fafc !important;
-  color: #0f172a !important;
-  border-color: #e2e8f0 !important;
-}
-
-/* 自定义滚动条样式 */
-.scrollbar-thin::-webkit-scrollbar {
-  height: 4px;
-}
-
-.scrollbar-thin::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  background-color: rgb(203, 213, 225);
-  border-radius: 2px;
-}
-
-.scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background-color: rgb(148, 163, 184);
-}
-</style>

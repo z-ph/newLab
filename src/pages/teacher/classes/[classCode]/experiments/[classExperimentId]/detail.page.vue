@@ -550,8 +550,19 @@ const route = useRoute()
 const confirm = useConfirm()
 const toast = useToast()
 
-const classCode = computed(() => (route.params as any).classCode as string)
-const classExperimentId = computed(() => Number((route.params as any).classExperimentId as string))
+// 类型守卫函数：安全访问 route params
+function getClassCode(): string {
+  const params = route.params as Record<string, string>
+  return params.classCode || ''
+}
+
+function getClassExperimentId(): string {
+  const params = route.params as Record<string, string>
+  return params.classExperimentId || ''
+}
+
+const classCode = computed(getClassCode)
+const classExperimentId = computed(() => Number(getClassExperimentId()))
 
 // 从 query 获取三层级信息
 const courseName = computed(() => {

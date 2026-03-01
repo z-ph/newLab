@@ -184,7 +184,13 @@ const route = useRoute()
 const confirm = useConfirm()
 const toast = useToast()
 
-const classCode = computed(() => (route.params as any).classCode as string)
+// 类型守卫函数：安全访问 route params
+function getClassCode(): string {
+  const params = route.params as Record<string, string>
+  return params.classCode || ''
+}
+
+const classCode = computed(getClassCode)
 
 // 从 query 获取标题参数
 const pageTitle = computed(() => {

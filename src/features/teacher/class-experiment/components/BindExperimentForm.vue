@@ -72,7 +72,7 @@ import { useQueryCourseAll } from '@/features/teacher/course'
 import { useQueryExperimentAll } from '@/features/teacher/experiment'
 import { useBindExperiment } from '@/features/teacher/class'
 import { formatDateTime, formatTimeShort } from '@/features/shared/utils/formatters'
-import type { BatchBindClassesToExperimentRequest } from '@/core/api/generated'
+import type { BatchBindClassesToExperimentRequest, Course, Class, Experiment } from '@/core/api/generated'
 
 interface Props {
   initialClassCodes?: string[]
@@ -96,7 +96,7 @@ const experimentQuery = useQueryExperimentAll()
 // 选项数据
 const courseOptions = computed(() => {
   const courses = courseQuery.query.data.value?.records || []
-  return courses.map((c: any) => ({
+  return courses.map((c: Course) => ({
     label: `${c.courseName} (${c.courseId})`,
     value: c.courseId,
   }))
@@ -104,7 +104,7 @@ const courseOptions = computed(() => {
 
 const classOptions = computed(() => {
   const classes = classQuery.query.data.value?.records || []
-  return classes.map((c: any) => ({
+  return classes.map((c: Class) => ({
     label: `${c.className} (${c.classCode})`,
     value: c.classCode,
   }))
@@ -112,7 +112,7 @@ const classOptions = computed(() => {
 
 const experimentOptions = computed(() => {
   const experiments = experimentQuery.data.value || []
-  return experiments.map((e: any) => ({
+  return experiments.map((e: Experiment) => ({
     label: e.experimentName || '',
     value: String(e.id!),
     courseId: e.courseId,
@@ -125,15 +125,10 @@ const filteredExperimentOptions = computed(() => {
   return experimentOptions.value.filter((exp) => exp.courseId === formData.courseId)
 })
 
-// 表单数据
-interface FormData {
-  courseId?: string
-  experimentId?: string
-  classCodes: string[]
+// 表单数据（使用 API 类型派生）
+type FormData = Pick<BatchBindClassesToExperimentRequest, 'courseId' | 'experimentId' | 'classCodes' | 'experimentLocation'> & {
   startTime: Date | null
   endTime: Date | null
-  experimentLocation: string
-  userName: string
 }
 
 const formData = reactive<FormData>({
@@ -143,24 +138,19 @@ const formData = reactive<FormData>({
   startTime: null,
   endTime: null,
   experimentLocation: '',
-  userName: '',
 })
 
-const submitformData = computed(() => {
-  const data: Partial<BatchBindClassesToExperimentRequest> = {
-    courseId: formData.courseId,
-    experimentId: formData.experimentId,
-    classCodes: formData.classCodes,
-    courseTime: formData.startTime && formData.endTime
-      ? `${formatDateTime(formData.startTime)} - ${formatTimeShort(formData.endTime)}`
-      : undefined,
-    startTime: formData.startTime?.toISOString(),
-    endTime: formData.endTime?.toISOString(),
-    experimentLocation: formData.experimentLocation || undefined,
-    userName: formData.userName || undefined,
-  }
-  return data
-})
+const submitformData = computed((): BatchBindClassesToExperimentRequest => ({
+  courseId: formData.courseId,
+  experimentId: formData.experimentId,
+  classCodes: formData.classCodes,
+  courseTime: formData.startTime && formData.endTime
+    ? `${formatDateTime(formData.startTime)} - ${formatTimeShort(formData.endTime)}`
+    : undefined,
+  startTime: formData.startTime?.toISOString(),
+  endTime: formData.endTime?.toISOString(),
+  experimentLocation: formData.experimentLocation || undefined,
+}))
 
 const handleCancel = () => {
   router.back()
@@ -199,7 +189,7 @@ const handleSubmit = async () => {
     return
   }
 
-  await mutation.mutateAsync({ body: submitformData.value as any })
+  await mutation.mutateAsync({ body: submitformData.value })
 
   toast.success('班级实验配置添加成功')
   emit('success')
