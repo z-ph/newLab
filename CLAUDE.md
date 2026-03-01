@@ -13,6 +13,73 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - 使用无头模式（headless）避免多实例冲突
 - 每次测试需要重新登录（无头浏览器不保留登录状态）
 
+## Playwright MCP 配置
+
+### 安装
+
+```bash
+pnpm add -D @playwright/mcp
+pnpm exec playwright install chromium
+```
+
+### 配置
+
+MCP 服务器配置在 `mcp.json`：
+
+```json
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "pnpm",
+      "args": ["exec", "playwright-mcp"],
+      "env": {
+        "PLAYWRIGHT_BROWSERS_PATH": "./.playwright-mcp/browser"
+      }
+    }
+  }
+}
+```
+
+### 可用工具
+
+- `browser_navigate` - 导航到指定 URL
+- `browser_snapshot` - 获取页面快照
+- `browser_click` - 点击元素
+- `browser_type` - 输入文本
+- `browser_fill_form` - 填充表单
+- `browser_take_screenshot` - 截图
+- `browser_console_messages` - 获取控制台消息
+- `browser_network_requests` - 获取网络请求
+- `browser_evaluate` - 执行 JavaScript
+- `browser_wait_for` - 等待条件
+- `browser_press_key` - 按键操作
+- `browser_resize` - 调整窗口大小
+
+### 权限配置
+
+在 `.claude/settings.local.json` 中添加 MCP 工具权限：
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_type",
+      "mcp__playwright__browser_fill_form",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_console_messages",
+      "mcp__playwright__browser_network_requests",
+      "mcp__playwright__browser_evaluate",
+      "mcp__playwright__browser_wait_for",
+      "mcp__playwright__browser_press_key",
+      "mcp__playwright__browser_resize"
+    ]
+  }
+}
+```
+
 ## 项目概述
 
 Vue 3 + TypeScript + Vite 前端项目，使用 pnpm 包管理。
