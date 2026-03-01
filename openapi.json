@@ -1448,6 +1448,81 @@
         ]
       }
     },
+    "/api/excel/import/class-course-experiments": {
+      "post": {
+        "summary": "批量导入班级课程实验",
+        "deprecated": false,
+        "description": "通过上传 Excel 文件一次性导入班级、课程、实验、课次信息\n支持合班上课（同一时间多个班级）",
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "description": "Excel 文件",
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseString",
+                  "description": "用户详细信息字符串"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/excel/template/class-course-experiments": {
+      "get": {
+        "summary": "获取班级课程实验导入模板",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
     "/api/qr/teacher": {
       "get": {
         "summary": "获取签到二维码",
