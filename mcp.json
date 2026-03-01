@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "pnpm",
+      "args": [
+        "exec",
+        "playwright-mcp"
+      ],
+      "env": {
+        "PLAYWRIGHT_BROWSERS_PATH": "./.playwright-mcp/browser"
+      }
+    }
+  }
+}

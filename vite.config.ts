@@ -29,12 +29,12 @@ export default defineConfig(({ mode }) => {
     build: {
       sourcemap: mode === 'development',
     },
-    server:{
-      proxy:{
-        '/api': {
+    server: {
+      proxy: {
+        [env.VITE_PROXY_PREFIX || '/api']: {
           target: env.BASE_API || 'http://localhost:8085',
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api/, ''),
+          rewrite: (path) => path.replace(new RegExp(`^${env.VITE_PROXY_PREFIX || '/api'}`), ''),
         },
       }
     },
