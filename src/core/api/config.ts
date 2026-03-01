@@ -8,7 +8,9 @@ import type { RouteNamedMap } from "vue-router/auto-routes";
 
 // 从 RouteNamedMap 提取公开路由类型
 type PublicRoute = keyof RouteNamedMap & ("/" | "/login");
-export const baseURL = import.meta.env.VITE_PROXY_PREFIX || '/api'
+export const baseURL = import.meta.env.Dev
+  ? import.meta.env.VITE_PROXY_PREFIX
+  : import.meta.env.VITE_API_BASE_URL;
 /**
  * 创建 axios 实例
  */
@@ -17,15 +19,13 @@ const axiosInstance = axios.create({
 });
 
 // 添加请求拦截器 - 自动添加认证 tokens
-axiosInstance.interceptors.request.use(
-  (config) => {
-    const token = TokenManager.getToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
+axiosInstance.interceptors.request.use((config) => {
+  const token = TokenManager.getToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
-);
+  return config;
+});
 
 // 添加响应拦截器 - 处理 401 错误和业务错误码
 axiosInstance.interceptors.response.use(
@@ -74,7 +74,7 @@ axiosInstance.interceptors.response.use(
  */
 const client = createClient({
   axios: axiosInstance,
-  throwOnError:true
+  throwOnError: true,
 });
 
 export default client;
