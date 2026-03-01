@@ -8,7 +8,7 @@
     <!-- Logo区域 -->
     <div class="p-6 border-b border-slate-200">
       <div class="flex items-center gap-3">
-        <img src="/gdut.png" alt="广工大校徽" class="h-10 w-10 flex-shrink-0" />
+        <img src="@/assets/gdut.png" alt="广工大校徽" class="h-10 w-10 flex-shrink-0" />
         <div class="min-w-0 flex-1">
           <h1 class="text-lg font-bold text-slate-900 truncate">广工大实验教学</h1>
           <p class="text-xs text-slate-500 truncate">教师管理后台</p>
@@ -102,7 +102,7 @@
         <!-- Logo区域 -->
         <div class="p-6 border-b border-slate-200 flex items-center justify-between gap-3">
           <div class="flex items-center gap-3 min-w-0 flex-1">
-            <img src="/gdut.png" alt="广工大校徽" class="h-10 w-10 flex-shrink-0" />
+            <img src="@/assets/gdut.png" alt="广工大校徽" class="h-10 w-10 flex-shrink-0" />
             <div class="min-w-0 flex-1">
               <h1 class="text-lg font-bold text-slate-900 truncate">广工大实验教学</h1>
               <p class="text-xs text-slate-500 truncate">教师管理后台</p>

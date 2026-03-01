@@ -11,12 +11,11 @@ const props = withDefaults(
   }
 );
 
-const src = '/signlab/gdut.png';
 </script>
 
 <template>
   <img
-    :src="src"
+    src="@/assets/gdut.png"
     :alt="props.alt"
     :style="{ width: `${props.size}px`, height: `${props.size}px` }"
     class="block object-contain"
