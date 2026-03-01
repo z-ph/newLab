@@ -28,7 +28,13 @@ import { useQueryVideoDetail } from '@/features/teacher/video/hooks'
 const router = useRouter()
 const route = useRoute()
 
-const videoIdValue = computed(() => (route.params as any).videoId as string || '')
+// 类型守卫函数：安全访问 route params
+function getVideoId(): string {
+  const params = route.params as Record<string, string>
+  return params.videoId || ''
+}
+
+const videoIdValue = computed(getVideoId)
 
 // 从 query 获取标题参数
 const pageTitle = computed(() => {

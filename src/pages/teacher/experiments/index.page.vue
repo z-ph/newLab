@@ -24,9 +24,8 @@
     <ExperimentTable
       :experiments="experiments"
       :is-loading="query.isLoading.value"
-      :is-deleting="deleteMutation.isPending.value"
+      :with-data-fetch="false"
       @edit="openEdit"
-      @manage="openDetail"
       @refresh="query.refetch()"
     >
       <template #header>
@@ -42,10 +41,6 @@
 
     <ExperimentFormDialog v-model:visible="showEditDialog" :experiment="editingExperiment"
       @success="handleEditSuccess" />
-
-    <!-- 实验详情对框 -->
-    <ExperimentDetailDialog v-model:visible="showDetailDialog" :experiment="selectedExperiment" />
-
   </div>
 </template>
 
@@ -53,10 +48,8 @@
 import { computed, ref } from 'vue'
 import {
   useQueryExperimentAll,
-  useDeleteExperiment,
   ExperimentTable,
   ExperimentFormDialog,
-  ExperimentDetailDialog,
 } from '@/features/teacher/experiment'
 import { useQueryCourseAll } from '@/features/teacher/course'
 import type { ExperimentResponse } from '@/core/api/generated'
@@ -74,7 +67,7 @@ const courseOptions = computed(() => {
   }))
 })
 
-// 选中的课程ID
+// 选中的课程 ID
 const selectedCourseId = ref<string>()
 
 // 课程信息缓存
@@ -110,12 +103,7 @@ const experiments = computed(() => {
 // 对话框状态
 const showCreateDialog = ref(false)
 const showEditDialog = ref(false)
-const showDetailDialog = ref(false)
 const editingExperiment = ref<ExperimentResponse>()
-const selectedExperiment = ref<ExperimentResponse>()
-
-// 删除实验 mutation（用于 loading 状态）
-const deleteMutation = useDeleteExperiment()
 
 const openCreateDialog = () => {
   showCreateDialog.value = true
@@ -124,11 +112,6 @@ const openCreateDialog = () => {
 const openEdit = (experiment: ExperimentResponse) => {
   editingExperiment.value = experiment
   showEditDialog.value = true
-}
-
-const openDetail = (experiment: ExperimentResponse) => {
-  selectedExperiment.value = experiment
-  showDetailDialog.value = true
 }
 
 const handleCreateSuccess = () => {

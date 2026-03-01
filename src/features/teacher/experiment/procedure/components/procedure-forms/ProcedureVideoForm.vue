@@ -5,7 +5,7 @@
         选择视频 <span class="text-red-500">*</span>
       </label>
       <Select
-        v-model="localVideoId"
+        v-model="videoId"
         :options="videoOptions"
         option-label="videoLabel"
         option-value="videoId"
@@ -22,21 +22,7 @@ import { computed } from 'vue'
 import { useQueryVideosAll } from '@/features/teacher/experiment/procedure/hooks'
 import { formatVideoDuration } from '@/features/teacher/experiment/procedure/utils'
 
-interface Props {
-  videoId: number | null
-}
-
-interface Emits {
-  (e: 'update:videoId', value: number | null): void
-}
-
-const props = defineProps<Props>()
-const emit = defineEmits<Emits>()
-
-const localVideoId = computed({
-  get: () => props.videoId,
-  set: (value) => emit('update:videoId', value),
-})
+const videoId = defineModel<number | null>('videoId', { required: true })
 
 // 查询视频列表
 const { data: videosData, isLoading } = useQueryVideosAll()
