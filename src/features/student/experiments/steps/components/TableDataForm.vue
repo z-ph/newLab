@@ -60,7 +60,6 @@ import { watch } from 'vue'
 interface Props {
   rowHeaders: string[]
   columnHeaders: string[]
-  modelValue: Record<string, string>
 }
 
 const props = defineProps<Props>()

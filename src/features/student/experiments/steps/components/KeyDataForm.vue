@@ -35,7 +35,6 @@ import { computed } from 'vue'
 
 interface Props {
   dataFields?: Record<string, string>
-  modelValue: Record<string, string>
 }
 
 const props = defineProps<Props>()
