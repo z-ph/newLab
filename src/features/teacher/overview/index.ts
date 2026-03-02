@@ -1,4 +1,7 @@
 export * from './hooks/useOverviewStatistics'
 export * from './hooks/useImportClassCourseExperiments'
 export * from './hooks/useDownloadClassCourseExperimentsTemplate'
+export * from './hooks/useClassExperimentOverview'
 export { default as ClassCourseExperimentsImportDialog } from './components/ClassCourseExperimentsImportDialog.vue'
+export { default as ClassExperimentOverview } from './components/ClassExperimentOverview.vue'
+export { default as ClassExperimentCard } from './components/ClassExperimentCard.vue'
