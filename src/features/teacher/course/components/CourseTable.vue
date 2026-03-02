@@ -60,8 +60,8 @@ const handleViewDetail = (course: CourseResponse) => {
   router.push({
     path: `/teacher/courses/${course.courseId}/detail`,
     query: {
-      tabbarName: encodeURIComponent(course.courseName || '课程详情'),
-      courseName: encodeURIComponent(course.courseName || ''),
+      tabbarName: course.courseName || '课程详情',
+      courseName: course.courseName || '',
       courseId: course.id?.toString(),
     },
   })

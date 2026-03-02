@@ -195,7 +195,7 @@ const classCode = computed(getClassCode)
 // 从 query 获取标题参数
 const pageTitle = computed(() => {
   const title = route.query.tabbarName as string
-  return title ? decodeURIComponent(title) : '编辑班级'
+  return title || '编辑班级'
 })
 
 const activeTab = ref('students')
@@ -225,7 +225,7 @@ const handleSaveClassName = async () => {
   })
 
   // 更新 URL query 参数中的 tabbarName
-  const newQuery = { ...route.query, tabbarName: encodeURIComponent(formData.className) }
+  const newQuery = { ...route.query, tabbarName: formData.className }
   router.replace({ query: newQuery })
 
   // 更新 Tab 的 key 和标题
@@ -394,11 +394,11 @@ const navigateToExperimentDetail = (experiment: ExperimentDetailItem, courseName
   router.push({
     path: `/teacher/classes/${classCode.value}/experiments/${experiment.classExperimentId}/detail`,
     query: {
-      tabbarName: encodeURIComponent(experiment.experimentName || '实验详情'),
-      experimentName: encodeURIComponent(experiment.experimentName || '实验详情'),
+      tabbarName: experiment.experimentName || '实验详情',
+      experimentName: experiment.experimentName || '实验详情',
       experimentId: experiment.experimentId,
-      courseName: courseName ? encodeURIComponent(courseName) : undefined,
-      className: encodeURIComponent(pageTitle.value),
+      courseName: courseName || undefined,
+      className: pageTitle.value,
     },
   })
 }

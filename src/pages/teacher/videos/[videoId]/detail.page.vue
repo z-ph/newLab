@@ -38,8 +38,7 @@ const videoIdValue = computed(getVideoId)
 
 // 从 query 获取标题参数
 const pageTitle = computed(() => {
-  const title = route.query.tabbarName as string
-  return title ? decodeURIComponent(title) : '视频详情'
+  return (route.query.tabbarName as string) || '视频详情'
 })
 
 const { video, query } = useQueryVideoDetail(videoIdValue)

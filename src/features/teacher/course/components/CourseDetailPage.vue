@@ -129,7 +129,7 @@ const courseId = computed(() => {
 })
 const courseName = computed(() => {
   const name = route.query.courseName as string
-  return name ? decodeURIComponent(name) : ''
+  return name || ''
 })
 const courseIdNumber = computed(() => {
   const id = route.query.courseId as string
@@ -183,7 +183,7 @@ async function handleUpdateCourseName() {
     })
 
     // 更新 URL query 参数中的 courseName
-    const newQuery = { ...route.query, courseName: encodeURIComponent(formData.courseName) }
+    const newQuery = { ...route.query, courseName: formData.courseName }
     router.replace({ query: newQuery })
 
     // 更新 Tab 的 key 和标题
@@ -226,10 +226,10 @@ const handleViewClassExperiment = (classExperiment: ClassExperimentDetailRespons
   router.push({
     path: `/teacher/classes/${classExperiment.classCode}/experiments/${classExperiment.classExperimentId}/detail`,
     query: {
-      tabbarName: encodeURIComponent(classExperiment.experimentName || '实验详情'),
-      courseName: encodeURIComponent(formData.courseName),
-      experimentName: encodeURIComponent(classExperiment.experimentName || ''),
-      className: encodeURIComponent(classExperiment.className || ''),
+      tabbarName: classExperiment.experimentName || '实验详情',
+      courseName: formData.courseName,
+      experimentName: classExperiment.experimentName || '',
+      className: classExperiment.className || '',
       experimentId: classExperiment.experimentId,
     },
   })

@@ -148,7 +148,7 @@ const handleDetail = (topic: TopicDetailResponse) => {
   router.push({
     path: `/teacher/topics/${topic.id}`,
     query: {
-      tabbarName: encodeURIComponent(topic.content?.substring(0, 30) || '题目详情'),
+      tabbarName: topic.content?.substring(0, 30) || '题目详情',
     },
   })
 }

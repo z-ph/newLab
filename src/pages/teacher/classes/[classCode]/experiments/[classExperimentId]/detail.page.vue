@@ -567,17 +567,17 @@ const classExperimentId = computed(() => Number(getClassExperimentId()))
 // 从 query 获取三层级信息
 const courseName = computed(() => {
   const name = route.query.courseName as string
-  return name ? decodeURIComponent(name) : ''
+  return name || ''
 })
 
 const experimentName = computed(() => {
   const name = route.query.experimentName as string
-  return name ? decodeURIComponent(name) : ''
+  return name || ''
 })
 
 const className = computed(() => {
   const name = route.query.className as string
-  return name ? decodeURIComponent(name) : '实验详情'
+  return name || '实验详情'
 })
 
 const activeTab = ref('attendance')

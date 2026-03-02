@@ -280,7 +280,7 @@ export function useTabManager() {
       let title = '页面'
       const tabbarName = route.query.tabbarName as string
       if (tabbarName) {
-        title = decodeURIComponent(tabbarName)
+        title = tabbarName
       }
 
       // 添加新标签页（所有标签页都可关闭）

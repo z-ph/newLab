@@ -58,7 +58,7 @@ const experimentId = computed(() => Number((route.params as { experimentId: stri
 // 从 query 获取标题参数
 const pageTitle = computed(() => {
   const title = route.query.tabbarName as string
-  return title ? decodeURIComponent(title) : '实验详情'
+  return title || '实验详情'
 })
 
 // 查询实验详情
@@ -104,7 +104,7 @@ async function handleUpdateExperiment() {
     })
 
     // 更新 URL query 参数中的 tabbarName
-    const newQuery = { ...route.query, tabbarName: encodeURIComponent(formData.experimentName) }
+    const newQuery = { ...route.query, tabbarName: formData.experimentName }
     router.replace({ query: newQuery })
 
     // 更新 Tab 的 key 和标题
