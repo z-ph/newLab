@@ -98,7 +98,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiWechatBind-status"
       }
     },
     "/api/wechat/bind": {
@@ -202,7 +203,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiWechatBind"
       }
     },
     "/api/wechat/unbind": {
@@ -264,7 +266,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiWechatUnbind"
       }
     },
     "/api/wechat/login": {
@@ -372,7 +375,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiWechatLogin"
       }
     },
     "/api/auth/login": {
@@ -480,7 +484,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiAuthLogin"
       }
     },
     "/api/auth/reset-password": {
@@ -555,7 +560,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiAuthReset-password"
       }
     },
     "/api/auth/set-password": {
@@ -627,7 +633,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiAuthSet-password"
       }
     },
     "/api/auth/check-user-status/{username}": {
@@ -719,7 +726,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiAuthCheck-user-statusUsername"
       }
     },
     "/api/auth/wechat-status/{username}": {
@@ -815,7 +823,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiAuthWechat-statusUsername"
       }
     },
     "/api/auth/unbind-wechat": {
@@ -877,7 +886,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiAuthUnbind-wechat"
       }
     },
     "/api/auth/debug-user/{username}": {
@@ -949,7 +959,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiAuthDebug-userUsername"
       }
     },
     "/api/auth/test-db": {
@@ -1011,7 +1022,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiAuthTest-db"
       }
     },
     "/api/auth/login-by-openid": {
@@ -1119,7 +1131,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiAuthLogin-by-openid"
       }
     },
     "/api/auth/login-by-code": {
@@ -1227,7 +1240,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiAuthLogin-by-code"
       }
     },
     "/api/excel/import/users": {
@@ -1308,7 +1322,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiExcelImportUsers"
       }
     },
     "/api/excel/template/users": {
@@ -1336,7 +1351,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiExcelTemplateUsers"
       }
     },
     "/api/excel/import/students-with-classes": {
@@ -1417,7 +1433,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiExcelImportStudents-with-classes"
       }
     },
     "/api/excel/template/students-with-classes": {
@@ -1445,7 +1462,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiExcelTemplateStudents-with-classes"
       }
     },
     "/api/excel/import/class-course-experiments": {
@@ -1492,7 +1510,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiExcelImportClass-course-experiments"
       }
     },
     "/api/excel/template/class-course-experiments": {
@@ -1520,7 +1539,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiExcelTemplateClass-course-experiments"
       }
     },
     "/api/qr/teacher": {
@@ -1604,7 +1624,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiQrTeacher"
       }
     },
     "/api/qr/teacher/by-class-experiment": {
@@ -1697,7 +1718,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiQrTeacherBy-class-experiment"
       }
     },
     "/api/qr/student/scan/{key}": {
@@ -1801,7 +1823,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiQrStudentScanKey"
       }
     },
     "/api/resource/video/key/{videoId}": {
@@ -1881,7 +1904,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiResourceVideoKeyVideoid"
       }
     },
     "/api/resource/file/key/{fileType}/{fileId}": {
@@ -1970,7 +1994,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiResourceFileKeyFiletypeFileid"
       }
     },
     "/api/resource/video/playkey/{videoId}": {
@@ -2050,7 +2075,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiResourceVideoPlaykeyVideoid"
       }
     },
     "/api/download/play/{playKey}": {
@@ -2088,7 +2114,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiDownloadPlayPlaykey"
       }
     },
     "/api/download/video/{key}": {
@@ -2126,7 +2153,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiDownloadVideoKey"
       }
     },
     "/api/download/file/{key}": {
@@ -2164,7 +2192,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiDownloadFileKey"
       }
     },
     "/api/teacher/videos/upload": {
@@ -2304,7 +2333,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherVideosUpload"
       }
     },
     "/api/teacher/videos/{videoId}": {
@@ -2376,7 +2406,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "deleteApiTeacherVideosVideoid"
       },
       "get": {
         "summary": "获取视频信息",
@@ -2486,7 +2517,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherVideosVideoid"
       }
     },
     "/api/teacher/videos/query": {
@@ -2630,7 +2662,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherVideosQuery"
       }
     },
     "/api/teacher/grades/course/{courseId}": {
@@ -2795,7 +2828,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherGradesCourseCourseid"
       }
     },
     "/api/teacher/grades/{gradeId}": {
@@ -2943,7 +2977,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherGradesGradeid"
       },
       "delete": {
         "summary": "删除成绩",
@@ -3013,7 +3048,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "deleteApiTeacherGradesGradeid"
       }
     },
     "/api/teacher/grades": {
@@ -3161,7 +3197,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherGrades"
       }
     },
     "/api/teacher/grades/{gradeId}/approve": {
@@ -3233,7 +3270,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherGradesGradeidApprove"
       }
     },
     "/api/teacher/courses/query": {
@@ -3369,7 +3407,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherCoursesQuery"
       }
     },
     "/api/teacher/courses/{id}": {
@@ -3473,7 +3512,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherCoursesId"
       },
       "put": {
         "summary": "更新课程",
@@ -3585,7 +3625,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "putApiTeacherCoursesId"
       },
       "delete": {
         "summary": "删除课程",
@@ -3655,7 +3696,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "deleteApiTeacherCoursesId"
       }
     },
     "/api/teacher/courses": {
@@ -3696,7 +3738,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherCourses"
       }
     },
     "/api/teacher/tags": {
@@ -3796,7 +3839,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherTags"
       },
       "post": {
         "summary": "创建标签",
@@ -3866,7 +3910,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherTags"
       },
       "put": {
         "summary": "更新标签",
@@ -3936,7 +3981,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "putApiTeacherTags"
       }
     },
     "/api/teacher/tags/{tagId}": {
@@ -4008,7 +4054,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "deleteApiTeacherTagsTagid"
       }
     },
     "/api/teacher/classroom-quiz": {
@@ -4080,7 +4127,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherClassroom-quiz"
       }
     },
     "/api/teacher/classroom-quiz/{quizId}/start": {
@@ -4152,7 +4200,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherClassroom-quizQuizidStart"
       }
     },
     "/api/teacher/classroom-quiz/{quizId}/end": {
@@ -4224,7 +4273,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherClassroom-quizQuizidEnd"
       }
     },
     "/api/teacher/classroom-quiz/{quizId}/statistics": {
@@ -4427,7 +4477,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherClassroom-quizQuizidStatistics"
       }
     },
     "/api/teacher/classroom-quiz/{quizId}/student/{studentUsername}": {
@@ -4607,7 +4658,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherClassroom-quizQuizidStudentStudentusername"
       }
     },
     "/api/teacher/classroom-quiz/history": {
@@ -4734,7 +4786,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherClassroom-quizHistory"
       }
     },
     "/api/teacher/class/query": {
@@ -4775,7 +4828,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherClassQuery"
       }
     },
     "/api/teacher/class/code/{classCode}": {
@@ -4923,7 +4977,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherClassCodeClasscode"
       }
     },
     "/api/teacher/class": {
@@ -5028,7 +5083,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherClass"
       }
     },
     "/api/teacher/class/batch": {
@@ -5176,7 +5232,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherClassBatch"
       }
     },
     "/api/teacher/class/{classCode}/students": {
@@ -5229,7 +5286,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherClassClasscodeStudents"
       }
     },
     "/api/teacher/class/{classCode}/bind-students": {
@@ -5395,7 +5453,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherClassClasscodeBind-students"
       }
     },
     "/api/teacher/class/{classCode}/unbind-students": {
@@ -5480,7 +5539,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherClassClasscodeUnbind-students"
       }
     },
     "/api/teacher/class/bind-experiment": {
@@ -5531,7 +5591,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherClassBind-experiment"
       }
     },
     "/api/teacher/class/course-sessions": {
@@ -5715,7 +5776,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherClassCourse-sessions"
       }
     },
     "/api/teacher/class/unbind-experiment/{experimentId}": {
@@ -5800,7 +5862,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherClassUnbind-experimentExperimentid"
       }
     },
     "/api/teacher/class/by-experiment/{experimentId}": {
@@ -5894,7 +5957,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherClassBy-experimentExperimentid"
       }
     },
     "/api/teacher/class/{classCode}": {
@@ -5932,7 +5996,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "deleteApiTeacherClassClasscode"
       },
       "put": {
         "summary": "更新班级信息",
@@ -5978,7 +6043,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "putApiTeacherClassClasscode"
       }
     },
     "/api/teacher/class/{id}": {
@@ -6016,7 +6082,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherClassId"
       }
     },
     "/api/teacher/students": {
@@ -6194,7 +6261,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherStudents"
       }
     },
     "/api/teacher/students/{studentUsername}/experiments/{experimentId}/procedures": {
@@ -6360,7 +6428,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherStudentsStudentusernameExperimentsExperimentidProcedures"
       }
     },
     "/api/teacher/students/{studentUsername}/procedures/{procedureId}": {
@@ -6642,7 +6711,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherStudentsStudentusernameProceduresProcedureid"
       }
     },
     "/api/teacher/students/{studentUsername}/procedures/{procedureId}/completed": {
@@ -7141,7 +7211,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherStudentsStudentusernameProceduresProcedureidCompleted"
       }
     },
     "/api/teacher/students/{studentUsername}/procedures/{procedureId}/uncompleted": {
@@ -7460,7 +7531,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherStudentsStudentusernameProceduresProcedureidUncompleted"
       }
     },
     "/api/teacher/students/classes/{classCode}/experiments/{experimentId}/statistics": {
@@ -7669,7 +7741,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherStudentsClassesClasscodeExperimentsExperimentidStatistics"
       }
     },
     "/api/teacher/students/{studentUsername}/procedures/video/{procedureId}/completed": {
@@ -7832,7 +7905,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherStudentsStudentusernameProceduresVideoProcedureidCompleted"
       }
     },
     "/api/teacher/students/{studentUsername}/procedures/video/{procedureId}/uncompleted": {
@@ -7995,7 +8069,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherStudentsStudentusernameProceduresVideoProcedureidUncompleted"
       }
     },
     "/api/teacher/students/{studentUsername}/procedures/data-collection/{procedureId}/completed": {
@@ -8278,7 +8353,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherStudentsStudentusernameProceduresData-collectionProcedureidCompleted"
       }
     },
     "/api/teacher/students/{studentUsername}/procedures/data-collection/{procedureId}/uncompleted": {
@@ -8561,7 +8637,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherStudentsStudentusernameProceduresData-collectionProcedureidUncompleted"
       }
     },
     "/api/teacher/students/{studentUsername}/procedures/topic/{procedureId}/completed": {
@@ -8776,7 +8853,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherStudentsStudentusernameProceduresTopicProcedureidCompleted"
       }
     },
     "/api/teacher/students/{studentUsername}/procedures/topic/{procedureId}/uncompleted": {
@@ -8991,7 +9069,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherStudentsStudentusernameProceduresTopicProcedureidUncompleted"
       }
     },
     "/api/teacher/students/{studentUsername}/procedures/timed-quiz/{procedureId}/completed": {
@@ -9210,7 +9289,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherStudentsStudentusernameProceduresTimed-quizProcedureidCompleted"
       }
     },
     "/api/teacher/students/{studentUsername}/procedures/timed-quiz/{procedureId}/uncompleted": {
@@ -9429,7 +9509,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherStudentsStudentusernameProceduresTimed-quizProcedureidUncompleted"
       }
     },
     "/api/teacher/export/course-grades/{courseId}": {
@@ -9476,7 +9557,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherExportCourse-gradesCourseid"
       }
     },
     "/api/teacher/export/attendance-records/{courseId}": {
@@ -9532,7 +9614,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherExportAttendance-recordsCourseid"
       }
     },
     "/api/teacher/export/course-experiment-grades": {
@@ -9570,7 +9653,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherExportCourse-experiment-grades"
       }
     },
     "/api/teacher/export/course-attendance": {
@@ -9608,7 +9692,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherExportCourse-attendance"
       }
     },
     "/api/teacher/attendance/list": {
@@ -9656,7 +9741,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherAttendanceList"
       }
     },
     "/api/teacher/attendance/update": {
@@ -9699,7 +9785,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherAttendanceUpdate"
       }
     },
     "/api/teacher/attendance/records": {
@@ -9836,7 +9923,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherAttendanceRecords"
       }
     },
     "/api/teacher/attendance/count": {
@@ -9917,7 +10005,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherAttendanceCount"
       }
     },
     "/api/teacher/attendance/cross-class-attendees": {
@@ -10005,7 +10094,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherAttendanceCross-class-attendees"
       }
     },
     "/api/teacher/attendance/by-class-experiment/{classExperimentId}": {
@@ -10162,7 +10252,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherAttendanceBy-class-experimentClassexperimentid"
       }
     },
     "/api/teacher/experiments": {
@@ -10205,7 +10296,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherExperiments"
       },
       "put": {
         "summary": "修改实验",
@@ -10283,7 +10375,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "putApiTeacherExperiments"
       },
       "get": {
         "summary": "查询所有实验列表",
@@ -10401,7 +10494,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherExperiments"
       }
     },
     "/api/teacher/experiments/{experimentId}": {
@@ -10440,7 +10534,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "deleteApiTeacherExperimentsExperimentid"
       },
       "get": {
         "summary": "查询实验详情",
@@ -10477,7 +10572,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherExperimentsExperimentid"
       }
     },
     "/api/teacher/experiments/course/{courseId}": {
@@ -10516,7 +10612,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherExperimentsCourseCourseid"
       }
     },
     "/api/teacher/experiments/class-experiments": {
@@ -10724,7 +10821,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherExperimentsClass-experiments"
       }
     },
     "/api/teacher/experiments/by-class/{classCode}": {
@@ -10791,7 +10889,86 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherExperimentsBy-classClasscode"
+      }
+    },
+    "/api/teacher/experiments/query": {
+      "get": {
+        "summary": "分页组合查询实验列表",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "current",
+            "in": "query",
+            "description": "当前页码",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "每页条数",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "courseId",
+            "in": "query",
+            "description": "课程ID（精确查询）",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "experimentName",
+            "in": "query",
+            "description": "实验名称（模糊查询）",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageable",
+            "in": "query",
+            "description": "是否分页查询（true-分页，false-列表）",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageResponseExperimentResponse",
+                  "description": "分页结果"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "operationId": "getApiTeacherExperimentsQuery"
       }
     },
     "/api/teacher/topics": {
@@ -10863,7 +11040,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherTopics"
       },
       "put": {
         "summary": "更新题目",
@@ -10933,7 +11111,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "putApiTeacherTopics"
       }
     },
     "/api/teacher/topics/{topicId}": {
@@ -11005,7 +11184,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "deleteApiTeacherTopicsTopicid"
       },
       "get": {
         "summary": "查询题目详情",
@@ -11147,7 +11327,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherTopicsTopicid"
       }
     },
     "/api/teacher/topics/batch": {
@@ -11219,7 +11400,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "deleteApiTeacherTopicsBatch"
       }
     },
     "/api/teacher/topics/query": {
@@ -11395,7 +11577,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherTopicsQuery"
       }
     },
     "/api/teacher/topics/statistics": {
@@ -11513,7 +11696,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherTopicsStatistics"
       }
     },
     "/api/teacher/procedure-submissions/course/{courseId}": {
@@ -11671,7 +11855,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherProcedure-submissionsCourseCourseid"
       }
     },
     "/api/teacher/procedure-submissions/{submissionId}": {
@@ -11803,7 +11988,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherProcedure-submissionsSubmissionid"
       }
     },
     "/api/teacher/procedure-submissions/{submissionId}/grade": {
@@ -11885,7 +12071,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherProcedure-submissionsSubmissionidGrade"
       }
     },
     "/api/teacher/procedures/video": {
@@ -11957,7 +12144,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherProceduresVideo"
       },
       "put": {
         "summary": "修改视频观看步骤",
@@ -12027,7 +12215,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "putApiTeacherProceduresVideo"
       }
     },
     "/api/teacher/procedures/data-collection": {
@@ -12099,7 +12288,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherProceduresData-collection"
       },
       "put": {
         "summary": "修改数据收集步骤",
@@ -12169,7 +12359,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "putApiTeacherProceduresData-collection"
       }
     },
     "/api/teacher/procedures/topic": {
@@ -12241,7 +12432,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherProceduresTopic"
       },
       "put": {
         "summary": "修改题库练习步骤",
@@ -12311,7 +12503,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "putApiTeacherProceduresTopic"
       }
     },
     "/api/teacher/procedures/video/insert": {
@@ -12383,7 +12576,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherProceduresVideoInsert"
       }
     },
     "/api/teacher/procedures/data-collection/insert": {
@@ -12455,7 +12649,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherProceduresData-collectionInsert"
       }
     },
     "/api/teacher/procedures/topic/insert": {
@@ -12527,7 +12722,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherProceduresTopicInsert"
       }
     },
     "/api/teacher/procedures/timed-quiz": {
@@ -12599,7 +12795,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherProceduresTimed-quiz"
       },
       "put": {
         "summary": "修改限时答题步骤",
@@ -12669,7 +12866,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "putApiTeacherProceduresTimed-quiz"
       }
     },
     "/api/teacher/procedures/timed-quiz/insert": {
@@ -12741,7 +12939,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherProceduresTimed-quizInsert"
       }
     },
     "/api/teacher/procedures/{procedureId}": {
@@ -12813,7 +13012,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "deleteApiTeacherProceduresProcedureid"
       },
       "get": {
         "summary": "查询单个步骤详情",
@@ -13048,7 +13248,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherProceduresProcedureid"
       }
     },
     "/api/teacher/procedures/experiment/{experimentId}": {
@@ -13293,7 +13494,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherProceduresExperimentExperimentid"
       }
     },
     "/api/student/classroom-quiz/current": {
@@ -13464,7 +13666,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiStudentClassroom-quizCurrent"
       }
     },
     "/api/student/classroom-quiz/submit": {
@@ -13546,7 +13749,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiStudentClassroom-quizSubmit"
       }
     },
     "/api/student/classroom-quiz/{quizId}": {
@@ -13717,7 +13921,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiStudentClassroom-quizQuizid"
       }
     },
     "/api/student/classroom-quiz/history": {
@@ -13896,7 +14101,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiStudentClassroom-quizHistory"
       }
     },
     "/api/student/grades": {
@@ -14052,7 +14258,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiStudentGrades"
       }
     },
     "/api/student/grades/{gradeId}": {
@@ -14200,7 +14407,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiStudentGradesGradeid"
       }
     },
     "/api/student/attendance/records": {
@@ -14318,7 +14526,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiStudentAttendanceRecords"
       }
     },
     "/api/student/attendance/stats": {
@@ -14408,7 +14617,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiStudentAttendanceStats"
       }
     },
     "/api/student/attendance/my-records": {
@@ -14518,7 +14728,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiStudentAttendanceMy-records"
       }
     },
     "/api/student/experiments/{experimentId}": {
@@ -14875,7 +15086,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiStudentExperimentsExperimentid"
       }
     },
     "/api/student/experiments/class-experiments": {
@@ -15046,7 +15258,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiStudentExperimentsClass-experiments"
       }
     },
     "/api/student/classes": {
@@ -15136,7 +15349,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiStudentClasses"
       }
     },
     "/api/student/procedure-submissions/course-sessions": {
@@ -15316,7 +15530,8 @@
             "headers": {}
           }
         },
-        "security": []
+        "security": [],
+        "operationId": "postApiStudentProcedure-submissionsCourse-sessions"
       }
     },
     "/api/student/procedure-submissions": {
@@ -15461,7 +15676,8 @@
             "headers": {}
           }
         },
-        "security": []
+        "security": [],
+        "operationId": "getApiStudentProcedure-submissions"
       }
     },
     "/api/student/procedure-submissions/course/{courseId}": {
@@ -15597,7 +15813,8 @@
             "headers": {}
           }
         },
-        "security": []
+        "security": [],
+        "operationId": "getApiStudentProcedure-submissionsCourseCourseid"
       }
     },
     "/api/student/procedure-submissions/completed": {
@@ -15652,7 +15869,8 @@
             "headers": {}
           }
         },
-        "security": []
+        "security": [],
+        "operationId": "getApiStudentProcedure-submissionsCompleted"
       }
     },
     "/api/student/procedure-submissions/uncompleted": {
@@ -15707,7 +15925,8 @@
             "headers": {}
           }
         },
-        "security": []
+        "security": [],
+        "operationId": "getApiStudentProcedure-submissionsUncompleted"
       }
     },
     "/api/student/procedure-submissions/video/{procedureId}/viewed": {
@@ -15784,7 +16003,8 @@
             "headers": {}
           }
         },
-        "security": []
+        "security": [],
+        "operationId": "postApiStudentProcedure-submissionsVideoProcedureidViewed"
       }
     },
     "/api/student/procedure-submissions/topic/complete": {
@@ -15852,7 +16072,8 @@
             "headers": {}
           }
         },
-        "security": []
+        "security": [],
+        "operationId": "postApiStudentProcedure-submissionsTopicComplete"
       }
     },
     "/api/student/procedure-submissions/data-collection/complete": {
@@ -15968,7 +16189,8 @@
             "headers": {}
           }
         },
-        "security": []
+        "security": [],
+        "operationId": "postApiStudentProcedure-submissionsData-collectionComplete"
       }
     },
     "/api/student/procedure-submissions/topic/update": {
@@ -16036,7 +16258,8 @@
             "headers": {}
           }
         },
-        "security": []
+        "security": [],
+        "operationId": "putApiStudentProcedure-submissionsTopicUpdate"
       }
     },
     "/api/student/procedure-submissions/data-collection/update": {
@@ -16161,7 +16384,8 @@
             "headers": {}
           }
         },
-        "security": []
+        "security": [],
+        "operationId": "putApiStudentProcedure-submissionsData-collectionUpdate"
       }
     },
     "/api/student/procedure-submissions/timed-quiz/complete": {
@@ -16229,7 +16453,8 @@
             "headers": {}
           }
         },
-        "security": []
+        "security": [],
+        "operationId": "postApiStudentProcedure-submissionsTimed-quizComplete"
       }
     },
     "/api/teacher/procedures/extensions": {
@@ -16293,7 +16518,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherProceduresExtensions"
       },
       "get": {
         "summary": "分页筛选查询延长记录",
@@ -16440,7 +16666,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "getApiTeacherProceduresExtensions"
       }
     },
     "/api/teacher/procedures/extensions/{id}": {
@@ -16513,7 +16740,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "putApiTeacherProceduresExtensionsId"
       },
       "delete": {
         "summary": "删除延长记录",
@@ -16575,7 +16803,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "deleteApiTeacherProceduresExtensionsId"
       }
     },
     "/api/teacher/procedures/extensions/by-experiment": {
@@ -16631,7 +16860,8 @@
           {
             "bearer": []
           }
-        ]
+        ],
+        "operationId": "postApiTeacherProceduresExtensionsBy-experiment"
       }
     }
   },
@@ -27434,6 +27664,56 @@
           },
           "data": {
             "$ref": "#/components/schemas/StudentAttendanceStats",
+            "description": "响应数据"
+          }
+        }
+      },
+      "PageResponseExperimentResponse": {
+        "type": "object",
+        "properties": {
+          "current": {
+            "type": "integer",
+            "description": "当前页码",
+            "format": "int64"
+          },
+          "size": {
+            "type": "integer",
+            "description": "每页条数",
+            "format": "int64"
+          },
+          "total": {
+            "type": "integer",
+            "description": "总记录数",
+            "format": "int64"
+          },
+          "pages": {
+            "type": "integer",
+            "description": "总页数",
+            "format": "int64"
+          },
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExperimentResponse",
+              "description": "响应数据"
+            },
+            "description": "数据列表"
+          }
+        }
+      },
+      "ApiResponsePageResponseExperimentResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "响应状态码"
+          },
+          "message": {
+            "type": "string",
+            "description": "响应消息"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageResponseExperimentResponse",
             "description": "响应数据"
           }
         }
