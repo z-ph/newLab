@@ -49,6 +49,8 @@
             <InputNumber
               v-model="formData.tolerance"
               :min="0"
+              :minFractionDigits="0"
+              :maxFractionDigits="10"
               class="w-full"
               placeholder="用于数值类答案的判分，允许的误差范围"
             />
