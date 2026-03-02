@@ -73,7 +73,7 @@ const navigateToEdit = (classItem: Class) => {
   router.push({
     path: `/teacher/classes/${classItem.classCode}/edit`,
     query: {
-      title: encodeURIComponent(classItem.className || '编辑班级'),
+      tabbarName: encodeURIComponent(classItem.className || '编辑班级'),
       ...(classItem.id ? { id: classItem.id.toString() } : {})
     }
   })

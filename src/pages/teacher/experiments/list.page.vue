@@ -107,7 +107,7 @@ const navigateToDetail = (experiment: ExperimentResponse) => {
   router.push({
     path: `/teacher/experiments/${experiment.id}/edit`,
     query: {
-      title: encodeURIComponent(experiment.experimentName || '实验详情'),
+      tabbarName: encodeURIComponent(experiment.experimentName || '实验详情'),
     },
   })
 }

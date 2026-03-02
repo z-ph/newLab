@@ -103,7 +103,7 @@ const onPageChange = (event: DataTablePageEvent) => {
 const handleView = (video: VideoUploadResponse) => {
   router.push({
     path: `/teacher/videos/${video.id}/detail`,
-    query: { title: encodeURIComponent(video.originalFileName || '视频详情') }
+    query: { tabbarName: encodeURIComponent(video.originalFileName || '视频详情') }
   })
 }
 

@@ -67,33 +67,6 @@ export function useTabManager() {
   const router = useRouter()
   const route = useRoute()
 
-  // 路由标题映射（按精确度排序，更具体的路由放前面）
-  const routeTitles: Record<string, string> = {
-    // 班级管理
-    '/teacher/classes/list': '班级列表',
-    '/teacher/classes/create': '创建班级',
-    '/teacher/classes/import': '批量导入',
-    '/teacher/classes/bind': '绑定实验',
-    '/teacher/classes/': '班级管理',
-    '/teacher/classes': '班级管理',
-    // 课程管理
-    '/teacher/courses/': '课程管理',
-    '/teacher/courses': '课程管理',
-    // 实验管理
-    '/teacher/experiments/list': '实验列表',
-    '/teacher/experiments/create': '创建实验',
-    '/teacher/experiments/': '实验模版管理',
-    '/teacher/experiments': '实验模版管理',
-    // 题目管理
-    '/teacher/topics/list': '题目列表',
-    '/teacher/topics/create': '创建题目',
-    '/teacher/topics/': '题目管理',
-    '/teacher/topics': '题目管理',
-    // 概览
-    '/teacher/overview/': '概览',
-    '/teacher/overview': '概览',
-  }
-
   // 所有打开的标签页
   const tabs = ref<TabInfo[]>([])
 
@@ -303,39 +276,11 @@ export function useTabManager() {
         return
       }
 
-      // 根据路由路径确定标题
+      // 优先使用 tabbarName 查询参数作为标题
       let title = '页面'
-
-      // 优先从 query 参数获取 title（用于详情页、编辑页等动态路由）
-      const queryTitle = route.query.title as string
-      if (queryTitle) {
-        title = decodeURIComponent(queryTitle)
-      } else {
-        // 特殊路由处理（需要在通用匹配之前）
-        if (newPath.includes('/videos/')) {
-          if (newPath.includes('/upload')) {
-            title = '上传视频'
-          } else if (newPath.includes('/list')) {
-            title = '视频列表'
-          } else if (newPath.includes('/detail')) {
-            title = '视频详情'
-          }
-        } else if (newPath.includes('/topics/')) {
-          // 题目详情页 /teacher/topics/:id（创建和列表是侧边栏菜单，不显示在 tabbar）
-          const topicId = newPath.split('/topics/')[1]?.split('/')[0]
-          if (topicId && !isNaN(Number(topicId))) {
-            title = `题目详情：${topicId}`
-          }
-        } else {
-          // 检查是否是一级菜单路由
-          const matchedRoute = Object.keys(routeTitles).find((key) =>
-            newPath === key || newPath.startsWith(key + '/')
-          )
-
-          if (matchedRoute) {
-            title = routeTitles[matchedRoute] || '页面'
-          }
-        }
+      const tabbarName = route.query.tabbarName as string
+      if (tabbarName) {
+        title = decodeURIComponent(tabbarName)
       }
 
       // 添加新标签页（所有标签页都可关闭）
