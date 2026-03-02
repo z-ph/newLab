@@ -6,5 +6,5 @@
 </template>
 
 <script setup lang="ts">
-import VideoTable from '@/features/teacher/video/components/VideoTable.vue';
+import VideoTable from '@/features/teacher/video/components/VideoTable.vue'
 </script>

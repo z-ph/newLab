@@ -120,7 +120,7 @@ const ROUTE_META: Partial<Record<TeacherRoutePath, RouteMeta>> = {
         name: 'class-list',
         title: '班级列表',
         icon: 'pi pi-list',
-        path: '/teacher/classes/list',
+        path: '/teacher/classes/',
       },
       {
         name: 'class-create',
@@ -144,18 +144,18 @@ const ROUTE_META: Partial<Record<TeacherRoutePath, RouteMeta>> = {
   },
   '/teacher/experiments/': {
     name: 'experiments',
-    title: '实验模版管理',
+    title: '实验管理',
     icon: 'pi pi-file-edit',
     children: [
       {
         name: 'experiment-list',
-        title: '实验列表',
+        title: '模版列表',
         icon: 'pi pi-list',
         path: '/teacher/experiments/list',
       },
       {
         name: 'experiment-create',
-        title: '创建实验',
+        title: '创建模版',
         icon: 'pi pi-plus',
         path: '/teacher/experiments/create',
       },
@@ -175,7 +175,7 @@ const ROUTE_META: Partial<Record<TeacherRoutePath, RouteMeta>> = {
         name: 'video-list',
         title: '视频列表',
         icon: 'pi pi-list',
-        path: '/teacher/videos/list',
+        path: '/teacher/videos/',
       },
       {
         name: 'video-upload',
