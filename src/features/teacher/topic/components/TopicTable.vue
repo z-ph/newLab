@@ -145,7 +145,12 @@ const onPage = (event: any) => {
 
 // 查看详情/编辑（跳转到详情页）
 const handleDetail = (topic: TopicDetailResponse) => {
-  router.push(`/teacher/topics/${topic.id}`)
+  router.push({
+    path: `/teacher/topics/${topic.id}`,
+    query: {
+      tabbarName: encodeURIComponent(topic.content?.substring(0, 30) || '题目详情'),
+    },
+  })
 }
 
 // 新增题目 - 跳转到创建页面

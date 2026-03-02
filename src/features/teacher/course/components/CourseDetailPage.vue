@@ -226,6 +226,7 @@ const handleViewClassExperiment = (classExperiment: ClassExperimentDetailRespons
   router.push({
     path: `/teacher/classes/${classExperiment.classCode}/experiments/${classExperiment.classExperimentId}/detail`,
     query: {
+      tabbarName: encodeURIComponent(classExperiment.experimentName || '实验详情'),
       courseName: encodeURIComponent(formData.courseName),
       experimentName: encodeURIComponent(classExperiment.experimentName || ''),
       className: encodeURIComponent(classExperiment.className || ''),
