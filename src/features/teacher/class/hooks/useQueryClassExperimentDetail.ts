@@ -5,7 +5,7 @@
 
 import { type Ref, unref, computed } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
-import { getApiTeacherClassCodeByClassCode } from '@/core/api/generated'
+import { getApiTeacherClassCodeClasscode } from '@/core/api/generated'
 import client from '@/core/api/config'
 import type { ExperimentInfo } from '@/core/api/generated'
 
@@ -20,7 +20,7 @@ export function useQueryClassExperimentDetail(
   return useQuery({
     queryKey: computed(() => ['class-experiment-detail', unref(classCode), experimentIdRef.value]),
     queryFn: async () => {
-      const response = await getApiTeacherClassCodeByClassCode({
+      const response = await getApiTeacherClassCodeClasscode({
         path: { classCode: unref(classCode)! },
         client,
       })

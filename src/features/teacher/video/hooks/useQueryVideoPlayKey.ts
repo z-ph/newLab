@@ -1,5 +1,5 @@
 import { type Ref, unref, computed } from "vue"
-import { getApiResourceVideoKeyByVideoId } from "@/core/api/generated"
+import { getApiResourceVideoKeyVideoid } from "@/core/api/generated"
 import client from "@/core/api/config"
 import { useQuery } from "@tanstack/vue-query"
 
@@ -9,14 +9,13 @@ import { useQuery } from "@tanstack/vue-query"
 export function useQueryVideoPlayKey(videoId: Ref<number | undefined>) {
   return useQuery({
     queryKey: computed(() => ["video-play-key", unref(videoId)]),
-    queryFn: ()=>getApiResourceVideoKeyByVideoId({
+    queryFn: ()=>getApiResourceVideoKeyVideoid({
       client,
       path:{
         videoId:unref(videoId)!
       }
     }),
-    //@ts-expect-error
-    select: res=>res.data?.data.downloadUrl,
+    select: (res) => (res.data?.data as any)?.downloadUrl,
     enabled: computed(() => !!unref(videoId)),
   })
 }

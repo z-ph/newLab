@@ -1,4 +1,4 @@
-import { deleteApiTeacherProceduresByProcedureId } from "@/core/api/generated";
+import { deleteApiTeacherProceduresProcedureid } from "@/core/api/generated";
 import type { GetFirstParamsType } from "@/core/utils/typeUtils";
 import { useMutation } from "@tanstack/vue-query";
 import client from "@/core/api/config";
@@ -8,8 +8,8 @@ import client from "@/core/api/config";
  */
 export function useDeleteProcedure() {
   return useMutation({
-    mutationFn: async (params: GetFirstParamsType<typeof deleteApiTeacherProceduresByProcedureId>) => {
-      const response = await deleteApiTeacherProceduresByProcedureId({
+    mutationFn: async (params: GetFirstParamsType<typeof deleteApiTeacherProceduresProcedureid>) => {
+      const response = await deleteApiTeacherProceduresProcedureid({
         ...params,
         client,
       });

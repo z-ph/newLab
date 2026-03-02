@@ -8,8 +8,8 @@ import {
   getApiTeacherProceduresExtensions,
   postApiTeacherProceduresExtensions,
   postApiTeacherProceduresExtensionsByExperiment,
-  putApiTeacherProceduresExtensionsById,
-  deleteApiTeacherProceduresExtensionsById,
+  putApiTeacherProceduresExtensionsId,
+  deleteApiTeacherProceduresExtensionsId,
 } from '@/core/api/generated'
 import client from '@/core/api/config'
 import type {
@@ -106,7 +106,7 @@ export function useUpdateExtension() {
 
   return useMutation({
     mutationFn: (params: { id: number; extendedMinutes: number }) => {
-      return putApiTeacherProceduresExtensionsById({
+      return putApiTeacherProceduresExtensionsId({
         client,
         path: { id: params.id },
         query: { extendedMinutes: params.extendedMinutes },
@@ -128,7 +128,7 @@ export function useDeleteExtension() {
 
   return useMutation({
     mutationFn: (id: number) => {
-      return deleteApiTeacherProceduresExtensionsById({
+      return deleteApiTeacherProceduresExtensionsId({
         client,
         path: { id },
       })

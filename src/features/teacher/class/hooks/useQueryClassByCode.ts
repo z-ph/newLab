@@ -1,5 +1,5 @@
 import { type Ref, unref } from "vue";
-import { getApiTeacherClassCodeByClassCode } from "@/core/api/generated";
+import { getApiTeacherClassCodeClasscode } from "@/core/api/generated";
 import type { QueryOptions } from "@/features/shared/types/UseQueryOptions";
 import { useQuery } from "@tanstack/vue-query";
 import { computed } from "vue";
@@ -12,7 +12,7 @@ export default function useQueryClassByCodeBase(
   return useQuery({
     queryKey: options.queryKey,
     queryFn: () =>
-      getApiTeacherClassCodeByClassCode({
+      getApiTeacherClassCodeClasscode({
         path: {
           classCode: unref(classCode),
         },

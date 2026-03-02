@@ -1,6 +1,6 @@
 import {
-  postApiTeacherClassByClassCodeBindStudents,
-  postApiTeacherClassByClassCodeUnbindStudents,
+  postApiTeacherClassClasscodeBindStudents,
+  postApiTeacherClassClasscodeUnbindStudents,
 } from "@/core/api/generated";
 import type { GetFirstParamsType } from "@/core/utils/typeUtils";
 import { useMutation } from "@tanstack/vue-query";
@@ -9,9 +9,9 @@ import client from "@/core/api/config";
 export function useBindStudents() {
   return useMutation({
     mutationFn: async (
-      params: GetFirstParamsType<typeof postApiTeacherClassByClassCodeBindStudents>,
+      params: GetFirstParamsType<typeof postApiTeacherClassClasscodeBindStudents>,
     ) => {
-      const response = await postApiTeacherClassByClassCodeBindStudents({
+      const response = await postApiTeacherClassClasscodeBindStudents({
         ...params,
         client,
       });
@@ -23,9 +23,9 @@ export function useBindStudents() {
 export function useUnbindStudents() {
   return useMutation({
     mutationFn: async (
-      params: GetFirstParamsType<typeof postApiTeacherClassByClassCodeUnbindStudents>,
+      params: GetFirstParamsType<typeof postApiTeacherClassClasscodeUnbindStudents>,
     ) => {
-      const response = await postApiTeacherClassByClassCodeUnbindStudents({
+      const response = await postApiTeacherClassClasscodeUnbindStudents({
         ...params,
         client,
       });

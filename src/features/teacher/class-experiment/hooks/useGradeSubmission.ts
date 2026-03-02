@@ -2,7 +2,7 @@
  * 批改打分 Hooks
  */
 
-import { postApiTeacherProcedureSubmissionsBySubmissionIdGrade } from '@/core/api/generated'
+import { postApiTeacherProcedureSubmissionsSubmissionidGrade } from '@/core/api/generated'
 import type { GradeProcedureRequest } from '@/core/api/generated'
 import { useMutation } from '@tanstack/vue-query'
 import client from '@/core/api/config'
@@ -19,7 +19,7 @@ export type GradeSubmissionRequest = {
 export function useGradeSubmission() {
   return useMutation({
     mutationFn: (request: GradeSubmissionRequest) =>
-      postApiTeacherProcedureSubmissionsBySubmissionIdGrade({
+      postApiTeacherProcedureSubmissionsSubmissionidGrade({
         path: { submissionId: request.submissionId },
         body: {
           score: request.score,

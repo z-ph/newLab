@@ -3,7 +3,7 @@
  */
 
 import { type Ref, unref, computed } from 'vue'
-import { getApiTeacherProcedureSubmissionsBySubmissionId } from '@/core/api/generated'
+import { getApiTeacherProcedureSubmissionsSubmissionid } from '@/core/api/generated'
 import { useQuery } from '@tanstack/vue-query'
 import client from '@/core/api/config'
 
@@ -17,7 +17,7 @@ export function useQuerySubmissionDetail(
   return useQuery({
     queryKey: computed(() => ['submission-detail', unref(submissionId)]),
     queryFn: () =>
-      getApiTeacherProcedureSubmissionsBySubmissionId({
+      getApiTeacherProcedureSubmissionsSubmissionid({
         path: { submissionId: unref(submissionId) },
         client,
       }),

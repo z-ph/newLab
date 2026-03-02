@@ -1,4 +1,4 @@
-import { postApiTeacherProcedureSubmissionsBySubmissionIdGrade } from "@/core/api/generated";
+import { postApiTeacherProcedureSubmissionsSubmissionidGrade } from "@/core/api/generated";
 import type { GetFirstParamsType } from "@/core/utils/typeUtils";
 import { useMutation } from "@tanstack/vue-query";
 import client from "@/core/api/config";
@@ -8,8 +8,8 @@ import client from "@/core/api/config";
  */
 export function useGradeSubmission() {
   return useMutation({
-    mutationFn: async (params: GetFirstParamsType<typeof postApiTeacherProcedureSubmissionsBySubmissionIdGrade>) => {
-      const response = await postApiTeacherProcedureSubmissionsBySubmissionIdGrade({
+    mutationFn: async (params: GetFirstParamsType<typeof postApiTeacherProcedureSubmissionsSubmissionidGrade>) => {
+      const response = await postApiTeacherProcedureSubmissionsSubmissionidGrade({
         ...params,
         client,
       });

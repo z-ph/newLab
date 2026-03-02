@@ -1,5 +1,5 @@
 import { type Ref, unref, computed } from "vue";
-import { getApiTeacherStudentsClassesByClassCodeExperimentsByExperimentIdStatistics } from "@/core/api/generated";
+import { getApiTeacherStudentsClassesClasscodeExperimentsExperimentidStatistics } from "@/core/api/generated";
 import { useQuery } from "@tanstack/vue-query";
 import client from "@/core/api/config";
 
@@ -14,7 +14,7 @@ export function useQueryExperimentStatistics(
   return useQuery({
     queryKey: computed(() => ["experiment-statistics", unref(classCode), unref(experimentId)]),
     queryFn: () =>
-      getApiTeacherStudentsClassesByClassCodeExperimentsByExperimentIdStatistics({
+      getApiTeacherStudentsClassesClasscodeExperimentsExperimentidStatistics({
         path: {
           classCode: unref(classCode),
           experimentId: unref(experimentId),

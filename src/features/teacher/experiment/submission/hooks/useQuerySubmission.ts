@@ -1,6 +1,6 @@
 import {
-  getApiTeacherProcedureSubmissionsCourseByCourseId,
-  getApiTeacherProcedureSubmissionsBySubmissionId,
+  getApiTeacherProcedureSubmissionsCourseCourseid,
+  getApiTeacherProcedureSubmissionsSubmissionid,
 } from "@/core/api/generated";
 import { type Ref, unref, computed } from "vue";
 import { useQuery } from "@tanstack/vue-query";
@@ -16,7 +16,7 @@ export function useQuerySubmissionsByCourse(
   return useQuery({
     queryKey: computed(() => ["submissions", "course", unref(courseId)]),
     queryFn: () =>
-      getApiTeacherProcedureSubmissionsCourseByCourseId({
+      getApiTeacherProcedureSubmissionsCourseCourseid({
         path: { courseId: unref(courseId) },
         client,
       }),
@@ -35,7 +35,7 @@ export function useQuerySubmissionById(
   return useQuery({
     queryKey: computed(() => ["submission", unref(submissionId)]),
     queryFn: () =>
-      getApiTeacherProcedureSubmissionsBySubmissionId({
+      getApiTeacherProcedureSubmissionsSubmissionid({
         path: { submissionId: unref(submissionId) },
         client,
       }),

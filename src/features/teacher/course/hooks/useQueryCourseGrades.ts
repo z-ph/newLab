@@ -1,5 +1,5 @@
 import { type Ref, unref, computed } from "vue";
-import { getApiTeacherGradesCourseByCourseId } from "@/core/api/generated";
+import { getApiTeacherGradesCourseCourseid } from "@/core/api/generated";
 import { useQuery } from "@tanstack/vue-query";
 import client from "@/core/api/config";
 
@@ -13,7 +13,7 @@ export function useQueryCourseGrades(
   return useQuery({
     queryKey: computed(() => ["courses", "grades", unref(courseId)]),
     queryFn: () =>
-      getApiTeacherGradesCourseByCourseId({
+      getApiTeacherGradesCourseCourseid({
         path: { courseId: unref(courseId) },
         client,
       }),

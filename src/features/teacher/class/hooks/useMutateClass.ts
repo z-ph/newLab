@@ -1,4 +1,4 @@
-import { postApiTeacherClass, putApiTeacherClassByClassCode } from "@/core/api/generated";
+import { postApiTeacherClass, putApiTeacherClassClasscode } from "@/core/api/generated";
 import type { GetFirstParamsType } from "@/core/utils/typeUtils";
 import { useMutation } from "@tanstack/vue-query";
 import client from "@/core/api/config";
@@ -17,8 +17,8 @@ export function useCreateClass() {
 
 export function useUpdateClass() {
   return useMutation({
-    mutationFn: async (params: GetFirstParamsType<typeof putApiTeacherClassByClassCode>) => {
-      const response = await putApiTeacherClassByClassCode({
+    mutationFn: async (params: GetFirstParamsType<typeof putApiTeacherClassClasscode>) => {
+      const response = await putApiTeacherClassClasscode({
         ...params,
         client,
       });

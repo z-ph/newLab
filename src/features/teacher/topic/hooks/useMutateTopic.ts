@@ -1,4 +1,4 @@
-import { postApiTeacherTopics, putApiTeacherTopics, deleteApiTeacherTopicsByTopicId, deleteApiTeacherTopicsBatch } from "@/core/api/generated"
+import { postApiTeacherTopics, putApiTeacherTopics, deleteApiTeacherTopicsTopicid, deleteApiTeacherTopicsBatch } from "@/core/api/generated"
 import client from "@/core/api/config"
 import { useMutation, useQueryClient } from "@tanstack/vue-query"
 import { toast } from "@/core/utils/toast"
@@ -66,7 +66,7 @@ export function useDeleteTopic() {
 
   return useMutation({
     mutationFn: (topicId: number) =>
-      deleteApiTeacherTopicsByTopicId({
+      deleteApiTeacherTopicsTopicid({
         path: { topicId },
         client,
       }),

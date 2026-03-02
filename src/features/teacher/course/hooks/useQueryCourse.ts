@@ -1,4 +1,4 @@
-import { postApiTeacherCoursesQuery, getApiTeacherCoursesById } from "@/core/api/generated";
+import { postApiTeacherCoursesQuery, getApiTeacherCoursesId } from "@/core/api/generated";
 import type { GetApiParamsTypeBase } from "@/core/utils/typeUtils";
 import { type Ref, unref, computed, ref, type ComputedRef } from "vue";
 import { useQuery } from "@tanstack/vue-query";
@@ -77,7 +77,7 @@ export function useQueryCourseById(
   return useQuery({
     queryKey: computed(() => ["courses", unref(courseId)]),
     queryFn: () =>
-      getApiTeacherCoursesById({
+      getApiTeacherCoursesId({
         path: { id: unref(courseId) },
         client,
       }),

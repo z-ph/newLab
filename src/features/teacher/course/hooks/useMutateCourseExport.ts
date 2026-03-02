@@ -1,4 +1,4 @@
-import { getApiTeacherExportCourseGradesByCourseId } from "@/core/api/generated";
+import { getApiTeacherExportCourseGradesCourseid } from "@/core/api/generated";
 import type { Ref } from "vue";
 import { useMutation } from "@tanstack/vue-query";
 import { unref } from "vue";
@@ -10,7 +10,7 @@ import client from "@/core/api/config";
 export function useExportCourseGrades() {
   return useMutation({
     mutationFn: async (courseId: string | Ref<string>) => {
-      const response = await getApiTeacherExportCourseGradesByCourseId({
+      const response = await getApiTeacherExportCourseGradesCourseid({
         path: { courseId: unref(courseId) },
         client,
       });

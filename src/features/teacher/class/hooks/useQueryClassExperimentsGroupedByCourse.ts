@@ -1,5 +1,5 @@
 import type { ClassExperimentMapResponse } from "@/core/api/generated";
-import { getApiTeacherExperimentsByClassByClassCode } from "@/core/api/generated";
+import { getApiTeacherExperimentsByClassClasscode } from "@/core/api/generated";
 import client from "@/core/api/config";
 import { useQuery } from "@tanstack/vue-query";
 import { type Ref, unref, computed } from "vue";
@@ -12,7 +12,7 @@ export function useQueryClassExperimentsGroupedByCourse(
 ) {
   const query = useQuery({
     queryKey: computed(() => ["class-experiments-grouped", unref(classCode)]),
-    queryFn: () => getApiTeacherExperimentsByClassByClassCode({
+    queryFn: () => getApiTeacherExperimentsByClassClasscode({
       path: {
         classCode: unref(classCode) || "",
       },

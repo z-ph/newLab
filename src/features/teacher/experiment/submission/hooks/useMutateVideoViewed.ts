@@ -1,4 +1,4 @@
-import { postApiStudentProcedureSubmissionsVideoByProcedureIdViewed } from "@/core/api/generated";
+import { postApiStudentProcedureSubmissionsVideoProcedureidViewed } from "@/core/api/generated";
 import type { GetFirstParamsType } from "@/core/utils/typeUtils";
 import { useMutation } from "@tanstack/vue-query";
 import client from "@/core/api/config";
@@ -9,8 +9,8 @@ import client from "@/core/api/config";
  */
 export function useMarkVideoViewed() {
   return useMutation({
-    mutationFn: async (params: GetFirstParamsType<typeof postApiStudentProcedureSubmissionsVideoByProcedureIdViewed>) => {
-      const response = await postApiStudentProcedureSubmissionsVideoByProcedureIdViewed({
+    mutationFn: async (params: GetFirstParamsType<typeof postApiStudentProcedureSubmissionsVideoProcedureidViewed>) => {
+      const response = await postApiStudentProcedureSubmissionsVideoProcedureidViewed({
         ...params,
         client,
       });

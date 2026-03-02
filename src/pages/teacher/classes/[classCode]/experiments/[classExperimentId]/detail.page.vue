@@ -761,7 +761,7 @@ const selectStudent = (student: StudentSummary) => {
 const selectedStudentSubmissions = computed(() => {
   if (!selectedStudent.value) return []
   const submissions = studentSubmissions.data.value || []
-  return submissions.filter((s) => s.studentUsername === selectedStudent.value?.studentUsername)
+  return submissions.filter((s: ProcedureSubmissionResponse) => s.studentUsername === selectedStudent.value?.studentUsername)
 })
 
 // 批改对话框和详情对话框

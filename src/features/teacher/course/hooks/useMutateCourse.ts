@@ -1,7 +1,7 @@
 import {
   postApiTeacherCourses,
-  putApiTeacherCoursesById,
-  deleteApiTeacherCoursesById,
+  putApiTeacherCoursesId,
+  deleteApiTeacherCoursesId,
 } from "@/core/api/generated";
 import type { GetFirstParamsType } from "@/core/utils/typeUtils";
 import { useMutation, useQueryClient } from "@tanstack/vue-query";
@@ -42,8 +42,8 @@ export function useUpdateCourse() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (params: GetFirstParamsType<typeof putApiTeacherCoursesById>) => {
-      const response = await putApiTeacherCoursesById({
+    mutationFn: async (params: GetFirstParamsType<typeof putApiTeacherCoursesId>) => {
+      const response = await putApiTeacherCoursesId({
         ...params,
         client,
       });
@@ -71,7 +71,7 @@ export function useDeleteCourse() {
 
   return useMutation({
     mutationFn: async (id: number) => {
-      const response = await deleteApiTeacherCoursesById({
+      const response = await deleteApiTeacherCoursesId({
         path: { id },
         client,
       });

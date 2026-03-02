@@ -1,4 +1,4 @@
-import { postApiTeacherTopicsQuery, getApiTeacherTopicsByTopicId, getApiTeacherTopicsStatistics } from "@/core/api/generated"
+import { postApiTeacherTopicsQuery, getApiTeacherTopicsTopicid, getApiTeacherTopicsStatistics } from "@/core/api/generated"
 import client from "@/core/api/config"
 import { useQuery } from "@tanstack/vue-query"
 import { type Ref, unref, computed, ref } from "vue"
@@ -84,7 +84,7 @@ export function useQueryTopicById(topicId: Ref<number>) {
   return useQuery({
     queryKey: computed(() => ["topic", unref(topicId)]),
     queryFn: () =>
-      getApiTeacherTopicsByTopicId({
+      getApiTeacherTopicsTopicid({
         path: { topicId: unref(topicId) },
         client,
       }),

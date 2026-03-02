@@ -1,6 +1,6 @@
 import {
   postApiTeacherClassBindExperiment,
-  postApiTeacherClassUnbindExperimentByExperimentId,
+  postApiTeacherClassUnbindExperimentExperimentid,
 } from "@/core/api/generated";
 import type { GetFirstParamsType } from "@/core/utils/typeUtils";
 import { useMutation, useQueryClient } from "@tanstack/vue-query";
@@ -32,9 +32,9 @@ export function useUnbindExperiment() {
 
   return useMutation({
     mutationFn: async (
-      params: GetFirstParamsType<typeof postApiTeacherClassUnbindExperimentByExperimentId>,
+      params: GetFirstParamsType<typeof postApiTeacherClassUnbindExperimentExperimentid>,
     ) => {
-      const response = await postApiTeacherClassUnbindExperimentByExperimentId({
+      const response = await postApiTeacherClassUnbindExperimentExperimentid({
         ...params,
         client,
       });

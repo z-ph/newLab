@@ -3,7 +3,7 @@
  */
 
 import { type Ref, unref, computed } from "vue";
-import { postApiTeacherClassByClassCodeStudents } from "@/core/api/generated";
+import { postApiTeacherClassClasscodeStudents } from "@/core/api/generated";
 import { useQuery } from "@tanstack/vue-query";
 import client from "@/core/api/config";
 
@@ -17,7 +17,7 @@ export function useQueryClassStudents(
   return useQuery({
     queryKey: computed(() => ["class-students", unref(classCode)]),
     queryFn: () =>
-      postApiTeacherClassByClassCodeStudents({
+      postApiTeacherClassClasscodeStudents({
         path: { classCode: unref(classCode) },
         client,
       }),

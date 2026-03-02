@@ -1,5 +1,5 @@
 import { type Ref, unref, computed } from "vue";
-import { getApiTeacherProceduresByProcedureId, getApiTeacherProceduresExperimentByExperimentId } from "@/core/api/generated";
+import { getApiTeacherProceduresProcedureid, getApiTeacherProceduresExperimentExperimentid } from "@/core/api/generated";
 import { useQuery } from "@tanstack/vue-query";
 import client from "@/core/api/config";
 
@@ -13,7 +13,7 @@ export function useQueryProceduresByExperiment(
   return useQuery({
     queryKey: computed(() => ["procedures", "experiment", unref(experimentId)]),
     queryFn: () =>
-      getApiTeacherProceduresExperimentByExperimentId({
+      getApiTeacherProceduresExperimentExperimentid({
         path: { experimentId: unref(experimentId)! },
         client,
       }),
@@ -37,7 +37,7 @@ export function useQueryProcedureById(
   return useQuery({
     queryKey: computed(() => ["procedure", unref(procedureId)]),
     queryFn: () =>
-      getApiTeacherProceduresByProcedureId({
+      getApiTeacherProceduresProcedureid({
         path: { procedureId: unref(procedureId) },
         client,
       }),

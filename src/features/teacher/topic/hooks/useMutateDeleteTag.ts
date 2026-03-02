@@ -1,4 +1,4 @@
-import { deleteApiTeacherTagsByTagId } from '@/core/api/generated'
+import { deleteApiTeacherTagsTagid } from '@/core/api/generated'
 import { useMutation } from '@tanstack/vue-query'
 import client from '@/core/api/config'
 import { toast } from '@/core/utils/toast'
@@ -9,7 +9,7 @@ import { toast } from '@/core/utils/toast'
 export function useDeleteTag() {
   return useMutation({
     mutationFn: (tagId: number) =>
-      deleteApiTeacherTagsByTagId({
+      deleteApiTeacherTagsTagid({
         path: { tagId },
         client, // ✅ 传入自定义 client
       }),

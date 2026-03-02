@@ -1,4 +1,4 @@
-import { getApiTeacherClassCodeByClassCode } from "@/core/api/generated";
+import { getApiTeacherClassCodeClasscode } from "@/core/api/generated";
 import { useQuery } from "@tanstack/vue-query";
 import { type Ref, unref, computed, ref } from "vue";
 import client from "@/core/api/config";
@@ -15,7 +15,7 @@ export function useQueryClassExperiments(
   const query = useQuery({
     queryKey: computed(() => ["class-experiments", unref(classCode)]),
     queryFn: () =>
-      getApiTeacherClassCodeByClassCode({
+      getApiTeacherClassCodeClasscode({
         path: { classCode: unref(classCode)! },
         client,
       }),

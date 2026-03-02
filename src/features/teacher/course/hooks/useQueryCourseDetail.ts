@@ -2,7 +2,7 @@
  * 课程详情相关 Hooks
  */
 
-import { getApiTeacherExperimentsClassExperiments, getApiTeacherExperimentsCourseByCourseId } from '@/core/api/generated'
+import { getApiTeacherExperimentsClassExperiments, getApiTeacherExperimentsCourseCourseid } from '@/core/api/generated'
 import type { Ref } from 'vue'
 import { computed, unref } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
@@ -15,7 +15,7 @@ export function useQueryCourseExperimentList(courseId: Ref<string | undefined>) 
   return useQuery({
     queryKey: computed(() => ['course-experiments', unref(courseId)]),
     queryFn: () =>
-      getApiTeacherExperimentsCourseByCourseId({
+      getApiTeacherExperimentsCourseCourseid({
         path: { courseId: unref(courseId) || '' },
         client,
       }),

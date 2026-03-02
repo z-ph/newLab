@@ -3,14 +3,14 @@
  */
 
 import {
-  getApiTeacherStudentsByStudentUsernameProceduresVideoByProcedureIdCompleted,
-  getApiTeacherStudentsByStudentUsernameProceduresVideoByProcedureIdUncompleted,
-  getApiTeacherStudentsByStudentUsernameProceduresDataCollectionByProcedureIdCompleted,
-  getApiTeacherStudentsByStudentUsernameProceduresDataCollectionByProcedureIdUncompleted,
-  getApiTeacherStudentsByStudentUsernameProceduresTopicByProcedureIdCompleted,
-  getApiTeacherStudentsByStudentUsernameProceduresTopicByProcedureIdUncompleted,
-  getApiTeacherStudentsByStudentUsernameProceduresTimedQuizByProcedureIdCompleted,
-  getApiTeacherStudentsByStudentUsernameProceduresTimedQuizByProcedureIdUncompleted,
+  getApiTeacherStudentsStudentusernameProceduresVideoProcedureidCompleted,
+  getApiTeacherStudentsStudentusernameProceduresVideoProcedureidUncompleted,
+  getApiTeacherStudentsStudentusernameProceduresDataCollectionProcedureidCompleted,
+  getApiTeacherStudentsStudentusernameProceduresDataCollectionProcedureidUncompleted,
+  getApiTeacherStudentsStudentusernameProceduresTopicProcedureidCompleted,
+  getApiTeacherStudentsStudentusernameProceduresTopicProcedureidUncompleted,
+  getApiTeacherStudentsStudentusernameProceduresTimedQuizProcedureidCompleted,
+  getApiTeacherStudentsStudentusernameProceduresTimedQuizProcedureidUncompleted,
 } from '@/core/api/generated'
 import { type Ref, unref, computed } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
@@ -36,15 +36,16 @@ export function useQueryStudentProcedureDetail(
     queryFn: () => {
       // 根据步骤类型和状态调用不同的API
       const apiMap = {
-        'video-completed': getApiTeacherStudentsByStudentUsernameProceduresVideoByProcedureIdCompleted,
-        'video-uncompleted': getApiTeacherStudentsByStudentUsernameProceduresVideoByProcedureIdUncompleted,
-        'data-collection-completed': getApiTeacherStudentsByStudentUsernameProceduresDataCollectionByProcedureIdCompleted,
-        'data-collection-uncompleted': getApiTeacherStudentsByStudentUsernameProceduresDataCollectionByProcedureIdUncompleted,
-        'topic-completed': getApiTeacherStudentsByStudentUsernameProceduresTopicByProcedureIdCompleted,
-        'topic-uncompleted': getApiTeacherStudentsByStudentUsernameProceduresTopicByProcedureIdUncompleted,
-        'timed-quiz-completed': getApiTeacherStudentsByStudentUsernameProceduresTimedQuizByProcedureIdCompleted,
-        'timed-quiz-uncompleted': getApiTeacherStudentsByStudentUsernameProceduresTimedQuizByProcedureIdUncompleted,
+        'video-completed': getApiTeacherStudentsStudentusernameProceduresVideoProcedureidCompleted,
+        'video-uncompleted': getApiTeacherStudentsStudentusernameProceduresVideoProcedureidUncompleted,
+        'data-collection-completed': getApiTeacherStudentsStudentusernameProceduresDataCollectionProcedureidCompleted,
+        'data-collection-uncompleted': getApiTeacherStudentsStudentusernameProceduresDataCollectionProcedureidUncompleted,
+        'topic-completed': getApiTeacherStudentsStudentusernameProceduresTopicProcedureidCompleted,
+        'topic-uncompleted': getApiTeacherStudentsStudentusernameProceduresTopicProcedureidUncompleted,
+        'timed-quiz-completed': getApiTeacherStudentsStudentusernameProceduresTimedQuizProcedureidCompleted,
+        'timed-quiz-uncompleted': getApiTeacherStudentsStudentusernameProceduresTimedQuizProcedureidUncompleted,
       }
+
 
       const apiFn = apiMap[`${procedureType}-${status}`]
       if (!apiFn) {

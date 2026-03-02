@@ -1,5 +1,5 @@
 import { type Ref, unref, computed, ref } from 'vue'
-import { postApiTeacherClassByClassCodeStudents } from '@/core/api/generated'
+import { postApiTeacherClassClasscodeStudents } from '@/core/api/generated'
 import { useQuery } from '@tanstack/vue-query'
 import client from '@/core/api/config'
 
@@ -27,7 +27,7 @@ export function useQueryStudentList(
       searchKeyword.value,
     ]),
     queryFn: () =>
-      postApiTeacherClassByClassCodeStudents({
+      postApiTeacherClassClasscodeStudents({
         path: { classCode: unref(classCode) },
         body: {
           current: current.value,

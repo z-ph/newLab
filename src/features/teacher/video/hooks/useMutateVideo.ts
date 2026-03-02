@@ -1,4 +1,4 @@
-import { deleteApiTeacherVideosByVideoId, postApiTeacherVideosUpload } from "@/core/api/generated"
+import { deleteApiTeacherVideosVideoid, postApiTeacherVideosUpload } from "@/core/api/generated"
 import { useMutation } from "@tanstack/vue-query"
 import client from "@/core/api/config"
 import { toast } from "@/core/utils/toast"
@@ -34,7 +34,7 @@ export function useUploadVideo() {
 export function useDeleteVideo() {
   return useMutation({
     mutationFn: async (videoId: number) => {
-      return await deleteApiTeacherVideosByVideoId({
+      return await deleteApiTeacherVideosVideoid({
         path: { videoId },
         client,
       })

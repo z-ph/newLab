@@ -1,4 +1,4 @@
-import { getApiDownloadVideoByKey, getApiDownloadPlayByPlayKey } from "@/core/api/generated";
+import { getApiDownloadVideoKey, getApiDownloadPlayPlaykey } from "@/core/api/generated";
 import { useQuery } from "@tanstack/vue-query";
 import type { Ref } from "vue";
 import client from "@/core/api/config";
@@ -11,7 +11,7 @@ export function useVideoDownload(key: string | Ref<string>) {
   return useQuery({
     queryKey: ["video-download", typeof key === "string" ? key : key.value],
     queryFn: async () => {
-      const response = await getApiDownloadVideoByKey({
+      const response = await getApiDownloadVideoKey({
         path: { key: typeof key === "string" ? key : key.value },
         client,
       });
@@ -29,7 +29,7 @@ export function useVideoPlay(playKey: string | Ref<string>) {
   return useQuery({
     queryKey: ["video-play", typeof playKey === "string" ? playKey : playKey.value],
     queryFn: async () => {
-      const response = await getApiDownloadPlayByPlayKey({
+      const response = await getApiDownloadPlayPlaykey({
         path: { playKey: typeof playKey === "string" ? playKey : playKey.value },
         client,
       });

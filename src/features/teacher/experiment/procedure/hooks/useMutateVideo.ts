@@ -2,7 +2,7 @@ import {
   postApiTeacherProceduresVideo,
   putApiTeacherProceduresVideo,
   postApiTeacherProceduresVideoInsert,
-  deleteApiTeacherProceduresByProcedureId,
+  deleteApiTeacherProceduresProcedureid,
 } from "@/core/api/generated";
 import type { GetFirstParamsType } from "@/core/utils/typeUtils";
 import { useMutation } from "@tanstack/vue-query";
@@ -58,8 +58,8 @@ export function useInsertVideoProcedure() {
  */
 export function useDeleteVideoProcedure() {
   return useMutation({
-    mutationFn: async (params: GetFirstParamsType<typeof deleteApiTeacherProceduresByProcedureId>) => {
-      const response = await deleteApiTeacherProceduresByProcedureId({
+    mutationFn: async (params: GetFirstParamsType<typeof deleteApiTeacherProceduresProcedureid>) => {
+      const response = await deleteApiTeacherProceduresProcedureid({
         ...params,
         client,
       });

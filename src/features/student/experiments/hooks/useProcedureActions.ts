@@ -1,5 +1,5 @@
 import {
-  postApiStudentProcedureSubmissionsVideoByProcedureIdViewed,
+  postApiStudentProcedureSubmissionsVideoProcedureidViewed,
   postApiStudentProcedureSubmissionsTopicComplete,
   postApiStudentProcedureSubmissionsDataCollectionComplete,
 } from "@/core/api/generated";
@@ -17,7 +17,7 @@ export function useMarkVideoViewed() {
       procedureId: number;
       classCode: NonNullable<ClassCode>;
     }) =>
-      postApiStudentProcedureSubmissionsVideoByProcedureIdViewed({
+      postApiStudentProcedureSubmissionsVideoProcedureidViewed({
         path: { procedureId: params.procedureId },
         query: { classCode: params.classCode },
         client,

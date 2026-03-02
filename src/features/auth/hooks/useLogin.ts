@@ -4,7 +4,7 @@ import { useMutation, useQuery } from "@tanstack/vue-query"
 import {
   postApiAuthLogin,
   postApiWechatLogin,
-  getApiAuthCheckUserStatusByUsername,
+  getApiAuthCheckUserStatusUsername,
   getApiWechatBindStatus,
 } from "@/core/api/generated"
 import type { LoginResponse } from "@/core/api/generated"
@@ -147,7 +147,7 @@ export function useUserStatus(username: string) {
   return useQuery({
     queryKey: ["userStatus", username],
     queryFn: async () => {
-      const response = await getApiAuthCheckUserStatusByUsername({
+      const response = await getApiAuthCheckUserStatusUsername({
         client,
         path: {
           username: username,
