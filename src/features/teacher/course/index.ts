@@ -22,3 +22,9 @@ export {
   useDeleteCourse,
   useExportCourseGrades,
 } from './hooks'
+
+// Utils
+export {
+  navigateToCourseDetail,
+  navigateToCourseCreate,
+} from './utils'

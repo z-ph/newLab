@@ -44,27 +44,19 @@ import { useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
 import type { DataTablePageEvent } from 'primevue/datatable'
 import type { CourseResponse } from '@/core/api/generated'
-import { useQueryCoursePage, useDeleteCourse } from '../hooks'
+import { useQueryCoursePage, useDeleteCourse, navigateToCourseDetail, navigateToCourseCreate } from '../index'
 import { formatDateTime } from '@/features/shared/utils/formatters'
 
 const router = useRouter()
 
 // ==================== 创建课程 ====================
 const handleCreate = () => {
-  router.push('/teacher/courses/create')
+  navigateToCourseCreate(router)
 }
 
 // ==================== 查看课程详情 ====================
 const handleViewDetail = (course: CourseResponse) => {
-  if (!course.courseId) return
-  router.push({
-    path: `/teacher/courses/${course.courseId}/detail`,
-    query: {
-      tabbarName: course.courseName || '课程详情',
-      courseName: course.courseName || '',
-      courseId: course.id?.toString(),
-    },
-  })
+  navigateToCourseDetail(router, course)
 }
 
 // ✅ 表格内部调用 hook 获取数据

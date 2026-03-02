@@ -66,8 +66,10 @@ export function useQueryExperimentPage(initial: {
   return {
     current,
     size,
+    courseId,
+    experimentName,
     experiments,
     total,
-    query,
+    ...query,
   };
 }

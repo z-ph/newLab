@@ -55,3 +55,11 @@ export {
   useQueryClassExperimentDetail,
 } from './hooks/useQueryClassExperimentDetail'
 
+// Utils
+export {
+  navigateToClassEdit,
+  navigateToClassCreate,
+  navigateToClassImport,
+  navigateToClassBind,
+} from './utils'
+

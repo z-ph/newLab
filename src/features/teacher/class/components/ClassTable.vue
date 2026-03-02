@@ -43,6 +43,12 @@ import { useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
 import { useQueryClassPage } from '../hooks/useQueryClass'
 import { useDeleteClass } from '../hooks/useMutateClassDelete'
+import {
+  navigateToClassCreate,
+  navigateToClassImport,
+  navigateToClassBind,
+  navigateToClassEdit,
+} from '../utils'
 import type { Class } from '@/core/api/generated'
 import type { DataTablePageEvent } from 'primevue/datatable'
 
@@ -50,25 +56,19 @@ const router = useRouter()
 
 // ==================== 路由跳转 ====================
 const navigateToCreate = () => {
-  router.push('/teacher/classes/create')
+  navigateToClassCreate(router)
 }
 
 const navigateToImport = () => {
-  router.push('/teacher/classes/import')
+  navigateToClassImport(router)
 }
 
 const navigateToBind = () => {
-  router.push('/teacher/classes/bind')
+  navigateToClassBind(router)
 }
 
 const navigateToEdit = (classItem: Class) => {
-  router.push({
-    path: `/teacher/classes/${classItem.classCode}/edit`,
-    query: {
-      tabbarName: classItem.className || '编辑班级',
-      ...(classItem.id ? { id: classItem.id.toString() } : {})
-    }
-  })
+  navigateToClassEdit(router, classItem)
 }
 
 // ✅ 表格内部调用 hook 获取数据

@@ -151,7 +151,7 @@ const ROUTE_META: Partial<Record<TeacherRoutePath, RouteMeta>> = {
         name: 'experiment-list',
         title: '模版列表',
         icon: 'pi pi-list',
-        path: '/teacher/experiments/list',
+        path: '/teacher/experiments/',
       },
       {
         name: 'experiment-create',

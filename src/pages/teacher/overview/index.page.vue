@@ -41,7 +41,8 @@
           <div class="space-y-2">
             <div v-if="isLoading" class="text-sm text-slate-400">加载中...</div>
             <div v-else-if="courses?.records?.length" v-for="course in courses.records" :key="course.id"
-              class="flex items-center justify-between rounded-lg border border-slate-100 p-2 hover:bg-slate-50">
+              class="flex items-center justify-between rounded-lg border border-slate-100 p-2 hover:bg-slate-50 cursor-pointer"
+              @click="handleViewCourse(course)">
               <span class="text-sm text-slate-700">{{ course.courseName }}</span>
               <span class="text-xs text-slate-400">{{ course.teacherUsername }}</span>
             </div>
@@ -74,7 +75,8 @@
           <div class="space-y-2">
             <div v-if="isLoading" class="text-sm text-slate-400">加载中...</div>
             <div v-else-if="experiments?.records?.length" v-for="experiment in experiments.records" :key="experiment.id"
-              class="flex items-center justify-between rounded-lg border border-slate-100 p-2 hover:bg-slate-50">
+              class="flex items-center justify-between rounded-lg border border-slate-100 p-2 hover:bg-slate-50 cursor-pointer"
+              @click="handleViewExperiment(experiment)">
               <span class="text-sm text-slate-700">{{ experiment.experimentName }}</span>
               <span class="text-xs text-slate-400">{{ experiment.courseId }}</span>
             </div>
@@ -107,7 +109,8 @@
           <div class="space-y-2">
             <div v-if="isLoading" class="text-sm text-slate-400">加载中...</div>
             <div v-else-if="classes?.records?.length" v-for="cls in classes.records" :key="cls.classCode"
-              class="flex items-center justify-between rounded-lg border border-slate-100 p-2 hover:bg-slate-50">
+              class="flex items-center justify-between rounded-lg border border-slate-100 p-2 hover:bg-slate-50 cursor-pointer"
+              @click="handleViewClass(cls)">
               <span class="text-sm text-slate-700">{{ cls.className }}</span>
               <span class="text-xs text-slate-400">{{ cls.studentCount }} 人</span>
             </div>
@@ -127,6 +130,10 @@ import { useRouter } from 'vue-router'
 import Button from 'primevue/button'
 import Card from 'primevue/card'
 import { useOverviewStatistics, ClassCourseExperimentsImportDialog, ClassExperimentOverview } from '@/features/teacher/overview'
+import { navigateToCourseDetail } from '@/features/teacher/course'
+import { navigateToExperimentEdit } from '@/features/teacher/experiment'
+import { navigateToClassEdit } from '@/features/teacher/class'
+import type { CourseResponse, ExperimentResponse, Class } from '@/core/api/generated'
 
 const router = useRouter()
 
@@ -144,5 +151,20 @@ function openImportDialog() {
 // 导入成功后刷新统计数据
 function handleImportSuccess() {
   refetchAll()
+}
+
+// 跳转到课程详情
+const handleViewCourse = (course: CourseResponse) => {
+  navigateToCourseDetail(router, course)
+}
+
+// 跳转到实验编辑
+const handleViewExperiment = (experiment: ExperimentResponse) => {
+  navigateToExperimentEdit(router, experiment)
+}
+
+// 跳转到班级编辑
+const handleViewClass = (classItem: Class) => {
+  navigateToClassEdit(router, classItem)
 }
 </script>

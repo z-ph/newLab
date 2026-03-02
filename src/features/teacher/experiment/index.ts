@@ -65,6 +65,12 @@ export {
   useQueryVideosAll,
 } from './procedure/hooks/useQueryVideos'
 
+// Utils
+export {
+  navigateToExperimentEdit,
+  navigateToExperimentCreate,
+} from './utils'
+
 // Types
 export type {
   ProcedureEntity,
