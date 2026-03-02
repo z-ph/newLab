@@ -3,11 +3,11 @@
     <div class="flex items-center gap-4">
       <!-- 汉堡菜单按钮（仅移动端显示） -->
       <Button
+        v-if="isMobile"
         icon="pi pi-bars"
         severity="secondary"
         text
         rounded
-        class="md:hidden"
         @click="emit('toggle-drawer')"
       />
 
@@ -34,6 +34,7 @@ import { useRoute } from 'vue-router'
 import type { RouteNamedMap } from 'vue-router/auto-routes'
 import Button from 'primevue/button'
 import { MENU_ITEMS } from '@/features/teacher/constants'
+import { isMobile } from '@/features/teacher/composables/useBreakpoints'
 import SettingsMenu from './SettingsMenu.vue'
 
 const route = useRoute()
@@ -65,4 +66,5 @@ const pageTitle = computed(() => {
 const emit = defineEmits<{
   'toggle-drawer': []
 }>()
+
 </script>

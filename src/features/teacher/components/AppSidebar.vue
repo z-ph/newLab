@@ -199,10 +199,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
-import { useBreakpoints } from '@vueuse/core'
 import { useRoute, useRouter } from 'vue-router'
 import Button from 'primevue/button'
 import { MENU_ITEMS } from '@/features/teacher/constants'
+import { isMobile } from '@/features/teacher/composables/useBreakpoints'
 import UserInfo from './UserInfo.vue'
 
 // ==================== Emits ====================
@@ -211,14 +211,6 @@ interface Emits {
 }
 
 const emit = defineEmits<Emits>()
-
-// ==================== 断点检测 ====================
-const breakpoints = useBreakpoints({
-  md: 768,
-  lg: 1024,
-})
-
-const isMobile = breakpoints.smaller('md')  // < 768px
 
 // ==================== 桌面端：可调节宽度 ====================
 const MIN_WIDTH = 200
