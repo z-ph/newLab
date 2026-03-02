@@ -8,23 +8,10 @@
         开始时间偏移
       </label>
       <div class="flex gap-2">
-        <InputNumber
-          v-model="offsetValue"
-          :min="minOffsetValue"
-          :max="maxOffsetValue"
-          class="flex-1"
-          placeholder="0 表示上课时立即开始"
-          :show-buttons="true"
-          :min-fraction-digits="0"
-          :max-fraction-digits="0"
-        />
-        <Select
-          v-model="offsetUnit"
-          :options="TIME_UNIT_OPTIONS"
-          option-label="label"
-          option-value="value"
-          class="w-32"
-        />
+        <InputNumber v-model="offsetValue" :min="minOffsetValue" :max="maxOffsetValue" class="flex-1"
+          placeholder="0 表示上课时立即开始" :show-buttons="true" :min-fraction-digits="0" :max-fraction-digits="0" />
+        <Select v-model="offsetUnit" :options="TIME_UNIT_OPTIONS" option-label="label" option-value="value"
+          class="w-32" />
       </div>
       <div class="mt-1 space-y-1">
         <p class="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded">
@@ -42,23 +29,10 @@
         持续时间 <span class="text-red-500">*</span>
       </label>
       <div class="flex gap-2">
-        <InputNumber
-          v-model="durationValue"
-          :min="minDurationValue"
-          :max="maxDurationValue"
-          class="flex-1"
-          placeholder="请输入持续时间"
-          :show-buttons="true"
-          :min-fraction-digits="0"
-          :max-fraction-digits="0"
-        />
-        <Select
-          v-model="durationUnit"
-          :options="TIME_UNIT_OPTIONS"
-          option-label="label"
-          option-value="value"
-          class="w-32"
-        />
+        <InputNumber v-model="durationValue" :min="minDurationValue" :max="maxDurationValue" class="flex-1"
+          placeholder="请输入持续时间" :show-buttons="true" :min-fraction-digits="0" :max-fraction-digits="0" />
+        <Select v-model="durationUnit" :options="TIME_UNIT_OPTIONS" option-label="label" option-value="value"
+          class="w-32" />
       </div>
       <p class="mt-1 text-xs text-slate-500">
         {{ formatDurationDescription(durationMinutes) }}
@@ -117,15 +91,7 @@ const maxDurationValue = computed(() => {
 })
 
 // 偏移量描述（支持负数，表示上课前）
-const offsetDescription = computed(() => {
-  if (offsetMinutes.value === 0) {
-    return '上课时立即开始'
-  } else if (offsetMinutes.value > 0) {
-    return `上课后 ${formatOffsetDescription(offsetMinutes.value)} 开始`
-  } else {
-    return `上课前 ${formatOffsetDescription(-offsetMinutes.value)} 开始`
-  }
-})
+const offsetDescription = computed(() => formatOffsetDescription(offsetMinutes.value))
 
 // 时间窗口描述
 const timeWindowDescription = computed(() => {
