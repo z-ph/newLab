@@ -1,5 +1,5 @@
 import { postApiExcelImportStudentsWithClasses } from "@/core/api/generated"
-import { useMutation } from "@tanstack/vue-query"
+import { useMutation, useQueryClient } from "@tanstack/vue-query"
 import client from "@/core/api/config"
 import { toast } from "@/core/utils/toast"
 
@@ -57,9 +57,11 @@ function parseImportResponse(data: unknown): ImportResult {
 }
 
 /**
- * Excel批量导入学生
+ * Excel 批量导入学生
  */
 export function useImportStudentsByExcel() {
+  const queryClient = useQueryClient()
+
   return useMutation({
     mutationFn: async (file: File) => {
       const response = await postApiExcelImportStudentsWithClasses({
@@ -72,6 +74,11 @@ export function useImportStudentsByExcel() {
     onSuccess: (data) => {
       // 数据校验和解析放在 hook 的 onSuccess 中
       const result = parseImportResponse(data)
+
+      // Invalidate class query cache to refresh the class list
+      queryClient.invalidateQueries({
+        queryKey: ["classes"],
+      })
 
       // 显示成功消息
       if (result.message) {
