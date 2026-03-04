@@ -11,10 +11,6 @@
             <h3 class="font-semibold text-slate-800">{{ experiment.experimentName }}</h3>
             <p class="text-sm text-slate-500">{{ experiment.courseName }}</p>
           </div>
-          <div :class="['flex items-center gap-1 text-sm', getStatus(experiment).color]">
-            <i :class="['pi', getStatus(experiment).icon]" />
-            <span>{{ getStatus(experiment).label }}</span>
-          </div>
         </div>
 
         <!-- 班级信息 -->
@@ -77,32 +73,6 @@ function formatDate(dateTime: string | undefined): string {
   return result || ''
 }
 
-/**
- * 获取实验状态
- */
-function getStatus(exp: ClassExperimentDetailResponse): {
-  label: string
-  color: string
-  icon: string
-} {
-  const now = new Date()
-  const startTime = exp.startTime ? new Date(exp.startTime) : null
-  const endTime = exp.endTime ? new Date(exp.endTime) : null
-
-  if (!startTime) {
-    return { label: '未开始', color: 'text-slate-500', icon: 'pi-clock' }
-  }
-
-  if (now < startTime) {
-    return { label: '未开始', color: 'text-blue-500', icon: 'pi-clock' }
-  }
-
-  if (endTime && now > endTime) {
-    return { label: '已结束', color: 'text-slate-400', icon: 'pi-check-circle' }
-  }
-
-  return { label: '进行中', color: 'text-green-500', icon: 'pi-play-circle' }
-}
 
 /**
  * 获取班级显示名称
