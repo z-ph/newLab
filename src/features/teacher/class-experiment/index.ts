@@ -15,3 +15,6 @@ export { useQueryClassExperiments } from './hooks'
 
 // Types
 export * from './types'
+
+// Utils
+export { navigateToClassExperimentDetail } from './utils'

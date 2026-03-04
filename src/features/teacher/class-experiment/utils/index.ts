@@ -4,3 +4,4 @@
 
 export * from './submission'
 export * from './statistics'
+export * from './router'

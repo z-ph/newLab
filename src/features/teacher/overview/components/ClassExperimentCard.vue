@@ -1,12 +1,8 @@
 <template>
-  <Card
-    :class="[
-      'transition-all duration-200',
-      selectable ? 'cursor-pointer hover:shadow-md' : '',
-      selected ? 'ring-2 ring-primary' : '',
-    ]"
-    @click="handleClick"
-  >
+  <Card :class="[
+    'transition-all duration-200',
+    'cursor-pointer hover:shadow-md',
+  ]" @click="handleClick">
     <template #content>
       <div class="space-y-3">
         <!-- 头部：实验名称 + 状态 -->
@@ -57,29 +53,19 @@
 
 <script setup lang="ts">
 import Card from 'primevue/card'
+import { useRouter } from 'vue-router'
 import type { ClassExperimentDetailResponse } from '@/core/api/generated'
+import { navigateToClassExperimentDetail } from '@/features/teacher/class-experiment'
 
 interface Props {
   experiment: ClassExperimentDetailResponse
-  selectable?: boolean
-  selected?: boolean
 }
 
-interface Emits {
-  (e: 'click', experiment: ClassExperimentDetailResponse): void
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  selectable: false,
-  selected: false,
-})
-
-const emit = defineEmits<Emits>()
+const props = defineProps<Props>()
+const router = useRouter()
 
 function handleClick() {
-  if (props.selectable) {
-    emit('click', props.experiment)
-  }
+  navigateToClassExperimentDetail(router, props.experiment)
 }
 
 /**
